@@ -14,16 +14,17 @@ module proj where
   infixl 5 _,_
 
   infixr 7 _⇒_
-  infixr 9 _`×_
-  infix 8 `¬_
-  infixr 10 _`+_
+  infix 8 _`+_
+  infix 9 _`×_
+  infix 10 `¬_
 
-  infix 25 _●_
-
+  infix 4 _●_
   infix  5 ƛ_
+  infix  5 μθ_
+  infix  5 μγ_
   infixl 7 _·_
   infix  9 `_
-  infix  9 S_
+  infix  9 `S_
   infix  9 θ_
   infix  9 γ_
 
@@ -41,13 +42,13 @@ module proj where
 
   data _∋_ : Context → Type → Set where
 
-    Z : ∀ {Γ A}
+    `Z : ∀ {Γ A}
         ---------
       → Γ , A ∋ A
 
-    S_ : ∀ {Γ A B}
+    `S_ : ∀ {Γ A B}
       → Γ ∋ A
-        ---------e
+        ---------
       → Γ , B ∋ A
 
   data _⟶_∣_ : Context → Context → Type → Set 
@@ -89,7 +90,7 @@ module proj where
         --------------
       → Γ ⟶ Θ ∣ A ⇒ B
 
-    <_> : ∀ {Γ Θ A}
+    μθ_ : ∀ {Γ Θ A}
       → Γ ↦ Θ , A
         ----------
       → Γ ⟶ Θ ∣ A
@@ -129,7 +130,7 @@ module proj where
         ---------------
       → A ⇒ B ∣ Γ ⟶ Θ 
      
-    <_> : ∀ {Γ Θ A}
+    μγ_ : ∀ {Γ Θ A}
       → Γ , A ↦ Θ
         ----------
       → A ∣ Γ ⟶ Θ
@@ -152,8 +153,8 @@ module proj where
 
 
   count : ∀ {Γ} → (n : ℕ) → Γ ∋ lookup Γ n
-  count {Γ , _} zero    = Z
-  count {Γ , _} (suc n) = S (count n)
+  count {Γ , _} zero    = `Z
+  count {Γ , _} (suc n) = `S (count n)
   count {∅}     _       = ⊥-elim impossible
     where postulate impossible : ⊥
 
@@ -162,11 +163,44 @@ module proj where
 
   θ_ : ∀ {Γ Θ} → (n : ℕ) → lookup Θ n ∣ Γ ⟶ Θ
   θ n = ` count n
+  
+  _ᵒᵀ : Type → Type
+  _ᵒᴸ : ∀ {Γ Θ A B} → (Γ ⟶ Θ ∣ A) → (A ᵒᵀ ∣ Γ ⟶ Θ)
+  _ᵒᴿ : ∀ {Γ Θ A B} → (A ∣ Γ ⟶ Θ) → (Γ ⟶ Θ ∣ A ᵒᵀ)
+  _ᵒᶜ : ∀ {Γ Θ} → (Γ ↦ Θ) → (Γ ↦ Θ)
 
-  excludedmid : ∀ {Γ Θ A} → Γ ⟶ Θ ∣ (A `+ (`¬ A))
-  excludedmid = < inr⟨ not[ < inl⟨ γ 0 ⟩ ● (θ 0) > ] ⟩ ● (θ 0) >
+
+  (A `+ B)ᵒᵀ  = (A ᵒᵀ `× B ᵒᵀ)
+  (A `× B)ᵒᵀ  = (A ᵒᵀ `+ B ᵒᵀ)
+  (`¬ A)ᵒᵀ    = (`¬ (A)ᵒᵀ) 
+  (`ℕ)ᵒᵀ      = `ℕ
+  (A ⇒ B)ᵒᵀ   = (A ᵒᵀ ⇒ B ᵒᵀ) -- this is temporary until ive worked out how to handle function types
+
+  (⟨ M , N ⟩) ᵒᴸ = [ M ᵒᴸ , N ᵒᴸ ]
+  (inl⟨ M ⟩) ᵒᴸ  = fst[ M ᵒᴸ ] 
+  (inr⟨ M ⟩) ᵒᴸ  = snd[ M ᵒᴸ ]
+  (not[ K ]) ᵒᴸ  = not⟨ K ᵒᴿ ⟩
+  (μθ( S )) ᵒᴸ   = μγ( S ᵒᶜ )
+
+  ([ K , L ]) ᵒᴿ  = ⟨ K ᵒᴿ , L ᵒᴿ ⟩
+  (fst[ K ]) ᵒᴿ   = inl⟨ K ᵒᴿ ⟩
+  (snd[ K ]) ᵒᴿ   = inr⟨ K ᵒᴿ ⟩
+  (not⟨ M ⟩) ᵒᴿ    = not[ M ᵒᴸ ]
+  (μγ( S )) ᵒᴿ    = μθ( S ᵒᶜ )
+
+  (M ● K) ᵒᶜ = K ᵒᴿ ● M ᵒᴸ
+  
+
+  excludedmid : ∀ {Γ Θ A} → Γ ⟶ Θ ∣ A `+ `¬ A
+  excludedmid = μθ (inr⟨ not[ μγ (inl⟨ γ 0 ⟩ ● θ 0) ] ⟩ ● θ 0)
+
+  
 
 
+
+
+
+  
 
 
   
