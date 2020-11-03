@@ -13,15 +13,17 @@ module proj where
   infix  4 _∋_
   infixl 5 _,_
 
-  infixr 7 _⇒_
+  infixr 7 _⇒ⱽ_
+  infixr 7 _⇒ᴺ_
   infix 8 _`+_
   infix 9 _`×_
   infix 10 `¬_
 
   infix 4 _●_
-  infix  5 ƛ_
-  infix  5 μθ_
-  infix  5 μγ_
+  infix  5 ƛⱽ_
+  infix  5 ƛᴺ_
+  infix  5 μθ
+  infix  5 μγ
   infixl 7 _·_
   infix  9 `_
   infix  9 `S_
@@ -34,7 +36,12 @@ module proj where
     _`×_ : Type → Type → Type
     _`+_ : Type → Type → Type
     `¬_ : Type → Type
-    _⇒_ : Type → Type → Type
+    
+  _⇒ⱽ_ : Type → Type → Type
+  A ⇒ⱽ B = `¬ (A `× `¬ B)
+
+  _⇒ᴺ_ : Type → Type → Type
+  A ⇒ᴺ B = `¬ A `+ B
 
   data Context : Set where
     ∅ : Context
@@ -56,6 +63,16 @@ module proj where
   data _∣_⟶_ : Type → Context → Context → Set
 
   data _↦_ : Context → Context → Set
+
+  ƛⱽ_ : ∀ {Γ Θ A B}
+    → Γ , A ⟶ Θ ∣ B
+      ---------------
+    → Γ ⟶ Θ ∣ A ⇒ⱽ B 
+
+  ƛᴺ_ : ∀ {Γ Θ A B}
+    → Γ , A ⟶ Θ ∣ B
+      ---------------
+    → Γ ⟶ Θ ∣ A ⇒ᴺ B
 
   data _⟶_∣_ where
     
@@ -85,17 +102,17 @@ module proj where
         -------------
       → Γ ⟶ Θ ∣ `¬ A
 
-    ƛ_ : ∀ {Γ Θ A B}
-      → Γ , A ⟶ Θ ∣ B
+    --ƛ_ : ∀ {Γ Θ A B}
+      --→ Γ , A ⟶ Θ ∣ B
         --------------
-      → Γ ⟶ Θ ∣ A ⇒ B
+      --→ Γ ⟶ Θ ∣ A ⇒ B
 
-    μθ_ : ∀ {Γ Θ A}
+    μθ : ∀ {Γ Θ A}
       → Γ ↦ Θ , A
         ----------
       → Γ ⟶ Θ ∣ A
  
-   
+
   data _∣_⟶_ where
     
     `_ : ∀ {Γ Θ A}
@@ -130,7 +147,7 @@ module proj where
         ---------------
       → A ⇒ B ∣ Γ ⟶ Θ 
      
-    μγ_ : ∀ {Γ Θ A}
+    μγ : ∀ {Γ Θ A}
       → Γ , A ↦ Θ
         ----------
       → A ∣ Γ ⟶ Θ
@@ -144,6 +161,11 @@ module proj where
         ----------
       → Γ ↦ Θ
 
+   
+  ƛⱽ N = not[ μγ(γ 0 ● fst[ μγ (γ 1 ● snd[ not⟨ N ⟩ ]) ]) ]
+
+
+  ƛᴺ N = μθ (inl⟨ not[ μγ(inr⟨ N ⟩ ● θ 0) ] ⟩ ● θ 0) 
 
   lookup : Context → ℕ → Type
   lookup (Γ , A) zero    = A
@@ -165,32 +187,35 @@ module proj where
   θ n = ` count n
   
   _ᵒᵀ : Type → Type
-  _ᵒᴸ : ∀ {Γ Θ A B} → (Γ ⟶ Θ ∣ A) → (A ᵒᵀ ∣ Γ ⟶ Θ)
-  _ᵒᴿ : ∀ {Γ Θ A B} → (A ∣ Γ ⟶ Θ) → (Γ ⟶ Θ ∣ A ᵒᵀ)
-  _ᵒᶜ : ∀ {Γ Θ} → (Γ ↦ Θ) → (Γ ↦ Θ)
+  _ᵒˣ : Context → Context
+  ᵒᶜ : ∀ {Γ Θ} → (Γ ↦ Θ) → (Θ ᵒˣ ↦ Γ ᵒˣ)
+  _ᵒᴸ : ∀ {Γ Θ A B} → (Γ ⟶ Θ ∣ A) → (A ᵒᵀ ∣ Θ ᵒˣ ⟶ Γ ᵒˣ)
+  _ᵒᴿ : ∀ {Γ Θ A B} → (A ∣ Γ ⟶ Θ) → (Θ ᵒˣ ⟶ Γ ᵒˣ ∣ A ᵒᵀ)
 
 
   (A `+ B)ᵒᵀ  = (A ᵒᵀ `× B ᵒᵀ)
   (A `× B)ᵒᵀ  = (A ᵒᵀ `+ B ᵒᵀ)
   (`¬ A)ᵒᵀ    = (`¬ (A)ᵒᵀ) 
   (`ℕ)ᵒᵀ      = `ℕ
-  (A ⇒ B)ᵒᵀ   = (A ᵒᵀ ⇒ B ᵒᵀ) -- this is temporary until ive worked out how to handle function types
+  --(A ⇒ B)ᵒᵀ   = (A ᵒᵀ ⇒ B ᵒᵀ) this is temporary until ive worked out how to handle function types
+
+  (∅ ᵒˣ)     = ∅
+  (Γ , A) ᵒˣ = ((Γ ᵒˣ) , (A ᵒᵀ))
+  
+  ᵒᶜ (M ● K) = K ᵒᴿ ● M ᵒᴸ
 
   (⟨ M , N ⟩) ᵒᴸ = [ M ᵒᴸ , N ᵒᴸ ]
   (inl⟨ M ⟩) ᵒᴸ  = fst[ M ᵒᴸ ] 
   (inr⟨ M ⟩) ᵒᴸ  = snd[ M ᵒᴸ ]
   (not[ K ]) ᵒᴸ  = not⟨ K ᵒᴿ ⟩
-  (μθ( S )) ᵒᴸ   = μγ( S ᵒᶜ )
+  (μθ {Γ} {Θ} {A} (S)) ᵒᴸ   = μγ( ᵒᶜ {Γ} {(Θ , A)} S )
 
   ([ K , L ]) ᵒᴿ  = ⟨ K ᵒᴿ , L ᵒᴿ ⟩
   (fst[ K ]) ᵒᴿ   = inl⟨ K ᵒᴿ ⟩
   (snd[ K ]) ᵒᴿ   = inr⟨ K ᵒᴿ ⟩
   (not⟨ M ⟩) ᵒᴿ    = not[ M ᵒᴸ ]
-  (μγ( S )) ᵒᴿ    = μθ( S ᵒᶜ )
-
-  (M ● K) ᵒᶜ = K ᵒᴿ ● M ᵒᴸ
+  (μγ {Γ} {Θ} {A} (S)) ᵒᴿ    = μθ( ᵒᶜ {(Γ , A)} {Θ} (S) )
   
-
   excludedmid : ∀ {Γ Θ A} → Γ ⟶ Θ ∣ A `+ `¬ A
   excludedmid = μθ (inr⟨ not[ μγ (inl⟨ γ 0 ⟩ ● θ 0) ] ⟩ ● θ 0)
 
