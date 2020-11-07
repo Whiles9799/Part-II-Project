@@ -1,12 +1,15 @@
+{-# OPTIONS --rewriting #-}
+
 module proj where
 
   import Relation.Binary.PropositionalEquality as Eq
-  open Eq using (_≡_; refl; cong; sym)
+  open Eq using (_≡_; refl; cong; cong₂; sym)
   open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; step-≡; _∎)
   open import Data.Empty using (⊥; ⊥-elim)
   open import Data.Nat using (ℕ; zero; suc; _<_; _≤?_; z≤n; s≤s)
   open import Relation.Nullary using (¬_)
   open import Relation.Nullary.Decidable using (True; toWitness)
+  open import Agda.Builtin.Equality.Rewrite
 
   infix  4 _⟶_∣_
   infix  4 _↦_ 
@@ -28,7 +31,7 @@ module proj where
   infixl 7 _·ⱽ_
   infixl 7 _·ᴺ_
   infix  9 `_
-  infix  9 `S_
+  infix  9 `S
   infix  9 θ_
   infix  9 γ_
 
@@ -61,7 +64,7 @@ module proj where
         ---------
       → Γ , A ∋ A
 
-    `S_ : ∀ {Γ A B}
+    `S : ∀ {Γ A B}
       → Γ ∋ A
         ---------
       → Γ , B ∋ A
@@ -245,83 +248,42 @@ module proj where
 
 
   type-duality-involution : ∀ {A} → (A ᵒᵀ) ᵒᵀ ≡ A
-  type-duality-involution {`ℕ}  = refl
-  type-duality-involution {`¬ A} =  
-    begin
-      ((`¬ A)ᵒᵀ) ᵒᵀ
-    ≡⟨⟩
-      (`¬ (A)ᵒᵀ) ᵒᵀ
-    ≡⟨⟩
-      (`¬ ((A ᵒᵀ) ᵒᵀ))
-    ≡⟨ cong (`¬_) (type-duality-involution {A}) ⟩
-      `¬ A
-    ∎
-  type-duality-involution {A `+ B} = 
-    begin
-      ((A `+ B) ᵒᵀ ) ᵒᵀ
-    ≡⟨⟩
-      (A ᵒᵀ `× B ᵒᵀ) ᵒᵀ
-    ≡⟨⟩
-      ((A ᵒᵀ) ᵒᵀ `+ (B ᵒᵀ) ᵒᵀ)
-    ≡⟨ cong (_`+ ((B ᵒᵀ) ᵒᵀ)) (type-duality-involution {A}) ⟩
-      (A `+ (B ᵒᵀ) ᵒᵀ)
-    ≡⟨ cong (A `+_ ) (type-duality-involution {B}) ⟩
-      (A `+ B)
-    ∎
-  type-duality-involution {A `× B} =
-    begin
-      ((A `× B) ᵒᵀ ) ᵒᵀ
-    ≡⟨⟩
-      (A ᵒᵀ `+ B ᵒᵀ) ᵒᵀ
-    ≡⟨⟩
-      ((A ᵒᵀ) ᵒᵀ `× (B ᵒᵀ) ᵒᵀ)
-    ≡⟨ cong (_`× ((B ᵒᵀ) ᵒᵀ)) (type-duality-involution {A}) ⟩
-      (A `× (B ᵒᵀ) ᵒᵀ)
-    ≡⟨ cong (A `×_ ) (type-duality-involution {B}) ⟩
-      (A `× B)
-    ∎
+  type-duality-involution {`ℕ}     = refl
+  type-duality-involution {`¬ A}   = cong `¬_ type-duality-involution 
+  type-duality-involution {A `+ B} = cong₂ _`+_ (type-duality-involution {A}) (type-duality-involution {B})
+  type-duality-involution {A `× B} = cong₂ _`×_ (type-duality-involution {A}) (type-duality-involution {B})
 
   context-duality-involution : ∀ {Γ} → (Γ ᵒˣ) ᵒˣ ≡ Γ
-  context-duality-involution {∅} = refl
-  context-duality-involution {(Γ , A)} =
-    begin 
-      ((Γ , A) ᵒˣ) ᵒˣ
-    ≡⟨⟩
-      (Γ ᵒˣ , A ᵒᵀ) ᵒˣ
-    ≡⟨⟩
-      ((Γ ᵒˣ) ᵒˣ , (A ᵒᵀ) ᵒᵀ)
-    ≡⟨ cong ((Γ ᵒˣ) ᵒˣ ,_) (type-duality-involution {A}) ⟩
-      ((Γ ᵒˣ) ᵒˣ , A)
-    ≡⟨ cong (_, A) (context-duality-involution {Γ}) ⟩
-      (Γ , A)
-    ∎
+  context-duality-involution {∅}       = refl
+  context-duality-involution {(Γ , A)} = cong₂ _,_ context-duality-involution type-duality-involution
 
-  variable-duality-involution : ∀ {Γ A} {x : Γ ∋ A} → (x ᵒⱽ) ᵒⱽ ≡ x
-  variable-duality-involution {`Z} = refl
-  variable-duality-involution {`S x} =
-    begin
-      ((`S x) ᵒⱽ) ᵒⱽ
-    ≡⟨⟩
-      (`S (x ᵒⱽ) ) ᵒⱽ
-    ≡⟨⟩
-      `S ((x ᵒⱽ) ᵒⱽ)
-    ≡⟨ cong (`S_) (variable-duality-involution {x}) ⟩
-      (`S x)
-    ∎
-  
+  {-# REWRITE type-duality-involution #-}
+  {-# REWRITE context-duality-involution #-}
+
+  variable-duality-involution : ∀ {Γ A} {x : Γ ∋ A} → ((x ᵒⱽ) ᵒⱽ) ≡ x
+  variable-duality-involution {_} {_} {`Z}   = refl
+  variable-duality-involution {_} {_} {`S x} = cong `S variable-duality-involution
+
+  RL-duality-involution : ∀ {Γ Θ A} {K : A ∣ Γ ⟶ Θ} → (K ᵒᴿ) ᵒᴸ ≡ K
   LR-duality-involution : ∀ {Γ Θ A} {M : Γ ⟶ Θ ∣ A} → (M ᵒᴸ) ᵒᴿ ≡ M 
-  LR-duality-involution {(⟨ M , N ⟩)} = 
-    begin
-      ((⟨ M , N ⟩) ᵒᴸ) ᵒᴿ 
-    ≡⟨⟩
-      ([ M ᵒᴸ , N ᵒᴸ ]) ᵒᴿ
-    ≡⟨⟩
-      ⟨ (M ᵒᴸ) ᵒᴿ , (N ᵒᴸ) ᵒᴿ ⟩
-    ≡⟨ cong ⟨_, (N ᵒᴸ) ᵒᴿ ⟩ (LR-duality-involution {M}) ⟩
-      ⟨ M , (N ᵒᴸ) ᵒᴿ ⟩ 
-    ≡⟨ cong ⟨ M ,_⟩ (LR-duality-involution {N}) ⟩
-      ⟨ M , N ⟩ 
-    ∎
+  CC-duality-involution : ∀ {Γ Θ}   {S : Γ ↦ Θ}     → (S ᵒᶜ) ᵒᶜ ≡ S
+
+  LR-duality-involution {_} {_} {_} {` x}       = cong `_ variable-duality-involution
+  LR-duality-involution {_} {_} {_} {⟨ M , N ⟩}  = cong₂ ⟨_,_⟩ (LR-duality-involution {_}{_}{_}{M}) (LR-duality-involution{_}{_}{_}{N})
+  LR-duality-involution {_} {_} {_} {inl⟨ M ⟩}   = cong inl⟨_⟩ LR-duality-involution
+  LR-duality-involution {_} {_} {_} {inr⟨ M ⟩}   = cong inr⟨_⟩ LR-duality-involution
+  LR-duality-involution {_} {_} {_} {not[ K ]}  = cong not[_] RL-duality-involution
+  LR-duality-involution {_} {_} {_} {μθ S}      = cong μθ CC-duality-involution
+
+  RL-duality-involution {_} {_} {_} {` α}       = cong `_ variable-duality-involution
+  RL-duality-involution {_} {_} {_} {[ K , L ]} = cong₂ [_,_] (RL-duality-involution {_}{_}{_}{K}) (RL-duality-involution {_}{_}{_}{L})
+  RL-duality-involution {_} {_} {_} {fst[ K ]}  = cong fst[_] RL-duality-involution
+  RL-duality-involution {_} {_} {_} {snd[ K ]}  = cong snd[_] RL-duality-involution
+  RL-duality-involution {_} {_} {_} {not⟨ M ⟩}   = cong not⟨_⟩ LR-duality-involution
+  RL-duality-involution {_} {_} {_} {μγ S}      = cong μγ CC-duality-involution
+
+  CC-duality-involution {_} {_} {M ● K}         = cong₂ _●_ (LR-duality-involution {_}{_}{_}{M}) (RL-duality-involution {_}{_}{_}{K})
+  
 
   excludedmid : ∀ {Γ Θ A} → Γ ⟶ Θ ∣ A `+ `¬ A
   excludedmid = μθ (inr⟨ not[ μγ (inl⟨ γ 0 ⟩ ● θ 0) ] ⟩ ● θ 0)
