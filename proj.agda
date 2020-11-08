@@ -222,13 +222,10 @@ module proj where
   (A `× B)ᵒᵀ  = (A ᵒᵀ `+ B ᵒᵀ)
   (`¬ A)ᵒᵀ    = (`¬ (A)ᵒᵀ) 
   (`ℕ)ᵒᵀ      = `ℕ
-  --(A ⇒ B)ᵒᵀ   = (A ᵒᵀ ⇒ B ᵒᵀ) this is temporary until ive worked out how to handle function types
 
   (∅ ᵒˣ)     = ∅
   (Γ , A) ᵒˣ = ((Γ ᵒˣ) , (A ᵒᵀ))
   
-  (M ● K) ᵒᶜ = K ᵒᴿ ● M ᵒᴸ
-
   `Z ᵒⱽ     = `Z
   (`S x) ᵒⱽ = `S (x ᵒⱽ)
   
@@ -245,6 +242,8 @@ module proj where
   (snd[ K ]) ᵒᴿ           = inr⟨ K ᵒᴿ ⟩
   (not⟨ M ⟩) ᵒᴿ            = not[ M ᵒᴸ ]
   (μγ {Γ} {Θ} {A} (S)) ᵒᴿ = μθ( _ᵒᶜ {(Γ , A)} {Θ} (S) )
+
+  (M ● K) ᵒᶜ = K ᵒᴿ ● M ᵒᴸ
 
 
   type-duality-involution : ∀ {A} → (A ᵒᵀ) ᵒᵀ ≡ A
@@ -286,11 +285,25 @@ module proj where
   
 
   excludedmid : ∀ {Γ Θ A} → Γ ⟶ Θ ∣ A `+ `¬ A
-  excludedmid = μθ (inr⟨ not[ μγ (inl⟨ γ 0 ⟩ ● θ 0) ] ⟩ ● θ 0)
+  excludedmid = μθ (inr⟨ not[ μγ (inl⟨ γ 0 ⟩ ● θ 0) ]  ⟩ ● θ 0) 
 
-  
+  dual-derivable-if-left-sequent-derivable : ∀ {Γ Θ A} → (Γ ⟶ Θ ∣ A) → A ᵒᵀ ∣ Θ ᵒˣ ⟶ Γ ᵒˣ
+  dual-derivable-if-left-sequent-derivable M = M ᵒᴸ
 
+  left-sequent-derivable-if-dual-derivable : ∀ {Γ Θ A} → (A ᵒᵀ ∣ Θ ᵒˣ ⟶ Γ ᵒˣ) → Γ ⟶ Θ ∣ A
+  left-sequent-derivable-if-dual-derivable Mᵒᴸ = Mᵒᴸ ᵒᴿ 
 
+  dual-derivable-if-right-sequent-derivable : ∀ {Γ Θ A} → (A ∣ Γ ⟶ Θ) → Θ ᵒˣ ⟶ Γ ᵒˣ ∣ A ᵒᵀ
+  dual-derivable-if-right-sequent-derivable K = K ᵒᴿ
+
+  right-sequent-derivable-if-dual-derivable : ∀ {Γ Θ A} → (Θ ᵒˣ ⟶ Γ ᵒˣ ∣ A ᵒᵀ) → A ∣ Γ ⟶ Θ
+  right-sequent-derivable-if-dual-derivable Kᵒᴿ = Kᵒᴿ ᵒᴸ
+
+  dual-derivable-if-centre-sequent-derivable : ∀ {Γ Θ} → (Γ ↦ Θ) → Θ ᵒˣ ↦ Γ ᵒˣ
+  dual-derivable-if-centre-sequent-derivable S = S ᵒᶜ
+
+  centre-sequent-derivable-if-dual-derivable : ∀ {Γ Θ} → (Θ ᵒˣ ↦ Γ ᵒˣ) → Γ ↦ Θ
+  centre-sequent-derivable-if-dual-derivable Sᵒᶜ = Sᵒᶜ ᵒᶜ
 
 
 
