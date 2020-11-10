@@ -198,7 +198,9 @@ module proj where
   θ_ : ∀ {Γ Θ} → (n : ℕ) → lookup Θ n ∣ Γ ⟶ Θ
   θ n = ` count n
  
-   
+
+  --Lambda Abstraction and Function Application--
+
   ƛⱽ N = not[ μγ(γ 0 ● fst[ μγ (γ 1 ● snd[ not⟨ N ⟩ ]) ]) ]
 
   ƛᴺ N = μθ (inl⟨ not[ μγ(inr⟨ N ⟩ ● θ 0) ] ⟩ ● θ 0) 
@@ -245,65 +247,69 @@ module proj where
 
   (M ● K) ᵒᶜ = K ᵒᴿ ● M ᵒᴸ
 
-
-  type-duality-involution : ∀ {A} → (A ᵒᵀ) ᵒᵀ ≡ A
-  type-duality-involution {`ℕ}     = refl
-  type-duality-involution {`¬ A}   = cong `¬_ type-duality-involution 
-  type-duality-involution {A `+ B} = cong₂ _`+_ (type-duality-involution {A}) (type-duality-involution {B})
-  type-duality-involution {A `× B} = cong₂ _`×_ (type-duality-involution {A}) (type-duality-involution {B})
-
-  context-duality-involution : ∀ {Γ} → (Γ ᵒˣ) ᵒˣ ≡ Γ
-  context-duality-involution {∅}       = refl
-  context-duality-involution {(Γ , A)} = cong₂ _,_ context-duality-involution type-duality-involution
-
-  {-# REWRITE type-duality-involution #-}
-  {-# REWRITE context-duality-involution #-}
-
-  variable-duality-involution : ∀ {Γ A} {x : Γ ∋ A} → ((x ᵒⱽ) ᵒⱽ) ≡ x
-  variable-duality-involution {_} {_} {`Z}   = refl
-  variable-duality-involution {_} {_} {`S x} = cong `S variable-duality-involution
-
-  RL-duality-involution : ∀ {Γ Θ A} {K : A ∣ Γ ⟶ Θ} → (K ᵒᴿ) ᵒᴸ ≡ K
-  LR-duality-involution : ∀ {Γ Θ A} {M : Γ ⟶ Θ ∣ A} → (M ᵒᴸ) ᵒᴿ ≡ M 
-  CC-duality-involution : ∀ {Γ Θ}   {S : Γ ↦ Θ}     → (S ᵒᶜ) ᵒᶜ ≡ S
-
-  LR-duality-involution {_} {_} {_} {` x}       = cong `_ variable-duality-involution
-  LR-duality-involution {_} {_} {_} {⟨ M , N ⟩}  = cong₂ ⟨_,_⟩ (LR-duality-involution {_}{_}{_}{M}) (LR-duality-involution{_}{_}{_}{N})
-  LR-duality-involution {_} {_} {_} {inl⟨ M ⟩}   = cong inl⟨_⟩ LR-duality-involution
-  LR-duality-involution {_} {_} {_} {inr⟨ M ⟩}   = cong inr⟨_⟩ LR-duality-involution
-  LR-duality-involution {_} {_} {_} {not[ K ]}  = cong not[_] RL-duality-involution
-  LR-duality-involution {_} {_} {_} {μθ S}      = cong μθ CC-duality-involution
-
-  RL-duality-involution {_} {_} {_} {` α}       = cong `_ variable-duality-involution
-  RL-duality-involution {_} {_} {_} {[ K , L ]} = cong₂ [_,_] (RL-duality-involution {_}{_}{_}{K}) (RL-duality-involution {_}{_}{_}{L})
-  RL-duality-involution {_} {_} {_} {fst[ K ]}  = cong fst[_] RL-duality-involution
-  RL-duality-involution {_} {_} {_} {snd[ K ]}  = cong snd[_] RL-duality-involution
-  RL-duality-involution {_} {_} {_} {not⟨ M ⟩}   = cong not⟨_⟩ LR-duality-involution
-  RL-duality-involution {_} {_} {_} {μγ S}      = cong μγ CC-duality-involution
-
-  CC-duality-involution {_} {_} {M ● K}         = cong₂ _●_ (LR-duality-involution {_}{_}{_}{M}) (RL-duality-involution {_}{_}{_}{K})
   
+  --Properties of the Dual Translation--
 
-  excludedmid : ∀ {Γ Θ A} → Γ ⟶ Θ ∣ A `+ `¬ A
-  excludedmid = μθ (inr⟨ not[ μγ (inl⟨ γ 0 ⟩ ● θ 0) ]  ⟩ ● θ 0) 
+  --The Dual Translation is an Involution--
+  
+  [Aᵒᵀ]ᵒᵀ≡A : ∀ {A} → (A ᵒᵀ) ᵒᵀ ≡ A
+  [Aᵒᵀ]ᵒᵀ≡A {`ℕ}     = refl
+  [Aᵒᵀ]ᵒᵀ≡A {`¬ A}   = cong `¬_   [Aᵒᵀ]ᵒᵀ≡A 
+  [Aᵒᵀ]ᵒᵀ≡A {A `+ B} = cong₂ _`+_ ([Aᵒᵀ]ᵒᵀ≡A {A}) ([Aᵒᵀ]ᵒᵀ≡A {B})
+  [Aᵒᵀ]ᵒᵀ≡A {A `× B} = cong₂ _`×_ ([Aᵒᵀ]ᵒᵀ≡A {A}) ([Aᵒᵀ]ᵒᵀ≡A {B})
+  
+  [Γᵒˣ]ᵒˣ≡Γ : ∀ {Γ} → (Γ ᵒˣ) ᵒˣ ≡ Γ
+  [Γᵒˣ]ᵒˣ≡Γ {∅}       = refl
+  [Γᵒˣ]ᵒˣ≡Γ {(Γ , A)} = cong₂ _,_ [Γᵒˣ]ᵒˣ≡Γ [Aᵒᵀ]ᵒᵀ≡A
 
-  dual-derivable-if-left-sequent-derivable : ∀ {Γ Θ A} → (Γ ⟶ Θ ∣ A) → A ᵒᵀ ∣ Θ ᵒˣ ⟶ Γ ᵒˣ
-  dual-derivable-if-left-sequent-derivable M = M ᵒᴸ
+  --we use these rewrite rules to handle equality between a term and a dual translated term
+  --as those two terms will be indexed by different contexts and type
+  {-# REWRITE [Aᵒᵀ]ᵒᵀ≡A #-}
+  {-# REWRITE [Γᵒˣ]ᵒˣ≡Γ #-}
+  
+  [xᵒⱽ]ᵒⱽ≡x : ∀ {Γ A} (x : Γ ∋ A) → ((x ᵒⱽ) ᵒⱽ) ≡ x
+  [xᵒⱽ]ᵒⱽ≡x (`Z)   = refl
+  [xᵒⱽ]ᵒⱽ≡x (`S x) = cong `S ([xᵒⱽ]ᵒⱽ≡x x)
+  
+  [Kᵒᴿ]ᵒᴸ≡K : ∀ {Γ Θ A} (K : A ∣ Γ ⟶ Θ) → (K ᵒᴿ) ᵒᴸ ≡ K
+  [Mᵒᴸ]ᵒᴿ≡M : ∀ {Γ Θ A} (M : Γ ⟶ Θ ∣ A) → (M ᵒᴸ) ᵒᴿ ≡ M 
+  [Sᵒᶜ]ᵒᶜ≡S : ∀ {Γ Θ}   (S : Γ ↦ Θ)     → (S ᵒᶜ) ᵒᶜ ≡ S
 
-  left-sequent-derivable-if-dual-derivable : ∀ {Γ Θ A} → (A ᵒᵀ ∣ Θ ᵒˣ ⟶ Γ ᵒˣ) → Γ ⟶ Θ ∣ A
-  left-sequent-derivable-if-dual-derivable Mᵒᴸ = Mᵒᴸ ᵒᴿ 
+  [Mᵒᴸ]ᵒᴿ≡M (` x)       = cong `_     ([xᵒⱽ]ᵒⱽ≡x x)
+  [Mᵒᴸ]ᵒᴿ≡M (⟨ M , N ⟩)  = cong₂ ⟨_,_⟩ ([Mᵒᴸ]ᵒᴿ≡M M) ([Mᵒᴸ]ᵒᴿ≡M N)
+  [Mᵒᴸ]ᵒᴿ≡M (inl⟨ M ⟩)   = cong inl⟨_⟩ ([Mᵒᴸ]ᵒᴿ≡M M)
+  [Mᵒᴸ]ᵒᴿ≡M (inr⟨ M ⟩)   = cong inr⟨_⟩ ([Mᵒᴸ]ᵒᴿ≡M M)
+  [Mᵒᴸ]ᵒᴿ≡M (not[ K ])  = cong not[_] ([Kᵒᴿ]ᵒᴸ≡K K)
+  [Mᵒᴸ]ᵒᴿ≡M (μθ S)      = cong μθ     ([Sᵒᶜ]ᵒᶜ≡S S)
 
-  dual-derivable-if-right-sequent-derivable : ∀ {Γ Θ A} → (A ∣ Γ ⟶ Θ) → Θ ᵒˣ ⟶ Γ ᵒˣ ∣ A ᵒᵀ
-  dual-derivable-if-right-sequent-derivable K = K ᵒᴿ
+  [Kᵒᴿ]ᵒᴸ≡K (` α)       = cong `_     ([xᵒⱽ]ᵒⱽ≡x α)
+  [Kᵒᴿ]ᵒᴸ≡K ([ K , L ]) = cong₂ [_,_] ([Kᵒᴿ]ᵒᴸ≡K K) ([Kᵒᴿ]ᵒᴸ≡K L)
+  [Kᵒᴿ]ᵒᴸ≡K (fst[ K ])  = cong fst[_] ([Kᵒᴿ]ᵒᴸ≡K K)
+  [Kᵒᴿ]ᵒᴸ≡K (snd[ K ])  = cong snd[_] ([Kᵒᴿ]ᵒᴸ≡K K)
+  [Kᵒᴿ]ᵒᴸ≡K (not⟨ M ⟩)   = cong not⟨_⟩ ([Mᵒᴸ]ᵒᴿ≡M M)
+  [Kᵒᴿ]ᵒᴸ≡K (μγ S)      = cong μγ     ([Sᵒᶜ]ᵒᶜ≡S S)
 
-  right-sequent-derivable-if-dual-derivable : ∀ {Γ Θ A} → (Θ ᵒˣ ⟶ Γ ᵒˣ ∣ A ᵒᵀ) → A ∣ Γ ⟶ Θ
-  right-sequent-derivable-if-dual-derivable Kᵒᴿ = Kᵒᴿ ᵒᴸ
+  [Sᵒᶜ]ᵒᶜ≡S (M ● K)     = cong₂ _●_   ([Mᵒᴸ]ᵒᴿ≡M M) ([Kᵒᴿ]ᵒᴸ≡K K)
 
-  dual-derivable-if-centre-sequent-derivable : ∀ {Γ Θ} → (Γ ↦ Θ) → Θ ᵒˣ ↦ Γ ᵒˣ
-  dual-derivable-if-centre-sequent-derivable S = S ᵒᶜ
+  --A Dual Calculus term is derivable iff its dual is derivable--
+  
+  Γ⟶Θ∣A⇒Aᵒ∣Θᵒ⟶Γᵒ : ∀ {Γ Θ A} → (Γ ⟶ Θ ∣ A) → A ᵒᵀ ∣ Θ ᵒˣ ⟶ Γ ᵒˣ
+  Γ⟶Θ∣A⇒Aᵒ∣Θᵒ⟶Γᵒ M = M ᵒᴸ
 
-  centre-sequent-derivable-if-dual-derivable : ∀ {Γ Θ} → (Θ ᵒˣ ↦ Γ ᵒˣ) → Γ ↦ Θ
-  centre-sequent-derivable-if-dual-derivable Sᵒᶜ = Sᵒᶜ ᵒᶜ
+  Γ⟶Θ∣A⇐Aᵒ∣Θᵒ⟶Γᵒ : ∀ {Γ Θ A} → (A ᵒᵀ ∣ Θ ᵒˣ ⟶ Γ ᵒˣ) → Γ ⟶ Θ ∣ A
+  Γ⟶Θ∣A⇐Aᵒ∣Θᵒ⟶Γᵒ Mᵒᴸ = Mᵒᴸ ᵒᴿ 
+  
+  A∣Γ⟶Θ⇒Θᵒ⟶Γᵒ∣Aᵒ : ∀ {Γ Θ A} → (A ∣ Γ ⟶ Θ) → Θ ᵒˣ ⟶ Γ ᵒˣ ∣ A ᵒᵀ
+  A∣Γ⟶Θ⇒Θᵒ⟶Γᵒ∣Aᵒ K = K ᵒᴿ
+
+  A∣Γ⟶Θ⇐Θᵒ⟶Γᵒ∣Aᵒ : ∀ {Γ Θ A} → (Θ ᵒˣ ⟶ Γ ᵒˣ ∣ A ᵒᵀ) → A ∣ Γ ⟶ Θ
+  A∣Γ⟶Θ⇐Θᵒ⟶Γᵒ∣Aᵒ Kᵒᴿ = Kᵒᴿ ᵒᴸ
+  
+  Γ↦Θ⇒Θᵒ↦Γᵒ : ∀ {Γ Θ} → (Γ ↦ Θ) → Θ ᵒˣ ↦ Γ ᵒˣ
+  Γ↦Θ⇒Θᵒ↦Γᵒ S = S ᵒᶜ
+
+  Γ↦Θ⇐Θᵒ↦Γᵒ : ∀ {Γ Θ} → (Θ ᵒˣ ↦ Γ ᵒˣ) → Γ ↦ Θ
+  Γ↦Θ⇐Θᵒ↦Γᵒ Sᵒᶜ = Sᵒᶜ ᵒᶜ
 
 
 
