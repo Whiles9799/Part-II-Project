@@ -7,6 +7,8 @@ module proj where
   open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; step-≡; _∎)
   open import Data.Empty using (⊥; ⊥-elim)
   open import Data.Nat using (ℕ; zero; suc; _<_; _≤?_; z≤n; s≤s)
+  open import Data.Product using (_×_; proj₁; proj₂) renaming (_,_ to ⟨_,_⟩)
+  open import Data.Sum using (_⊎_; inj₁; inj₂) renaming ([_,_] to case-⊎)
   open import Relation.Nullary using (¬_)
   open import Relation.Nullary.Decidable using (True; toWitness)
   open import Agda.Builtin.Equality.Rewrite
@@ -108,7 +110,7 @@ module proj where
         ----------
       → Γ ⟶ Θ ∣ A 
 
-    ⟨_,_⟩ : ∀ {Γ Θ A B}
+    `⟨_,_⟩ : ∀ {Γ Θ A B}
       → Γ ⟶ Θ ∣ A
       → Γ ⟶ Θ ∣ B
         ---------------
@@ -152,7 +154,7 @@ module proj where
         ---------------
       → A `× B ∣ Γ ⟶ Θ
 
-    [_,_] : ∀ {Γ Θ A B}
+    `[_,_] : ∀ {Γ Θ A B}
       → A ∣ Γ ⟶ Θ
       → B ∣ Γ ⟶ Θ
         ---------------
@@ -205,9 +207,67 @@ module proj where
 
   ƛᴺ N = μθ (inl⟨ not[ μγ(inr⟨ N ⟩ ● θ 0) ] ⟩ ● θ 0) 
 
-  M ·ⱽ N = not⟨ ⟨ M , not[ N ] ⟩ ⟩
+  M ·ⱽ N = not⟨ `⟨ M , not[ N ] ⟩ ⟩
 
-  M ·ᴺ N = [ not⟨ M ⟩ , N ]
+  M ·ᴺ N = `[ not⟨ M ⟩ , N ]
+
+  -- data Value : ∀ {Γ Θ A} → Γ ⟶ Θ ∣ A → Set 
+  -- data Covalue : ∀ {Γ Θ A} → A ∣ Γ ⟶ Θ → Set
+
+  -- data Value where
+
+  --   V-var : ∀ {Γ A} {x : Γ ∋ A}
+  --       ---------
+  --     → Value (` x)
+
+  --   V-prod : ∀ {Γ Θ A B} {M : Γ ⟶ Θ ∣ A} {N : Γ ⟶ Θ ∣ B}
+  --     → Value M
+  --     → Value N
+  --       ---------------
+  --     → Value `⟨ M , N ⟩
+
+  --   V-inl : ∀ {Γ Θ A B} {M ∶ Γ ⟶ Θ ∣ A `× B}
+  --     → Value M
+  --       -------------
+  --     → Value inl⟨ M ⟩
+
+  --   V-inr : ∀ {Γ Θ A B} {M ∶ Γ ⟶ Θ ∣ A `× B}
+  --     → Value M
+  --       -------------
+  --     → Value inr⟨ M ⟩
+
+  --   V-not : ∀ {Γ Θ A} {K : A ∣ Γ ⟶ Θ}
+  --       --------------
+  --     → Value not[ K ]
+
+  
+  -- data Covalue where
+    
+  --   CV-covar : ∀ {Θ A} {α : Θ ∋ A}
+  --       -------
+  --     → Covalue(` α)
+
+  --   CV-sum : ∀ {Γ Θ A B} {K : A ∣ Γ ⟶ Θ} {L : B ∣ Γ ⟶ Θ}
+  --     → Covalue K
+  --     → Covalue L
+  --       ------------------
+  --     → Covalue `[ K , L ]
+
+  --   CV-fst : ∀ {Γ Θ A B} {K ∶ A `+ B ∣ Γ ⟶ Θ}
+  --     → Covalue K
+  --       ----------------
+  --     → Covalue fst[ K ]
+
+  --   CV-snd : ∀ {Γ Θ A B} {K ∶ A `+ B ∣ Γ ⟶ Θ}
+  --     → Covalue K
+  --       ----------------
+  --     → Covalue snd[ K ]
+
+  --   CV-not : ∀ {Γ Θ A} {M : Γ ⟶ Θ ∣ A}
+  --       --------------
+  --     → Covalue not⟨ M ⟩
+
+
 
 
   --Dual Translation--
@@ -232,14 +292,14 @@ module proj where
   (`S x) ᵒⱽ = `S (x ᵒⱽ)
   
   (` x)ᵒᴸ                 = `(x ᵒⱽ)
-  (⟨ M , N ⟩) ᵒᴸ           = [ M ᵒᴸ , N ᵒᴸ ]
+  (`⟨ M , N ⟩) ᵒᴸ           = `[ M ᵒᴸ , N ᵒᴸ ]
   (inl⟨ M ⟩) ᵒᴸ            = fst[ M ᵒᴸ ] 
   (inr⟨ M ⟩) ᵒᴸ            = snd[ M ᵒᴸ ]
   (not[ K ]) ᵒᴸ           = not⟨ K ᵒᴿ ⟩
   (μθ {Γ} {Θ} {A} (S)) ᵒᴸ = μγ( _ᵒᶜ {Γ} {(Θ , A)} S )
 
   (` α) ᵒᴿ                = ` (α ᵒⱽ)
-  ([ K , L ]) ᵒᴿ          = ⟨ K ᵒᴿ , L ᵒᴿ ⟩
+  (`[ K , L ]) ᵒᴿ          = `⟨ K ᵒᴿ , L ᵒᴿ ⟩
   (fst[ K ]) ᵒᴿ           = inl⟨ K ᵒᴿ ⟩
   (snd[ K ]) ᵒᴿ           = inr⟨ K ᵒᴿ ⟩
   (not⟨ M ⟩) ᵒᴿ            = not[ M ᵒᴸ ]
@@ -275,19 +335,19 @@ module proj where
   [Mᵒᴸ]ᵒᴿ≡M : ∀ {Γ Θ A} (M : Γ ⟶ Θ ∣ A) → (M ᵒᴸ) ᵒᴿ ≡ M 
   [Sᵒᶜ]ᵒᶜ≡S : ∀ {Γ Θ}   (S : Γ ↦ Θ)     → (S ᵒᶜ) ᵒᶜ ≡ S
 
-  [Mᵒᴸ]ᵒᴿ≡M (` x)       = cong `_     ([xᵒⱽ]ᵒⱽ≡x x)
-  [Mᵒᴸ]ᵒᴿ≡M (⟨ M , N ⟩)  = cong₂ ⟨_,_⟩ ([Mᵒᴸ]ᵒᴿ≡M M) ([Mᵒᴸ]ᵒᴿ≡M N)
-  [Mᵒᴸ]ᵒᴿ≡M (inl⟨ M ⟩)   = cong inl⟨_⟩ ([Mᵒᴸ]ᵒᴿ≡M M)
-  [Mᵒᴸ]ᵒᴿ≡M (inr⟨ M ⟩)   = cong inr⟨_⟩ ([Mᵒᴸ]ᵒᴿ≡M M)
-  [Mᵒᴸ]ᵒᴿ≡M (not[ K ])  = cong not[_] ([Kᵒᴿ]ᵒᴸ≡K K)
-  [Mᵒᴸ]ᵒᴿ≡M (μθ S)      = cong μθ     ([Sᵒᶜ]ᵒᶜ≡S S)
+  [Mᵒᴸ]ᵒᴿ≡M (` x)        = cong `_     ([xᵒⱽ]ᵒⱽ≡x x)
+  [Mᵒᴸ]ᵒᴿ≡M (`⟨ M , N ⟩)  = cong₂ `⟨_,_⟩ ([Mᵒᴸ]ᵒᴿ≡M M) ([Mᵒᴸ]ᵒᴿ≡M N)
+  [Mᵒᴸ]ᵒᴿ≡M (inl⟨ M ⟩)    = cong inl⟨_⟩ ([Mᵒᴸ]ᵒᴿ≡M M)
+  [Mᵒᴸ]ᵒᴿ≡M (inr⟨ M ⟩)    = cong inr⟨_⟩ ([Mᵒᴸ]ᵒᴿ≡M M)
+  [Mᵒᴸ]ᵒᴿ≡M (not[ K ])   = cong not[_] ([Kᵒᴿ]ᵒᴸ≡K K)
+  [Mᵒᴸ]ᵒᴿ≡M (μθ S)       = cong μθ     ([Sᵒᶜ]ᵒᶜ≡S S)
 
-  [Kᵒᴿ]ᵒᴸ≡K (` α)       = cong `_     ([xᵒⱽ]ᵒⱽ≡x α)
-  [Kᵒᴿ]ᵒᴸ≡K ([ K , L ]) = cong₂ [_,_] ([Kᵒᴿ]ᵒᴸ≡K K) ([Kᵒᴿ]ᵒᴸ≡K L)
-  [Kᵒᴿ]ᵒᴸ≡K (fst[ K ])  = cong fst[_] ([Kᵒᴿ]ᵒᴸ≡K K)
-  [Kᵒᴿ]ᵒᴸ≡K (snd[ K ])  = cong snd[_] ([Kᵒᴿ]ᵒᴸ≡K K)
-  [Kᵒᴿ]ᵒᴸ≡K (not⟨ M ⟩)   = cong not⟨_⟩ ([Mᵒᴸ]ᵒᴿ≡M M)
-  [Kᵒᴿ]ᵒᴸ≡K (μγ S)      = cong μγ     ([Sᵒᶜ]ᵒᶜ≡S S)
+  [Kᵒᴿ]ᵒᴸ≡K (` α)        = cong `_     ([xᵒⱽ]ᵒⱽ≡x α)
+  [Kᵒᴿ]ᵒᴸ≡K (`[ K , L ]) = cong₂ `[_,_] ([Kᵒᴿ]ᵒᴸ≡K K) ([Kᵒᴿ]ᵒᴸ≡K L)
+  [Kᵒᴿ]ᵒᴸ≡K (fst[ K ])   = cong fst[_] ([Kᵒᴿ]ᵒᴸ≡K K)
+  [Kᵒᴿ]ᵒᴸ≡K (snd[ K ])   = cong snd[_] ([Kᵒᴿ]ᵒᴸ≡K K)
+  [Kᵒᴿ]ᵒᴸ≡K (not⟨ M ⟩)    = cong not⟨_⟩ ([Mᵒᴸ]ᵒᴿ≡M M)
+  [Kᵒᴿ]ᵒᴸ≡K (μγ S)       = cong μγ     ([Sᵒᶜ]ᵒᶜ≡S S)
 
   [Sᵒᶜ]ᵒᶜ≡S (M ● K)     = cong₂ _●_   ([Mᵒᴸ]ᵒᴿ≡M M) ([Kᵒᴿ]ᵒᴸ≡K K)
 
@@ -311,10 +371,54 @@ module proj where
   Γ↦Θ⇐Θᵒ↦Γᵒ : ∀ {Γ Θ} → (Θ ᵒˣ ↦ Γ ᵒˣ) → Γ ↦ Θ
   Γ↦Θ⇐Θᵒ↦Γᵒ Sᵒᶜ = Sᵒᶜ ᵒᶜ
 
+  _ⱽᵀ : Type → Set
+  `ℕ ⱽᵀ       = ℕ
+  (A `× B) ⱽᵀ = (A ⱽᵀ) × (B ⱽᵀ)
+  (A `+ B) ⱽᵀ = (A ⱽᵀ) ⊎ (B ⱽᵀ)
+  (`¬ A) ⱽᵀ   = (A ⱽᵀ) → ⊥
 
+  -- _ⱽⱽ : ∀ {Γ A} → (Γ ∋ A) → (A ⱽᵀ)
+  -- `Z ⱽⱽ
+
+  _ⱽᴸ : ∀ {Γ Θ A} → (Γ ⟶ Θ ∣ A) → ((`¬ `¬ A) ⱽᵀ)
+  _ⱽᴿ : ∀ {Γ Θ A} → (A ∣ Γ ⟶ Θ) → ((`¬ A) ⱽᵀ)
+  _ⱽᶜ : ∀ {Γ Θ} → (Γ ↦ Θ) → ⊥
+
+  --(` x) ⱽᴸ      = λ k → k (` x)
+  `⟨ M , N ⟩ ⱽᴸ  = λ k → (M ⱽᴸ) (λ x → (N ⱽᴸ) (λ y → k ⟨ x , y ⟩))
+  inl⟨ M ⟩ ⱽᴸ    = λ k → (M ⱽᴸ) (λ x → k (inj₁ x))
+  inr⟨ M ⟩ ⱽᴸ    = λ k → (M ⱽᴸ) (λ x → k (inj₂ x))
+  not[ K ] ⱽᴸ   = λ k → k (λ z → (K ⱽᴿ) z)
+
+  --(` α) ⱽᴿ      = λ z → (` α) z 
+  `[ K , L ] ⱽᴿ = λ{ (inj₁ x) → (K ⱽᴿ) x ; (inj₂ y) → (L ⱽᴿ) y}
+  fst[ K ] ⱽᴿ   = λ{ ⟨ x , _ ⟩ → (K ⱽᴿ) x} 
+  snd[ L ] ⱽᴿ   = λ{ ⟨ _ , y ⟩ → (L ⱽᴿ) y}
+  not⟨ M ⟩ ⱽᴿ    = λ z → (λ k → (M ⱽᴸ) k) z
+
+  (M ● K) ⱽᶜ    = (M ⱽᴸ) (K ⱽᴿ)
+
+
+  _ᴺᵀ : Type → Set
+  `ℕ ᴺᵀ = ℕ
+  (A `× B) ᴺᵀ  = (A ᴺᵀ) ⊎ (B ᴺᵀ)
+  (A `+ B) ᴺᵀ  = (A ᴺᵀ) × (B ᴺᵀ)
+  (`¬ A) ᴺᵀ = (A ᴺᵀ) → ⊥
+
+  _ᴺᴸ : ∀ {Γ Θ A} → (Γ ⟶ Θ ∣ A) → (`¬ A) ᴺᵀ
+  _ᴺᴿ : ∀ {Γ Θ A} → (A ∣ Γ ⟶ Θ) → (`¬ `¬ A) ᴺᵀ
+  _ᴺᶜ : ∀ {Γ Θ}   → (Γ ↦ Θ) → ⊥
 
   
+  `⟨ M , N ⟩ ᴺᴸ = λ{(inj₁ α) → (M ᴺᴸ) α ; (inj₂ β) → (N ᴺᴸ) β}
+  inl⟨ M ⟩ ᴺᴸ   = λ{⟨ α , _ ⟩ → (M ᴺᴸ) α}
+  inr⟨ N ⟩ ᴺᴸ   = λ{⟨ _ , β ⟩ → (N ᴺᴸ) β}
+  not[ K ] ᴺᴸ  = λ k → (λ z → (K ᴺᴿ) z) k
 
+  `[ K , L ] ᴺᴿ = λ z → (K ᴺᴿ)(λ α → (L ᴺᴿ)(λ β → z ⟨ α , β ⟩))
+  fst[ K ] ᴺᴿ   = λ z → (K ᴺᴿ)(λ α → z (inj₁ α))
+  snd[ L ] ᴺᴿ   = λ z → (L ᴺᴿ)(λ β → z (inj₂ β))
+  not⟨ M ⟩ ᴺᴿ    = λ z → z(λ k → (M ᴺᴸ) k)
 
-  
+  (M ● K) ᴺᶜ    = (K ᴺᴿ) (M ᴺᴸ)
 
