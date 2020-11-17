@@ -6,6 +6,7 @@ module proj where
   open Eq using (_≡_; refl; cong; cong₂; sym)
   open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; step-≡; _∎)
   open import Data.Empty using (⊥; ⊥-elim)
+  open import Data.Unit using (⊤)
   open import Data.Nat using (ℕ; zero; suc; _<_; _≤?_; z≤n; s≤s)
   open import Data.Product using (_×_; proj₁; proj₂) renaming (_,_ to ⟨_,_⟩)
   open import Data.Sum using (_⊎_; inj₁; inj₂) renaming ([_,_] to case-⊎)
@@ -59,6 +60,10 @@ module proj where
   data Context : Set where
     ∅ : Context
     _,_ : Context → Type → Context
+
+  ¬ˣ : Context → Context
+  ¬ˣ ∅ = ∅
+  ¬ˣ (Γ , A) = (¬ˣ Γ) , (`¬ A)
 
   data _∋_ : Context → Type → Set where
 
@@ -371,54 +376,88 @@ module proj where
   Γ↦Θ⇐Θᵒ↦Γᵒ : ∀ {Γ Θ} → (Θ ᵒˣ ↦ Γ ᵒˣ) → Γ ↦ Θ
   Γ↦Θ⇐Θᵒ↦Γᵒ Sᵒᶜ = Sᵒᶜ ᵒᶜ
 
+  
+  --Call-by-Value CPS Transformation--
+
   _ⱽᵀ : Type → Set
+  _ⱽˣ : Context → Set
+
   `ℕ ⱽᵀ       = ℕ
   (A `× B) ⱽᵀ = (A ⱽᵀ) × (B ⱽᵀ)
   (A `+ B) ⱽᵀ = (A ⱽᵀ) ⊎ (B ⱽᵀ)
   (`¬ A) ⱽᵀ   = (A ⱽᵀ) → ⊥
 
-  -- _ⱽⱽ : ∀ {Γ A} → (Γ ∋ A) → (A ⱽᵀ)
-  -- `Z ⱽⱽ
+  ∅ ⱽˣ       = ⊤
+  (Γ , A) ⱽˣ = Γ ⱽˣ  × A ⱽᵀ  
 
-  _ⱽᴸ : ∀ {Γ Θ A} → (Γ ⟶ Θ ∣ A) → ((`¬ `¬ A) ⱽᵀ)
-  _ⱽᴿ : ∀ {Γ Θ A} → (A ∣ Γ ⟶ Θ) → ((`¬ A) ⱽᵀ)
-  _ⱽᶜ : ∀ {Γ Θ} → (Γ ↦ Θ) → ⊥
+  _ⱽⱽ : ∀ {Γ A} → (Γ ∋ A) → ((Γ ⱽˣ) → (A ⱽᵀ))
+  _ⱽⱽ `Z     = λ x → proj₂ x 
+  _ⱽⱽ (`S x) = λ c → ((x ⱽⱽ) (proj₁ c))
 
-  --(` x) ⱽᴸ      = λ k → k (` x)
-  `⟨ M , N ⟩ ⱽᴸ  = λ k → (M ⱽᴸ) (λ x → (N ⱽᴸ) (λ y → k ⟨ x , y ⟩))
-  inl⟨ M ⟩ ⱽᴸ    = λ k → (M ⱽᴸ) (λ x → k (inj₁ x))
-  inr⟨ M ⟩ ⱽᴸ    = λ k → (M ⱽᴸ) (λ x → k (inj₂ x))
-  not[ K ] ⱽᴸ   = λ k → k (λ z → (K ⱽᴿ) z)
+  _ⱽᶜⱽ : ∀ {Γ A} → (Γ ∋ A) → (((¬ˣ Γ) ⱽˣ) → ((`¬ A) ⱽᵀ))
+  _ⱽᶜⱽ `Z   = λ x → proj₂ x
+  _ⱽᶜⱽ (`S x) = λ c → ((x ⱽᶜⱽ) (proj₁ c))
 
-  --(` α) ⱽᴿ      = λ z → (` α) z 
-  `[ K , L ] ⱽᴿ = λ{ (inj₁ x) → (K ⱽᴿ) x ; (inj₂ y) → (L ⱽᴿ) y}
-  fst[ K ] ⱽᴿ   = λ{ ⟨ x , _ ⟩ → (K ⱽᴿ) x} 
-  snd[ L ] ⱽᴿ   = λ{ ⟨ _ , y ⟩ → (L ⱽᴿ) y}
-  not⟨ M ⟩ ⱽᴿ    = λ z → (λ k → (M ⱽᴸ) k) z
+  _ⱽᴸ : ∀ {Γ Θ A} → (Γ ⟶ Θ ∣ A) → Γ ⱽˣ → (¬ˣ Θ) ⱽˣ → ((`¬ `¬ A) ⱽᵀ)
+  _ⱽᴿ : ∀ {Γ Θ A} → (A ∣ Γ ⟶ Θ) → Γ ⱽˣ → (¬ˣ Θ) ⱽˣ → ((`¬ A) ⱽᵀ)
+  _ⱽᶜ : ∀ {Γ Θ} → (Γ ↦ Θ) → Γ ⱽˣ → (¬ˣ Θ) ⱽˣ → ⊥
 
-  (M ● K) ⱽᶜ    = (M ⱽᴸ) (K ⱽᴿ)
+  _ⱽᴸ (` x)            = λ c₁ c₂ k → k ((x ⱽⱽ) c₁)
+  `⟨ M , N ⟩ ⱽᴸ         = λ c₁ c₂ k → (M ⱽᴸ) c₁ c₂ (λ x → (N ⱽᴸ) c₁ c₂ (λ y → k ⟨ x , y ⟩))
+  inl⟨ M ⟩ ⱽᴸ           = λ c₁ c₂ k → (M ⱽᴸ) c₁ c₂ (λ x → k (inj₁ x))
+  inr⟨ M ⟩ ⱽᴸ           = λ c₁ c₂ k → (M ⱽᴸ) c₁ c₂ (λ x → k (inj₂ x))
+  not[ K ] ⱽᴸ          = λ c₁ c₂ k → k (λ z → (K ⱽᴿ) c₁ c₂ z)
+  _ⱽᴸ {Γ}{Θ}{A} (μθ S) = λ c₁ c₂ α → (S ⱽᶜ) c₁ ⟨ c₂ , α ⟩
+ 
+  (` α) ⱽᴿ             = λ c₁ c₂ z → (α ⱽᶜⱽ) c₂ z 
+  `[ K , L ] ⱽᴿ        = λ c₁ c₂ → λ{ (inj₁ x) → (K ⱽᴿ) c₁ c₂ x ; (inj₂ y) → (L ⱽᴿ) c₁ c₂ y}
+  fst[ K ] ⱽᴿ          = λ c₁ c₂ → λ{ ⟨ x , _ ⟩ → (K ⱽᴿ) c₁ c₂ x} 
+  snd[ L ] ⱽᴿ          = λ c₁ c₂ → λ{ ⟨ _ , y ⟩ → (L ⱽᴿ) c₁ c₂ y}
+  not⟨ M ⟩ ⱽᴿ           = λ c₁ c₂ z → (λ k → (M ⱽᴸ) c₁ c₂ k) z
+  _ⱽᴿ {Γ}{Θ}{A} (μγ S) = λ c₁ c₂ x →  (S ⱽᶜ) ⟨ c₁ , x ⟩ c₂
 
+  (M ● K) ⱽᶜ           = λ c₁ c₂ → ((M ⱽᴸ) c₁ c₂) ((K ⱽᴿ) c₁ c₂)
+  
+  
+  --Call-by-Name CPS Transformation--
 
   _ᴺᵀ : Type → Set
+  _ᴺˣ : Context → Set
+
   `ℕ ᴺᵀ = ℕ
   (A `× B) ᴺᵀ  = (A ᴺᵀ) ⊎ (B ᴺᵀ)
   (A `+ B) ᴺᵀ  = (A ᴺᵀ) × (B ᴺᵀ)
   (`¬ A) ᴺᵀ = (A ᴺᵀ) → ⊥
 
-  _ᴺᴸ : ∀ {Γ Θ A} → (Γ ⟶ Θ ∣ A) → (`¬ A) ᴺᵀ
-  _ᴺᴿ : ∀ {Γ Θ A} → (A ∣ Γ ⟶ Θ) → (`¬ `¬ A) ᴺᵀ
-  _ᴺᶜ : ∀ {Γ Θ}   → (Γ ↦ Θ) → ⊥
+  ∅ ᴺˣ = ⊤
+  (Γ , A) ᴺˣ =  Γ ᴺˣ × A ᴺᵀ 
 
-  
-  `⟨ M , N ⟩ ᴺᴸ = λ{(inj₁ α) → (M ᴺᴸ) α ; (inj₂ β) → (N ᴺᴸ) β}
-  inl⟨ M ⟩ ᴺᴸ   = λ{⟨ α , _ ⟩ → (M ᴺᴸ) α}
-  inr⟨ N ⟩ ᴺᴸ   = λ{⟨ _ , β ⟩ → (N ᴺᴸ) β}
-  not[ K ] ᴺᴸ  = λ k → (λ z → (K ᴺᴿ) z) k
+  _ᴺⱽ : ∀ {Γ A} → (Γ ∋ A) → (((¬ˣ Γ) ᴺˣ) → (`¬ A) ᴺᵀ)
+  _ᴺⱽ `Z     = λ x → proj₂ x 
+  _ᴺⱽ (`S x) = λ c → ((x ᴺⱽ) (proj₁ c))
 
-  `[ K , L ] ᴺᴿ = λ z → (K ᴺᴿ)(λ α → (L ᴺᴿ)(λ β → z ⟨ α , β ⟩))
-  fst[ K ] ᴺᴿ   = λ z → (K ᴺᴿ)(λ α → z (inj₁ α))
-  snd[ L ] ᴺᴿ   = λ z → (L ᴺᴿ)(λ β → z (inj₂ β))
-  not⟨ M ⟩ ᴺᴿ    = λ z → z(λ k → (M ᴺᴸ) k)
+  _ᴺᶜⱽ : ∀ {Θ A} → (Θ ∋ A) → (Θ ᴺˣ) → (A ᴺᵀ)
+  _ᴺᶜⱽ `Z     = λ x → proj₂ x 
+  _ᴺᶜⱽ (`S x) = λ c → ((x ᴺᶜⱽ) (proj₁ c))
 
-  (M ● K) ᴺᶜ    = (K ᴺᴿ) (M ᴺᴸ)
+
+  _ᴺᴸ : ∀ {Γ Θ A} → (Γ ⟶ Θ ∣ A) → (¬ˣ Γ) ᴺˣ → Θ ᴺˣ → (`¬ A) ᴺᵀ
+  _ᴺᴿ : ∀ {Γ Θ A} → (A ∣ Γ ⟶ Θ) → (¬ˣ Γ) ᴺˣ → Θ ᴺˣ → (`¬ `¬ A) ᴺᵀ
+  _ᴺᶜ : ∀ {Γ Θ}   → (Γ ↦ Θ)     → (¬ˣ Γ) ᴺˣ → Θ ᴺˣ → ⊥
+
+  (` x) ᴺᴸ             = λ c₁ c₂ k → (x ᴺⱽ) c₁ k
+  `⟨ M , N ⟩ ᴺᴸ         = λ c₁ c₂ → λ{(inj₁ α) → (M ᴺᴸ) c₁ c₂ α ; (inj₂ β) → (N ᴺᴸ) c₁ c₂ β}
+  inl⟨ M ⟩ ᴺᴸ           = λ c₁ c₂ → λ{⟨ α , _ ⟩ → (M ᴺᴸ) c₁ c₂ α}
+  inr⟨ N ⟩ ᴺᴸ           = λ c₁ c₂ → λ{⟨ _ , β ⟩ → (N ᴺᴸ) c₁ c₂ β}
+  not[ K ] ᴺᴸ          = λ c₁ c₂ k → (λ z → (K ᴺᴿ) c₁ c₂ z) k
+  _ᴺᴸ {Γ}{Θ}{A} (μθ S) = λ c₁ c₂ α → (S ᴺᶜ) c₁ ⟨ c₂ , α ⟩
+
+  (` α) ᴺᴿ             = λ c₁ c₂ z → z ((α ᴺᶜⱽ) c₂)
+  `[ K , L ] ᴺᴿ        = λ c₁ c₂ z → (K ᴺᴿ) c₁ c₂ (λ α → (L ᴺᴿ) c₁ c₂ (λ β → z ⟨ α , β ⟩))
+  fst[ K ] ᴺᴿ          = λ c₁ c₂ z → (K ᴺᴿ) c₁ c₂ (λ α → z (inj₁ α))
+  snd[ L ] ᴺᴿ          = λ c₁ c₂ z → (L ᴺᴿ) c₁ c₂ (λ β → z (inj₂ β))
+  not⟨ M ⟩ ᴺᴿ           = λ c₁ c₂ z → z(λ k → (M ᴺᴸ) c₁ c₂ k)
+  _ᴺᴿ {Γ}{Θ}{A} (μγ S) = λ c₁ c₂ x →  (S ᴺᶜ) ⟨ c₁ , x ⟩ c₂
+
+  (M ● K) ᴺᶜ           = λ c₁ c₂ → ((K ᴺᴿ) c₁ c₂) ((M ᴺᴸ) c₁ c₂)
 
