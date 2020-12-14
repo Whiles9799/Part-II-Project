@@ -403,7 +403,7 @@ _ⱽⱽ `Z     = λ x → proj₂ x
 _ⱽⱽ (`S x) = λ c → ((x ⱽⱽ) (proj₁ c))
 
 Γ∋A⇒¬Γ∋¬A : ∀ {Γ A} → (Γ ∋ A) → (`¬ˣ Γ) ∋ (`¬ A)
-Γ∋A⇒¬Γ∋¬A `Z = `Z
+Γ∋A⇒¬Γ∋¬A `Z     = `Z
 Γ∋A⇒¬Γ∋¬A (`S x) = `S (Γ∋A⇒¬Γ∋¬A x)
 
 
@@ -411,7 +411,7 @@ _ⱽⱽ (`S x) = λ c → ((x ⱽⱽ) (proj₁ c))
 
 _ⱽᴸ : ∀ {Γ Θ A} → (Γ ⟶ Θ ∣ A) → (Γ ⱽˣ × (`¬ˣ Θ) ⱽˣ) → ((`¬ `¬ A) ⱽᵀ)
 _ⱽᴿ : ∀ {Γ Θ A} → (A ∣ Γ ⟶ Θ) → (Γ ⱽˣ × (`¬ˣ Θ) ⱽˣ) → ((`¬ A) ⱽᵀ)
-_ⱽᶜ : ∀ {Γ Θ} → (Γ ↦ Θ) → Γ ⱽˣ × (`¬ˣ Θ) ⱽˣ → ⊥
+_ⱽᶜ : ∀ {Γ Θ}   → (Γ ↦ Θ)     → (Γ ⱽˣ × (`¬ˣ Θ) ⱽˣ) → ⊥
 
 _ⱽᴸ (` x)            = λ c k → k ((x ⱽⱽ) (proj₁ c))
 `⟨ M , N ⟩ ⱽᴸ         = λ c k → (M ⱽᴸ) c (λ x → (N ⱽᴸ) c (λ y → k ⟨ x , y ⟩))
@@ -437,12 +437,12 @@ _ⱽᴿ {Γ}{Θ}{A} (μγ S) = λ c x →  (S ⱽᶜ) ⟨ ⟨ proj₁ c , x ⟩ 
 _ᴺᵀ : Type → Set
 _ᴺˣ : Context → Set
 
-`ℕ ᴺᵀ = ℕ
+`ℕ ᴺᵀ        = ℕ
 (A `× B) ᴺᵀ  = (A ᴺᵀ) ⊎ (B ᴺᵀ)
 (A `+ B) ᴺᵀ  = (A ᴺᵀ) × (B ᴺᵀ)
-(`¬ A) ᴺᵀ = (A ᴺᵀ) → ⊥
+(`¬ A) ᴺᵀ    = (A ᴺᵀ) → ⊥
 
-∅ ᴺˣ = ⊤
+∅ ᴺˣ       = ⊤
 (Γ , A) ᴺˣ =  Γ ᴺˣ × A ᴺᵀ 
 
 
@@ -487,7 +487,7 @@ Aⱽ≡Aᵒᴺ {`¬ A}   = cong ¬_ Aⱽ≡Aᵒᴺ
 {-# REWRITE Γⱽ≡Γᵒᴺ #-}
 
 [¬Γ]ᵒ≡¬[Γᵒ] : ∀ {Γ} → (`¬ˣ Γ) ᵒˣ ≡ `¬ˣ (Γ ᵒˣ)
-[¬Γ]ᵒ≡¬[Γᵒ] {∅} = refl
+[¬Γ]ᵒ≡¬[Γᵒ] {∅}       = refl
 [¬Γ]ᵒ≡¬[Γᵒ] {(Γ , A)} = cong₂ _,_ ([¬Γ]ᵒ≡¬[Γᵒ] {Γ}) refl
 
 {-# REWRITE [¬Γ]ᵒ≡¬[Γᵒ] #-}
@@ -499,40 +499,70 @@ postulate
       -> (∀ x y → f x y ≡ g x y)
       -> (λ x y → f x y) ≡ (λ x y → g x y)
 
-[Γ∋A⇒¬Γ∋¬Aα]ᵒ≡Γ∋A⇒¬Γ∋¬A[xᵒ] : ∀ {Γ A} (x : Γ ∋ A) → Γ∋A⇒¬Γ∋¬A x ᵒⱽ ≡ Γ∋A⇒¬Γ∋¬A (x ᵒⱽ)
-[Γ∋A⇒¬Γ∋¬Aα]ᵒ≡Γ∋A⇒¬Γ∋¬A[xᵒ] `Z = refl
-[Γ∋A⇒¬Γ∋¬Aα]ᵒ≡Γ∋A⇒¬Γ∋¬A[xᵒ] (`S x) = cong `S ([Γ∋A⇒¬Γ∋¬Aα]ᵒ≡Γ∋A⇒¬Γ∋¬A[xᵒ] x)
+[Γ∋A⇒¬Γ∋¬Ax]ᵒ≡Γ∋A⇒¬Γ∋¬A[xᵒ] : ∀ {Γ A} (x : Γ ∋ A) → Γ∋A⇒¬Γ∋¬A x ᵒⱽ ≡ Γ∋A⇒¬Γ∋¬A (x ᵒⱽ)
+[Γ∋A⇒¬Γ∋¬Ax]ᵒ≡Γ∋A⇒¬Γ∋¬A[xᵒ] `Z     = refl
+[Γ∋A⇒¬Γ∋¬Ax]ᵒ≡Γ∋A⇒¬Γ∋¬A[xᵒ] (`S x) = cong `S ([Γ∋A⇒¬Γ∋¬Ax]ᵒ≡Γ∋A⇒¬Γ∋¬A[xᵒ] x)
 
-{-# REWRITE [Γ∋A⇒¬Γ∋¬Aα]ᵒ≡Γ∋A⇒¬Γ∋¬A[xᵒ] #-}
+{-# REWRITE [Γ∋A⇒¬Γ∋¬Ax]ᵒ≡Γ∋A⇒¬Γ∋¬A[xᵒ] #-}
 
 xⱽ≡xᵒᴺ : ∀ {Γ A} (x : Γ ∋ A) → x ⱽⱽ ≡ ((x ᵒⱽ) ᴺⱽ)
-Mⱽ≡Mᵒᴺ : ∀ {Γ Θ A} (M : Γ ⟶ Θ ∣ A) → M ⱽᴸ ≡ (M ᵒᴸ) ᴺᴿ 
-Kⱽ≡Kᵒᴺ : ∀ {Γ Θ A} (K : A ∣ Γ ⟶ Θ) → K ⱽᴿ ≡ ((K ᵒᴿ) ᴺᴸ)
-Sⱽ≡Sᵒᴺ : ∀ {Γ Θ}   (S : Γ ↦ Θ)     → S ⱽᶜ ≡ (S ᵒᶜ) ᴺᶜ
+-- Mⱽ≡Mᵒᴺ : ∀ {Γ Θ A} (M : Γ ⟶ Θ ∣ A) → M ⱽᴸ ≡ (M ᵒᴸ) ᴺᴿ 
+-- Kⱽ≡Kᵒᴺ : ∀ {Γ Θ A} (K : A ∣ Γ ⟶ Θ) → K ⱽᴿ ≡ ((K ᵒᴿ) ᴺᴸ)
+-- Sⱽ≡Sᵒᴺ : ∀ {Γ Θ}   (S : Γ ↦ Θ)     → S ⱽᶜ ≡ (S ᵒᶜ) ᴺᶜ
 
 xⱽ≡xᵒᴺ `Z         = refl
 xⱽ≡xᵒᴺ (`S x)     = ext (λ c → cong (λ - → - (proj₁ c)) (xⱽ≡xᵒᴺ x))
 
-Mⱽ≡Mᵒᴺ (` x)      = ext₂ (λ c k → cong (λ - → k(- (proj₁ c))) (xⱽ≡xᵒᴺ x)) 
-Mⱽ≡Mᵒᴺ `⟨ M , N ⟩  = ext₂ (λ c k → cong₂ (λ x₁ x₂ → x₁ c (λ x → x₂ c (λ y → k ⟨ x , y ⟩))) (Mⱽ≡Mᵒᴺ M) (Mⱽ≡Mᵒᴺ N)) 
-Mⱽ≡Mᵒᴺ inl⟨ M ⟩    = ext₂ (λ c k → cong ((λ - → -  c (λ x → k (inj₁ x)))) (Mⱽ≡Mᵒᴺ M))
-Mⱽ≡Mᵒᴺ inr⟨ M ⟩    = ext₂ (λ c k → cong ((λ - → -  c (λ x → k (inj₂ x)))) (Mⱽ≡Mᵒᴺ M))
-Mⱽ≡Mᵒᴺ not[ K ]   = ext₂ (λ c z → cong (λ - → z (- c)) (Kⱽ≡Kᵒᴺ K))
-Mⱽ≡Mᵒᴺ (μθ S)     = ext₂ (λ c α → cong (λ - → -  ⟨ proj₁ c , ⟨ proj₂ c , α ⟩ ⟩) (Sⱽ≡Sᵒᴺ S))
+-- Mⱽ≡Mᵒᴺ (` x)      = ext₂ (λ c k → cong (λ - → k(- (proj₁ c))) (xⱽ≡xᵒᴺ x)) 
+-- Mⱽ≡Mᵒᴺ `⟨ M , N ⟩  = ext₂ (λ c k → cong₂ (λ x₁ x₂ → x₁ c (λ x → x₂ c (λ y → k ⟨ x , y ⟩))) (Mⱽ≡Mᵒᴺ M) (Mⱽ≡Mᵒᴺ N)) 
+-- Mⱽ≡Mᵒᴺ inl⟨ M ⟩    = ext₂ (λ c k → cong ((λ - → -  c (λ x → k (inj₁ x)))) (Mⱽ≡Mᵒᴺ M))
+-- Mⱽ≡Mᵒᴺ inr⟨ M ⟩    = ext₂ (λ c k → cong ((λ - → -  c (λ x → k (inj₂ x)))) (Mⱽ≡Mᵒᴺ M))
+-- Mⱽ≡Mᵒᴺ not[ K ]   = ext₂ (λ c z → cong (λ - → z (- c)) (Kⱽ≡Kᵒᴺ K))
+-- Mⱽ≡Mᵒᴺ (μθ S)     = ext₂ (λ c α → cong (λ - → -  ⟨ proj₁ c , ⟨ proj₂ c , α ⟩ ⟩) (Sⱽ≡Sᵒᴺ S))
 
-Kⱽ≡Kᵒᴺ (` α)      = ext₂ (λ c z → cong (λ - → - (proj₂ c) z)  (xⱽ≡xᵒᴺ(Γ∋A⇒¬Γ∋¬A α))) --(Γ∋A⇒¬Γ∋¬A α ⱽⱽ) (proj₂ c) z ≡ (Γ∋A⇒¬Γ∋¬A (α ᵒⱽ) ᴺⱽ) (proj₂ c) z
-Kⱽ≡Kᵒᴺ `[ K , L ] = ext₂ (λ c z → cong₂ (λ x₁ x₂ → (λ { (inj₁ x) → x₁ c x ; (inj₂ y) → x₂ c y }) z) (Kⱽ≡Kᵒᴺ K) (Kⱽ≡Kᵒᴺ L)) -- (λ { (inj₁ x) → (K ⱽᴿ) c x ; (inj₂ y) → (L ⱽᴿ) c y }) z ≡ (λ { (inj₁ α) → ((K ᵒᴿ) ᴺᴸ) c α ; (inj₂ β) → ((L ᵒᴿ) ᴺᴸ) c β }) z
-Kⱽ≡Kᵒᴺ fst[ K ]   = ext₂ (λ c z → cong (λ - → (λ { ⟨ x , _ ⟩ → - c x }) z) (Kⱽ≡Kᵒᴺ K)) -- (λ { ⟨ x , _ ⟩ → (K ⱽᴿ) c x }) z ≡ (λ { ⟨ α , _ ⟩ → ((K ᵒᴿ) ᴺᴸ) c α }) z
-Kⱽ≡Kᵒᴺ snd[ K ]   = ext₂ (λ c z → cong (λ - → (λ { ⟨ _ , y ⟩ → - c y }) z) (Kⱽ≡Kᵒᴺ K))
-Kⱽ≡Kᵒᴺ not⟨ M ⟩    = ext₂ (λ c k → cong (λ - → - c k) (Mⱽ≡Mᵒᴺ M))
-Kⱽ≡Kᵒᴺ (μγ S)     = ext₂ (λ c x → cong (λ - → - ⟨ ⟨ proj₁ c , x ⟩ , proj₂ c ⟩) (Sⱽ≡Sᵒᴺ S))
+-- Kⱽ≡Kᵒᴺ (` α)      = ext₂ (λ c z → cong (λ - → - (proj₂ c) z)  (xⱽ≡xᵒᴺ(Γ∋A⇒¬Γ∋¬A α))) --(Γ∋A⇒¬Γ∋¬A α ⱽⱽ) (proj₂ c) z ≡ (Γ∋A⇒¬Γ∋¬A (α ᵒⱽ) ᴺⱽ) (proj₂ c) z
+-- Kⱽ≡Kᵒᴺ `[ K , L ] = ext₂ (λ c z → cong₂ (λ x₁ x₂ → (λ { (inj₁ x) → x₁ c x ; (inj₂ y) → x₂ c y }) z) (Kⱽ≡Kᵒᴺ K) (Kⱽ≡Kᵒᴺ L)) -- (λ { (inj₁ x) → (K ⱽᴿ) c x ; (inj₂ y) → (L ⱽᴿ) c y }) z ≡ (λ { (inj₁ α) → ((K ᵒᴿ) ᴺᴸ) c α ; (inj₂ β) → ((L ᵒᴿ) ᴺᴸ) c β }) z
+-- Kⱽ≡Kᵒᴺ `[ K , L ] = ext₂ (λ c z → {!   !})
+-- Kⱽ≡Kᵒᴺ fst[ K ]   = ext₂ (λ c z → cong (λ - → (λ { ⟨ x , _ ⟩ → - c x }) z) (Kⱽ≡Kᵒᴺ K)) -- (λ { ⟨ x , _ ⟩ → (K ⱽᴿ) c x }) z ≡ (λ { ⟨ α , _ ⟩ → ((K ᵒᴿ) ᴺᴸ) c α }) z
+-- Kⱽ≡Kᵒᴺ snd[ K ]   = ext₂ (λ c z → cong (λ - → (λ { ⟨ _ , y ⟩ → - c y }) z) (Kⱽ≡Kᵒᴺ K))
+-- Kⱽ≡Kᵒᴺ not⟨ M ⟩    = ext₂ (λ c k → cong (λ - → - c k) (Mⱽ≡Mᵒᴺ M))
+-- Kⱽ≡Kᵒᴺ (μγ S)     = ext₂ (λ c x → cong (λ - → - ⟨ ⟨ proj₁ c , x ⟩ , proj₂ c ⟩) (Sⱽ≡Sᵒᴺ S))
 
-Sⱽ≡Sᵒᴺ (M ● K)    = ext (λ c → cong₂ (λ x₁ x₂ → x₁ c (x₂ c)) (Mⱽ≡Mᵒᴺ M) (Kⱽ≡Kᵒᴺ K)) 
+-- Sⱽ≡Sᵒᴺ (M ● K)    = ext (λ c → cong₂ (λ x₁ x₂ → x₁ c (x₂ c)) (Mⱽ≡Mᵒᴺ M) (Kⱽ≡Kᵒᴺ K)) 
 
--- Mⱽ≡Mᵒᴺ : ∀ {Γ Θ A} (M : Γ ⟶ Θ ∣ A) (c : Γ ⱽˣ × (`¬ˣ Θ) ⱽˣ) (k : ((`¬ A) ⱽᵀ)) → (M ⱽᴸ) c k ≡ ((M ᵒᴸ) ᴺᴿ) c k
--- Mⱽ≡Mᵒᴺ (` x) ⟨ c , _ ⟩ k = cong  (λ - → k(-  c)) (xⱽ≡xᵒᴺ x)
--- Mⱽ≡Mᵒᴺ `⟨ M , M₁ ⟩ c k = {!   !}
--- Mⱽ≡Mᵒᴺ inl⟨ M ⟩ c k = cong (λ - → -  c (λ x → k (inj₁ x))) (Mⱽ≡Mᵒᴺ M c k) -- (M ⱽᴸ) c (λ x → k (inj₁ x)) ≡ ((M ᵒᴸ) ᴺᴿ) c (λ α → k (inj₁ α))
--- Mⱽ≡Mᵒᴺ inr⟨ M ⟩ c k = {!   !}
--- Mⱽ≡Mᵒᴺ not[ x ] c k = {!   !}
--- Mⱽ≡Mᵒᴺ (μθ x) c k = {!   !} 
+Mⱽ≡Mᵒᴺ : ∀ {Γ Θ A} (M : Γ ⟶ Θ ∣ A) (c : Γ ⱽˣ × (`¬ˣ Θ) ⱽˣ) (k : ((`¬ A) ⱽᵀ)) → (M ⱽᴸ) c k ≡ ((M ᵒᴸ) ᴺᴿ) c k
+Kⱽ≡Kᵒᴺ : ∀ {Γ Θ A} (K : A ∣ Γ ⟶ Θ) (c : Γ ⱽˣ × (`¬ˣ Θ) ⱽˣ) (k : (A) ⱽᵀ)      → (K ⱽᴿ) c k ≡ ((K ᵒᴿ) ᴺᴸ) c k
+Sⱽ≡Sᵒᴺ : ∀ {Γ Θ}   (S : Γ ↦ Θ)     (c : Γ ⱽˣ × (`¬ˣ Θ) ⱽˣ)                   → (S ⱽᶜ) c   ≡ ((S ᵒᶜ) ᴺᶜ) c
+
+Mⱽ≡Mᵒᴺ (` x) ⟨ c , _ ⟩ k       = cong  (λ - → k(-  c)) (xⱽ≡xᵒᴺ x)
+Mⱽ≡Mᵒᴺ `⟨ M , N ⟩ c k          = --Eq.trans (Mⱽ≡Mᵒᴺ M c λ x → (N ⱽᴸ) c ((λ y → k ⟨ x , y ⟩))) {!   !} -- (M ⱽᴸ) c (λ x → (N ⱽᴸ) c (λ y → k ⟨ x , y ⟩)) ≡((M ᵒᴸ) ᴺᴿ) c (λ α → ((N ᵒᴸ) ᴺᴿ) c (λ β → k ⟨ α , β ⟩))
+  begin
+    ((`⟨ M , N ⟩ ⱽᴸ) c k)
+  ≡⟨⟩
+    ((M ⱽᴸ) c (λ x → (N ⱽᴸ) c (λ y → k ⟨ x , y ⟩)))
+  ≡⟨ Mⱽ≡Mᵒᴺ M c (λ x → (N ⱽᴸ) c ((λ y → k ⟨ x , y ⟩))) ⟩ 
+    ((M ᵒᴸ) ᴺᴿ) c (λ x → (N ⱽᴸ) c (λ y → k ⟨ x , y ⟩))  
+  ≡⟨ cong (λ - → ((M ᵒᴸ) ᴺᴿ) c - ) (ext (λ x → Mⱽ≡Mᵒᴺ N c (λ y → k ⟨ x , y ⟩))) ⟩ --((M ᵒᴸ) ᴺᴿ) c (λ x → (N ⱽᴸ) c (λ y → k ⟨ x , y ⟩)) ≡ ((M ᵒᴸ) ᴺᴿ) c (λ x → ((N ᵒᴸ) ᴺᴿ) c (λ y → k ⟨ x , y ⟩))
+    (((M ᵒᴸ) ᴺᴿ) c (λ x → ((N ᵒᴸ) ᴺᴿ) c (λ y → k ⟨ x , y ⟩)))
+  ∎ 
+Mⱽ≡Mᵒᴺ inl⟨ M ⟩ c k            = Mⱽ≡Mᵒᴺ M c λ x → k (inj₁ x ) 
+Mⱽ≡Mᵒᴺ inr⟨ M ⟩ c k            = Mⱽ≡Mᵒᴺ M c λ x → k (inj₂ x )
+Mⱽ≡Mᵒᴺ not[ K ] c k           = cong k (ext (λ x → Kⱽ≡Kᵒᴺ K c x))
+Mⱽ≡Mᵒᴺ (μθ α) c k             = Sⱽ≡Sᵒᴺ α ⟨ proj₁ c , ⟨ proj₂ c , k ⟩ ⟩ 
+
+Kⱽ≡Kᵒᴺ (` α) c k             = cong (λ x → x (proj₂ c) k) (xⱽ≡xᵒᴺ (Γ∋A⇒¬Γ∋¬A α)) 
+Kⱽ≡Kᵒᴺ fst[ K ] c ⟨ k , _ ⟩   = Kⱽ≡Kᵒᴺ K c k
+Kⱽ≡Kᵒᴺ snd[ K ] c ⟨ _ , k ⟩   = Kⱽ≡Kᵒᴺ K c k
+Kⱽ≡Kᵒᴺ `[ K , L ] c (inj₁ k) = Kⱽ≡Kᵒᴺ K c k
+Kⱽ≡Kᵒᴺ `[ K , L ] c (inj₂ k) = Kⱽ≡Kᵒᴺ L c k
+Kⱽ≡Kᵒᴺ not⟨ M ⟩ c k           = Mⱽ≡Mᵒᴺ M c k
+Kⱽ≡Kᵒᴺ (μγ x) c k            = Sⱽ≡Sᵒᴺ x ⟨ ⟨ proj₁ c , k ⟩ , proj₂ c ⟩
+
+Sⱽ≡Sᵒᴺ (M ● K) c             = 
+ begin
+   (M ⱽᴸ) c ((K ⱽᴿ) c)
+  ≡⟨ Mⱽ≡Mᵒᴺ M c ((K ⱽᴿ) c) ⟩
+    ((M ᵒᴸ) ᴺᴿ) c ((K ⱽᴿ) c)
+  ≡⟨ cong (λ - → ((M ᵒᴸ) ᴺᴿ) c -) (ext (λ x → Kⱽ≡Kᵒᴺ K c x)) ⟩ --((M ᵒᴸ) ᴺᴿ) c ((K ⱽᴿ) c) ≡ ((M ᵒᴸ) ᴺᴿ) c (((K ᵒᴿ) ᴺᴸ) c)
+    ((M ᵒᴸ) ᴺᴿ) c (((K ᵒᴿ) ᴺᴸ) c)
+  ∎
