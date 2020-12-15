@@ -6,7 +6,7 @@ import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl; cong; cong₂; sym; trans)
 open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; step-≡; _∎)
 open import Data.Empty using (⊥; ⊥-elim)
-open import Data.Unit using (⊤)
+open import Data.Unit using (⊤; tt)
 open import Data.Nat using (ℕ; zero; suc; _<_; _≤?_; z≤n; s≤s)
 open import Data.Product using (_×_; proj₁; proj₂) renaming (_,_ to ⟨_,_⟩)
 open import Data.Sum using (_⊎_; inj₁; inj₂) renaming ([_,_] to case-⊎)
@@ -27,6 +27,7 @@ infixr 7 _⇒ᴺ_
 infix 8 _`+_
 infix 9 _`×_
 infix 10 `¬_
+infix 10 `¬ˣ
 
 infix 4 _●_
 infix  5 ƛⱽ_
@@ -553,3 +554,13 @@ Sⱽ≡Sᵒᴺ (M ● K) c             = trans (Mⱽ≡Mᵒᴺ M c ((K ⱽᴿ) c
 --   ≡⟨ cong (λ - → ((M ᵒᴸ) ᴺᴿ) c -) (ext (λ x → Kⱽ≡Kᵒᴺ K c x)) ⟩ --((M ᵒᴸ) ᴺᴿ) c ((K ⱽᴿ) c) ≡ ((M ᵒᴸ) ᴺᴿ) c (((K ᵒᴿ) ᴺᴸ) c)
 --     ((M ᵒᴸ) ᴺᴿ) c (((K ᵒᴿ) ᴺᴸ) c)
 --   ∎
+
+lem : ∀ {A} → ∅ ⟶ ∅ ∣ A `+ `¬ A
+lem = μθ (inr⟨ not[ μγ (inl⟨ γ 0 ⟩ ● (θ 0) ) ] ⟩ ● (θ 0))
+
+lemⱽ : ∀ {A} → ((A ⱽᵀ ⊎ (A ⱽᵀ → ⊥)) → ⊥) → ⊥
+lemⱽ {A} = (lem {A} ⱽᴸ) ⟨ tt , tt ⟩ 
+
+lemᴺ : ∀ {A} → ((A ᴺᵀ × (A ᴺᵀ → ⊥)) → ⊥)
+lemᴺ = (lem ᴺᴸ) ⟨ tt , tt ⟩ 
+
