@@ -9,6 +9,7 @@ open import Relation.Nullary using (¬_)
 open import Dual.Syntax
 open import Dual.DualTranslation
 open import Dual.CPSTransformation
+open import IO using (run; putStrLn)
 
 lem : ∀ {A} → ∅ ⟶ ∅ ∣ A `+ `¬ A
 lem = μθ (inr⟨ not[ μγ (inl⟨ γ 0 ⟩ ● (θ 0) ) ] ⟩ ● (θ 0))
@@ -18,5 +19,7 @@ lemⱽ {A} = (lem {A} ⱽᴸ) ⟨ tt , tt ⟩
 
 lemᴺ : ∀ {A} → ((A ᴺᵀ × (A ᴺᵀ → ⊥)) → ⊥)
 lemᴺ = (lem ᴺᴸ) ⟨ tt , tt ⟩ 
+
+main = (run (putStrLn "Hello World"))
 
 
