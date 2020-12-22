@@ -4,71 +4,153 @@ open import Dual.Syntax
 open import Axiom.Extensionality.Propositional using (Extensionality; ExtensionalityImplicit)
 open import Level as L hiding (lift) public
 
-ext : ∀ {Γ Γ′} 
-  → (∀ {A} →   Γ ∋ A →     Γ′ ∋ A)
-    ----------------------------------
-  → (∀ {A B} → Γ , B ∋ A → Γ′ , B ∋ A)
-ext ρ `Z     = `Z 
-ext ρ (`S x) = `S (ρ x)
+-- ext : ∀ {Γ Γ′} 
+--   → (∀ {A} →   Γ ∋ A →     Γ′ ∋ A)
+--     ----------------------------------
+--   → (∀ {A B} → Γ , B ∋ A → Γ′ , B ∋ A)
+-- ext ρ `Z     = `Z 
+-- ext ρ (`S x) = `S (ρ x)
 
-rename₁ : ∀ {Γ Γ′ Θ Θ′}
-  → (∀ {A} → Γ ∋ A      → Γ′ ∋ A)
-    ----------------------------------
-  → (∀ {A} → Γ ⟶ Θ ∣ A → Γ′ ⟶ Θ′ ∣ A)
-rename₁ ρ (` x) = `(ρ x)
-rename₁ ρ `⟨ M , N ⟩ = `⟨ rename₁ ρ M , rename₁ ρ N ⟩
-rename₁ ρ inl⟨ M ⟩ = inl⟨ rename₁ ρ M ⟩
-rename₁ ρ inr⟨ M ⟩ = inr⟨ rename₁ ρ M ⟩
-rename₁ ρ not[ K ] = not[ {!   !} ]
-rename₁ ρ (μθ S) = μθ {!   !}
+-- rename₁ : ∀ {Γ Γ′ Θ Θ′}
+--   → (∀ {A} → Γ ∋ A → Γ′ ∋ A)
+--   → (∀ {A} → Θ ∋ A → Θ′ ∋ A)
+--     ----------------------------------
+--   → (∀ {A} → Γ ⟶ Θ ∣ A → Γ′ ⟶ Θ′ ∣ A)
+-- rename₂ : ∀ {Γ Γ′ Θ Θ′}
+--   → (∀ {A} → Γ ∋ A → Γ′ ∋ A)
+--   → (∀ {A} → Θ ∋ A → Θ′ ∋ A)
+--     -------------------------
+--   → (∀ {A} → A ∣ Γ ⟶ Θ → A ∣ Γ′ ⟶ Θ′)
+-- rename₃ : ∀ {Γ Γ′ Θ Θ′}
+--   → (∀ {A} → Γ ∋ A → Γ′ ∋ A)
+--   → (∀ {A} → Θ ∋ A → Θ′ ∋ A)
+--     -----------------------------
+--   → (Γ ↦ Θ → Γ′ ↦ Θ′)
 
-rename₂ : ∀ {Γ Γ′ Θ Θ′}
-  → (∀ {A} → Θ ∋ A → Θ′ ∋ A)
-    -------------------------
-  → (∀ {A} → A ∣ Γ ⟶ Θ → A ∣ Γ′ ⟶ Θ′)
-rename₂ ρ (` α) = `(ρ α)
-rename₂ ρ fst[ K ] = fst[ rename₂ ρ K ]
-rename₂ ρ snd[ K ] = snd[ rename₂ ρ K ]
-rename₂ ρ `[ K , L ] = `[ rename₂ ρ K , rename₂ ρ L ]
-rename₂ ρ not⟨ M ⟩ = not⟨ rename₁ ?M ⟩
-rename₂ ρ (μγ S) = ?
+-- rename₁ ρ σ (` x) = `(ρ x)
+-- rename₁ ρ σ `⟨ M , N ⟩ = `⟨ rename₁ ρ σ M , rename₁ ρ σ N ⟩
+-- rename₁ ρ σ inl⟨ M ⟩ = inl⟨ rename₁ ρ σ M ⟩
+-- rename₁ ρ σ inr⟨ M ⟩ = inr⟨ rename₁ ρ σ M ⟩
+-- rename₁ ρ σ not[ K ] = not[ rename₂ ρ σ K ]
+-- rename₁ ρ σ (μθ S) = μθ (rename₃ ρ (ext σ) S)
 
--- data Subst : Context → Context → Context → Context → Set where 
---   ⨀  : ∀ {Γ Θ} → Subst Γ Θ ∅ ∅
---   _,ᵗ_ : ∀ {Γ Γ′ Θ Θ′ A} → Subst Γ Θ Γ′ Θ′ → Γ ⟶ Θ ∣ A → Subst Γ Θ (Γ′ , A) Θ′
---   _,ᶜ_ : ∀ {Γ Γ′ Θ Θ′ A} → Subst Γ Θ Γ′ Θ′ → A ∣ Γ ⟶ Θ → Subst Γ Θ Γ′ (Θ′ , A)
+-- rename₂ ρ σ (` α) = `(σ α)
+-- rename₂ ρ σ fst[ K ] = fst[ rename₂ ρ σ K ]
+-- rename₂ ρ σ snd[ K ] = snd[ rename₂ ρ σ K ]
+-- rename₂ ρ σ `[ K , L ] = `[ rename₂ ρ σ K , rename₂ ρ σ L ]
+-- rename₂ ρ σ not⟨ M ⟩ = not⟨ rename₁ ρ σ M ⟩
+-- rename₂ ρ σ (μγ S) = μγ (rename₃ (ext ρ) σ S)
 
--- exts-var : ∀ {Γ Γ′ Θ Θ′ A} → Subst Γ Θ Γ′ Θ′ → Subst (Γ , A) Θ Γ′ Θ′
--- exts-var ⨀ _ = ⨀
--- exts-var (s ,ⱽ t) 
+-- rename₃ ρ σ (M ● K) = (rename₁ ρ σ M) ● (rename₂ ρ σ K)
 
+-- exts₁ : ∀ {Γ Γ′ Θ} 
+--   → (∀ {A}   → Γ ∋ A → Γ′ ⟶ Θ ∣ A)
+--     --------------------------------------
+--   → (∀ {A B} → Γ , B ∋ A → Γ′ , B ⟶ Θ ∣ A)
+-- exts₁ σ `Z = ` `Z
+-- exts₁ σ (`S x) = rename₁ `S (λ x → x) (σ x)
 
--- sub-var : ∀ {Γ Γ′ Θ Θ′ A} → Subst Γ Θ Γ′ Θ′ → Γ′ ∋ A → Γ ⟶ Θ ∣ A 
--- sub-var (s ,ᵗ t) `Z = t
--- sub-var (s ,ᵗ t) (`S x) = sub-var s x 
--- sub-var (s ,ᶜ t) x = sub-var s x
+-- exts₂ : ∀ {Γ Θ Θ′}
+--   → (∀ {A}   → Θ ∋ A → A ∣ Γ ⟶ Θ′)
+--     ---------------------------------------
+--   → (∀ {A B} → Θ , B ∋ A → A ∣ Γ ⟶ Θ′ , B)
+-- exts₂ σ `Z     = ` `Z
+-- exts₂ σ (`S α) = rename₂ (λ x → x) `S (σ α)
 
--- sub-covar : ∀ {Γ Γ′ Θ Θ′ A} → Subst Γ Θ Γ′ Θ′ → Θ′ ∋ A → A ∣ Γ ⟶ Θ
--- sub-covar (s ,ᵗ t) α = sub-covar s α
--- sub-covar (s ,ᶜ t) `Z = t
--- sub-covar (s ,ᶜ t) (`S x) = sub-covar s x
+-- subst₁ : ∀ {Γ Γ′ Θ Θ′}
+--   → (∀ {A} → Γ ∋ A → (Context → Context → Type → Set))
+--   → (∀ {A} → Θ ∋ A → (Context → Context → Type → Set))
+--     ----------------------------------
+--   → (∀ {A} → Γ ⟶ Θ ∣ A → Γ′ ⟶ Θ′ ∣ A)
+-- subst₂ : ∀ {Γ Γ′ Θ Θ′}
+--   → (∀ {A} → Γ ∋ A → (Context → Context → Type → Set))
+--   → (∀ {A} → Θ ∋ A → (Context → Context → Type → Set))
+--     ----------------------------------
+--   → (∀ {A} → A ∣ Γ ⟶ Θ → A ∣ Γ′ ⟶ Θ′)
+-- subst₃ : ∀ {Γ Γ′ Θ Θ′}
+--   → (∀ {A} → Γ ∋ A → (Context → Context → Set))
+--   → (∀ {A} → Θ ∋ A → (Context → Context → Set))
+--     --------------------------
+--   → Γ ↦ Θ → Γ′ ↦ Θ′
 
--- sub-term : ∀ {Γ Γ′ Θ Θ′ A} → Subst Γ Θ Γ′ Θ′ → Γ′ ⟶ Θ′ ∣ A → Γ ⟶ Θ ∣ A
--- sub-coterm : ∀ {Γ Γ′ Θ Θ′ A} → Subst Γ Θ Γ′ Θ′ → A ∣ Γ′ ⟶ Θ′ → A ∣ Γ ⟶ Θ
--- sub-statement : ∀ {Γ Γ′ Θ Θ′} → Subst Γ Θ Γ′ Θ′ → Γ′ ↦ Θ′ → Γ ↦ Θ
+-- subst₁ ρ σ (` x) = {!   !}
+-- subst₁ ρ σ `⟨ M , N ⟩ = `⟨ subst₁ ρ σ M , subst₁ ρ σ N ⟩
+-- subst₁ ρ σ inl⟨ M ⟩ = inl⟨ subst₁ ρ σ M ⟩
+-- subst₁ ρ σ inr⟨ M ⟩ = inr⟨ subst₁ ρ σ M ⟩
+-- subst₁ ρ σ not[ K ] = not[ (subst₂ ρ σ K) ]
+-- subst₁ ρ σ (μθ S) = μθ (subst₃ {!  exts­ !} {!   !} {!   !})
 
--- sub-term s (` x) = sub-var s x
--- sub-term s `⟨ M , N ⟩ = `⟨ sub-term s M , sub-term s N ⟩  
--- sub-term s inl⟨ M ⟩ = inl⟨ sub-term s M ⟩
--- sub-term s inr⟨ M ⟩ = inr⟨ sub-term s M ⟩
--- sub-term s not[ K ] = not[ sub-coterm s K ]
--- sub-term s (μθ S) = μθ (sub-statement {!   !} {!   !})
+-- subst₂ ρ σ (` α) = {!   !}
+-- subst₂ ρ σ fst[ K ] = fst[ subst₂ ρ σ K ]
+-- subst₂ ρ σ snd[ K ] = snd[ subst₂ ρ σ K ]
+-- subst₂ ρ σ `[ K , L ] = `[ subst₂ ρ σ K , subst₂ ρ σ L ]
+-- subst₂ ρ σ not⟨ M ⟩ = not⟨ {!   !} ⟩
+-- subst₂ ρ σ (μγ S) = {!   !}
 
--- sub-coterm s (` α) = sub-covar s α
--- sub-coterm s fst[ K ] = fst[ (sub-coterm s K) ]
--- sub-coterm s snd[ K ] = snd[ (sub-coterm s K) ]
--- sub-coterm s `[ K , L ] = `[ (sub-coterm s K) , (sub-coterm s L) ]
--- sub-coterm s not⟨ M ⟩ = not⟨ (sub-term s M) ⟩
--- sub-coterm s (μγ S) = {!   !}
+-- subst₃ ρ σ (M ● K) = (subst₁ {!   !} {!   !} {!   !}) ● {!   !}
 
--- sub-statement s (M ● K) = (sub-term s M) ● (sub-coterm s K)
+data Subst (T : Context → Context → Type → Set): Context → Context → Context → Context → Set where 
+  ⨀  : ∀ {Γ Θ} → Subst T Γ Θ ∅ ∅
+  _,ᵗ_ : ∀ {Γ Γ′ Θ Θ′ A} → Subst T Γ Θ Γ′ Θ′ → T Γ Θ A → Subst T Γ Θ (Γ′ , A) Θ′
+  _,ᶜ_ : ∀ {Γ Γ′ Θ Θ′ A} → Subst T Γ Θ Γ′ Θ′ → T Γ Θ A → Subst T Γ Θ Γ′ (Θ′ , A)
+
+record SubstKit (T : Context → Context → Type → Set) : Set where
+  field
+    vr : ∀ {Γ Θ A}     → Γ ∋ A   → T Γ Θ A
+    cvr : ∀ {Γ Θ A}    → Θ ∋ A   → T Γ Θ A
+    tm-v : ∀ {Γ Θ A}   → T Γ Θ A → Γ ∋ A
+    tm-c : ∀ {Γ Θ A}   → T Γ Θ A → Θ ∋ A
+    wk-v : ∀ {Γ Θ A B} → T Γ Θ A → T (Γ , B) Θ A 
+    wk-c : ∀ {Γ Θ A B} → T Γ Θ A → T Γ (Θ , B) A
+
+record SubstKit+ (T : Context → Context → Type → Set) : Set where
+  field
+    kit : SubstKit T
+    subst : ∀ {Γ Γ′ Θ Θ′ A} → T Γ′ Θ′ A → Subst T Γ Θ Γ′ Θ′ → T Γ Θ A 
+
+weaken-var : ∀ {T Γ Γ′ Θ Θ′ A} → Subst T Γ Θ Γ′ Θ′ → SubstKit T → Subst T (Γ , A) Θ Γ′ Θ′
+weaken-var ⨀ _ = ⨀
+weaken-var (s ,ᵗ t) k = weaken-var s k ,ᵗ SubstKit.wk-v k t
+weaken-var (s ,ᶜ t) k = weaken-var s k ,ᶜ SubstKit.wk-v k t
+
+weaken-covar : ∀ {T Γ Γ′ Θ Θ′ A} → Subst T Γ Θ Γ′ Θ′ → SubstKit T → Subst T Γ (Θ , A) Γ′ Θ′
+weaken-covar ⨀ _ = ⨀
+weaken-covar (s ,ᵗ t) k = weaken-covar s k ,ᵗ SubstKit.wk-c k t
+weaken-covar (s ,ᶜ t) k = weaken-covar s k ,ᶜ SubstKit.wk-c k t
+
+ext-var : ∀ {T Γ Γ′ Θ Θ′ A} → Subst T Γ Θ Γ′ Θ′ → SubstKit T → Subst T (Γ , A) Θ (Γ′ , A) Θ′
+ext-var s k = (weaken-var s k) ,ᵗ SubstKit.vr k `Z
+
+ext-covar : ∀ {T Γ Γ′ Θ Θ′ A} → Subst T Γ Θ Γ′ Θ′ → SubstKit T → Subst T Γ (Θ , A) Γ′ (Θ′ , A)
+ext-covar s k = (weaken-covar s k) ,ᶜ SubstKit.cvr k `Z
+
+sub-var : ∀ {T Γ Γ′ Θ Θ′ A} → Subst T Γ Θ Γ′ Θ′ → Γ′ ∋ A → T Γ Θ A
+sub-var (s ,ᵗ t) `Z = t
+sub-var (s ,ᵗ t) (`S x) = sub-var s x 
+sub-var (s ,ᶜ t) x = sub-var s x
+
+sub-covar : ∀ {T Γ Γ′ Θ Θ′ A} → Subst T Γ Θ Γ′ Θ′ → Θ′ ∋ A → T Γ Θ A
+sub-covar (s ,ᵗ t) α = sub-covar s α
+sub-covar (s ,ᶜ t) `Z = t
+sub-covar (s ,ᶜ t) (`S x) = sub-covar s x
+
+sub-term : ∀ {T Γ Γ′ Θ Θ′ A} → Subst T Γ Θ Γ′ Θ′ → Γ′ ⟶ Θ′ ∣ A  → SubstKit T → Γ ⟶ Θ ∣ A
+sub-coterm : ∀ {T Γ Γ′ Θ Θ′ A} → Subst T Γ Θ Γ′ Θ′ → A ∣ Γ′ ⟶ Θ′ → SubstKit T → A ∣ Γ ⟶ Θ
+sub-statement : ∀ {T Γ Γ′ Θ Θ′} → Subst T Γ Θ Γ′ Θ′ → Γ′ ↦ Θ′ → SubstKit T → Γ ↦ Θ
+
+sub-term s (` x) k = ` SubstKit.tm-v k (sub-var s x)
+sub-term s `⟨ M , N ⟩ k = `⟨ sub-term s M k , sub-term s N k ⟩  
+sub-term s inl⟨ M ⟩ k = inl⟨ sub-term s M k ⟩
+sub-term s inr⟨ M ⟩ k = inr⟨ sub-term s M k ⟩
+sub-term s not[ K ] k = not[ sub-coterm s K k ]
+sub-term s (μθ S) k = μθ (sub-statement (ext-covar s k) S k)
+
+sub-coterm s (` α) k = ` SubstKit.tm-c k (sub-covar s α)
+sub-coterm s fst[ K ] k = fst[ sub-coterm s K k ]
+sub-coterm s snd[ K ] k = snd[ sub-coterm s K k ]
+sub-coterm s `[ K , L ] k = `[ sub-coterm s K k , sub-coterm s L k ]
+sub-coterm s not⟨ M ⟩ k = not⟨ sub-term s M k ⟩
+sub-coterm s (μγ S) k = μγ (sub-statement (ext-var s k) S k)
+
+sub-statement s (M ● K) k = (sub-term s M k) ● (sub-coterm s K k)
+
