@@ -31,6 +31,7 @@ infix  10 γ_
 --Types--
 
 data Type : Set where
+  `⊤ : Type
   `ℕ : Type
   _`×_ : Type → Type → Type
   _`+_ : Type → Type → Type
@@ -58,12 +59,12 @@ data Context : Set where
 data _∋_ : Context → Type → Set where
 
   `Z : ∀ {Γ A}
-      ---------
+      -------------
     → Γ , A ∋ A
 
   `S : ∀ {Γ A B}
     → Γ ∋ A
-      ---------
+      -------------
     → Γ , B ∋ A
 
 --Sequents--
@@ -131,7 +132,6 @@ data _⟶_∣_ where
       ----------
     → Γ ⟶ Θ ∣ A
 
-
 data _∣_⟶_ where
   
   `_ : ∀ {Γ Θ A}
@@ -164,7 +164,6 @@ data _∣_⟶_ where
     → Γ , A ↦ Θ
       ----------
     → A ∣ Γ ⟶ Θ
-  
 
 data _↦_ where
 
@@ -205,60 +204,4 @@ count {∅}     _       = ⊥-elim impossible
 M ·ⱽ N = not⟨ `⟨ M , not[ N ] ⟩ ⟩
 
 M ·ᴺ N = `[ not⟨ M ⟩ , N ]
-
--- data Value : ∀ {Γ Θ A} → Γ ⟶ Θ ∣ A → Set 
--- data Covalue : ∀ {Γ Θ A} → A ∣ Γ ⟶ Θ → Set
-
--- data Value where
-
---   V-var : ∀ {Γ A} {x : Γ ∋ A}
---       ---------
---     → Value (` x)
-
---   V-prod : ∀ {Γ Θ A B} {M : Γ ⟶ Θ ∣ A} {N : Γ ⟶ Θ ∣ B}
---     → Value M
---     → Value N
---       ---------------
---     → Value `⟨ M , N ⟩
-
---   V-inl : ∀ {Γ Θ A B} {M ∶ Γ ⟶ Θ ∣ A `× B}
---     → Value M
---       -------------
---     → Value inl⟨ M ⟩
-
---   V-inr : ∀ {Γ Θ A B} {M ∶ Γ ⟶ Θ ∣ A `× B}
---     → Value M
---       -------------
---     → Value inr⟨ M ⟩
-
---   V-not : ∀ {Γ Θ A} {K : A ∣ Γ ⟶ Θ}
---       --------------
---     → Value not[ K ]
-
-
--- data Covalue where
-  
---   CV-covar : ∀ {Θ A} {α : Θ ∋ A}
---       -------
---     → Covalue(` α)
-
---   CV-sum : ∀ {Γ Θ A B} {K : A ∣ Γ ⟶ Θ} {L : B ∣ Γ ⟶ Θ}
---     → Covalue K
---     → Covalue L
---       ------------------
---     → Covalue `[ K , L ]
-
---   CV-fst : ∀ {Γ Θ A B} {K ∶ A `+ B ∣ Γ ⟶ Θ}
---     → Covalue K
---       ----------------
---     → Covalue fst[ K ]
-
---   CV-snd : ∀ {Γ Θ A B} {K ∶ A `+ B ∣ Γ ⟶ Θ}
---     → Covalue K
---       ----------------
---     → Covalue snd[ K ]
-
---   CV-not : ∀ {Γ Θ A} {M : Γ ⟶ Θ ∣ A}
---       --------------
---     → Covalue not⟨ M ⟩
 
