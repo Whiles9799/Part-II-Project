@@ -50,7 +50,9 @@ postulate
 
 θweaken-statement (M ● K) = (θweaken-term M) ● (θweaken-coterm K)
 
-infix 2 _⟶ⱽ_
+infix 2 _ˢ⟶ⱽ_
+infix 2 _ᶜ⟶ⱽ_
+infix 2 _ᵗ⟶ⱽ_
 
 data Value : ∀ {Γ Θ A} → Γ ⟶ Θ ∣ A → Set 
 data Covalue : ∀ {Γ Θ A} → A ∣ Γ ⟶ Θ → Set
@@ -249,33 +251,49 @@ L [ K /]ᶜ = sub-coterm TermKit CotermKit id-term (id-coterm , K) L
 S [ K /]ˢ = sub-statement TermKit CotermKit id-term (id-coterm , K) S
 
 
-data _⟶ⱽ_ : ∀ {Γ Θ} → (Γ ↦ Θ) → (Γ ↦ Θ) → Set where
+data _ˢ⟶ⱽ_ : ∀ {Γ Θ} → (Γ ↦ Θ) → (Γ ↦ Θ) → Set where
 
   β×₁ : ∀ {Γ Θ A B} {V : Γ ⟶ Θ ∣ A} {W : Γ ⟶ Θ ∣ B} {K : A ∣ Γ ⟶ Θ}
     → Value V → Value W
       ------------------------------
-    → `⟨ V , W ⟩ ● fst[ K ] ⟶ⱽ V ● K
+    → `⟨ V , W ⟩ ● fst[ K ] ˢ⟶ⱽ V ● K
 
   β×₂ : ∀ {Γ Θ A B} {V : Γ ⟶ Θ ∣ A} {W : Γ ⟶ Θ ∣ B} {L : B ∣ Γ ⟶ Θ}
     → Value V → Value W
       ------------------------------
-    → `⟨ V , W ⟩ ● snd[ L ] ⟶ⱽ W ● L
+    → `⟨ V , W ⟩ ● snd[ L ] ˢ⟶ⱽ W ● L
 
   β+₁ : ∀ {Γ Θ A B} {V : Γ ⟶ Θ ∣ A} {K : A ∣ Γ ⟶ Θ} {L : B ∣ Γ ⟶ Θ}
     → Value V
       ------------------------------
-    → inl⟨ V ⟩ ● `[ K , L ] ⟶ⱽ V ● K
+    → inl⟨ V ⟩ ● `[ K , L ] ˢ⟶ⱽ V ● K
 
   β+₂ : ∀ {Γ Θ A B} {W : Γ ⟶ Θ ∣ B} {K : A ∣ Γ ⟶ Θ} {L : B ∣ Γ ⟶ Θ}
     → Value W
       ------------------------------
-    → inr⟨ W ⟩ ● `[ K , L ] ⟶ⱽ W ● L
+    → inr⟨ W ⟩ ● `[ K , L ] ˢ⟶ⱽ W ● L
 
   β¬ : ∀ {Γ Θ A} {M : Γ ⟶ Θ ∣ A} {K : A ∣ Γ ⟶ Θ}
       -----------------------------
-    → not[ K ] ● not⟨ M ⟩ ⟶ⱽ M ● K
+    → not[ K ] ● not⟨ M ⟩ ˢ⟶ⱽ M ● K
 
-  -- βL : ∀ {Γ Θ A} {V : Γ ⟶ Θ ∣ A} {S : Γ , A ↦ Θ} {s : Subst _↦_+_ Γ Θ Γ Θ}
-  --   → Value V
-  --     ------------------------------
-  --   → V ● (μγ S) ⟶ⱽ ((sub-statement+ {!   !} ((S +)) {!   !}) -)
+  βL : ∀ {Γ Θ A} {V : Γ ⟶ Θ ∣ A} {S : Γ , A ↦ Θ}
+    → Value V
+      ------------------------------
+    → V ● (μγ S) ˢ⟶ⱽ S ⟨ V /⟩ˢ
+
+  βR : ∀ {Γ Θ A} {K : A ∣ Γ ⟶ Θ} {S : Γ ↦ Θ , A}
+      ------------------------
+    → (μθ S) ● K ˢ⟶ⱽ S [ K /]ˢ
+
+data _ᶜ⟶ⱽ_ : ∀ {Γ Θ A} → (A ∣ Γ ⟶ Θ) → (A ∣ Γ ⟶ Θ) → Set where
+  
+  ηL : ∀ {Γ Θ A} {K : A ∣ Γ ⟶ Θ} 
+      ------------------------
+    → K ᶜ⟶ⱽ μγ ((γ 0) ● (γweaken-coterm K))
+
+data _ᵗ⟶ⱽ_ : ∀ {Γ Θ A} → (Γ ⟶ Θ ∣ A) → (Γ ⟶ Θ ∣ A) → Set where
+
+  ηR : ∀ {Γ Θ A} {M : Γ ⟶ Θ ∣ A}
+      ------------------------
+    → M ᵗ⟶ⱽ μθ ((θweaken-term M) ● (θ 0))
