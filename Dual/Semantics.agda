@@ -1,8 +1,11 @@
 module Dual.Semantics where
 
 open import Dual.Syntax
-open import Axiom.Extensionality.Propositional using (Extensionality; ExtensionalityImplicit)
-open import Level as L hiding (lift) public
+open import Dual.Substitution
+import Relation.Binary.PropositionalEquality as Eq
+open Eq using (_≡_; refl; cong; cong₂; sym; trans)
+open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; step-≡; _∎)
+
 
 infix 2 _ˢ⟶ⱽ_
 infix 2 _ᶜ⟶ⱽ_
@@ -68,121 +71,6 @@ data Covalue where
       --------------
     → Covalue not⟨ M ⟩
 
-data Subst (T : Context → Type → Set): Context → Context → Set where
-  ⨀  : ∀ {Γ} → Subst T Γ ∅
-  _,_ : ∀ {Γ Γ′ A} → Subst T Γ Γ′ → T Γ A → Subst T Γ (Γ′ , A)
-
-record VarSubstKit (T : Context → Type → Set) : Set where
-  field 
-    vr : ∀ {Γ A} → Γ ∋ A → T Γ A
-    wk : ∀ {Γ A B} → T Γ A → T (Γ , B) A
-
-record TermSubstKit (T : Context → Context → Type → Set) : Set where
-  field 
-    tm : ∀ {Γ Θ A}     → T Γ Θ A → Γ ⟶ Θ ∣ A
-    kit : ∀ {Θ}        → VarSubstKit (λ Γ → T Γ Θ)
-    wk : ∀ {Γ Θ A B}   → T Γ Θ A → T Γ (Θ , B) A
-
-record CotermSubstKit (C : Context → Context → Type → Set) : Set where
-  field
-    tm : ∀ {Γ Θ A}     → C Γ Θ A → A ∣ Γ ⟶ Θ
-    wk : ∀ {Γ Θ A B}   → C Γ Θ A → C (Γ , B) Θ A
-    kit : ∀ {Γ}        → VarSubstKit (C Γ)
-
-
-weaken : ∀ {T Γ Γ′ A} → VarSubstKit T → Subst T Γ Γ′ → Subst T (Γ , A) Γ′
-weaken k ⨀ = ⨀
-weaken k (s , t) = (weaken k s) , VarSubstKit.wk k t
-
-ext : ∀ {T Γ Γ′ A} → VarSubstKit T → Subst T Γ Γ′ → Subst T (Γ , A) (Γ′ , A)
-ext k s = (weaken k s) , (VarSubstKit.vr k `Z)
-
-rename-var : ∀ {Γ Γ′ A} → Subst _∋_ Γ Γ′ → Γ′ ∋ A → Γ ∋ A
-rename-var (s , t) `Z = t
-rename-var (s , t) (`S x) = rename-var s x
-
-rename-term : ∀ {Γ Γ′ Θ Θ′ A} → VarSubstKit _∋_ → Subst _∋_ Γ Γ′ → Subst _∋_ Θ Θ′ → Γ′ ⟶ Θ′ ∣ A → Γ ⟶ Θ ∣ A
-rename-coterm : ∀ {Γ Γ′ Θ Θ′ A} → VarSubstKit _∋_ → Subst _∋_ Γ Γ′ → Subst _∋_ Θ Θ′ → A ∣ Γ′ ⟶ Θ′ → A ∣ Γ ⟶ Θ
-rename-statement : ∀ {Γ Γ′ Θ Θ′} → VarSubstKit _∋_ → Subst _∋_ Γ Γ′ → Subst _∋_ Θ Θ′ → Γ′ ↦ Θ′ → Γ ↦ Θ
-
-rename-term k s t (` x) = ` (rename-var s x)
-rename-term k s t `⟨ M , N ⟩ = `⟨ (rename-term k s t M) , (rename-term k s t N) ⟩
-rename-term k s t inl⟨ M ⟩ = inl⟨ rename-term k s t M ⟩
-rename-term k s t inr⟨ M ⟩ = inr⟨ rename-term k s t M ⟩
-rename-term k s t not[ K ] = not[ rename-coterm k s t K ]
-rename-term k s t (μθ S) = μθ (rename-statement k s (ext k t) S)
-
-rename-coterm k s t (` α) = ` (rename-var t α)
-rename-coterm k s t fst[ K ] = fst[ rename-coterm k s t K ]
-rename-coterm k s t snd[ K ] = snd[ rename-coterm k s t K ]
-rename-coterm k s t `[ K , L ] = `[ rename-coterm k s t K , rename-coterm k s t L ]
-rename-coterm k s t not⟨ M ⟩ = not⟨ (rename-term k s t M) ⟩
-rename-coterm k s t (μγ S) = μγ (rename-statement k (ext k s) t S)
-
-rename-statement k s t (M ● K) = (rename-term k s t M) ● (rename-coterm k s t K)  
-
-sub-var : ∀ {T Γ Γ′ A} → Subst T Γ Γ′ → Γ′ ∋ A → T Γ A
-sub-var ⨀ ()
-sub-var (s , t) `Z = t
-sub-var (s , t) (`S x) = sub-var s x
-
-VarKit : VarSubstKit _∋_ 
-VarKit = record 
-  {  vr = λ a → a
-  ;  wk = `S
-  } 
-
-id-var : ∀ {Γ} → Subst _∋_ Γ Γ
-id-var {∅} = ⨀
-id-var {Γ , A} = ext VarKit id-var
-
-id-term : ∀ {Γ Θ} → Subst (λ - → _⟶_∣_ - Θ) Γ Γ
-id-term {∅} = ⨀
-id-term {Γ , A} = ext (record { vr = `_ ; wk = rename-term VarKit (weaken VarKit id-var) id-var }) id-term 
-
-id-coterm : ∀ {Γ Θ} → Subst (λ - A → A ∣ Γ ⟶ -) Θ Θ
-id-coterm {_}{∅} = ⨀
-id-coterm {_}{Θ , B} = ext (record { vr = `_ ; wk = rename-coterm VarKit id-var (weaken VarKit id-var) }) id-coterm
-
-lift : ∀ {T T′ Γ Γ′} (f : ∀ {Γ A} → T Γ A → T′ Γ A) → Subst T Γ Γ′ → Subst T′ Γ Γ′
-lift f ⨀ = ⨀
-lift f (s , x) = lift f s , f x
-
-sub-term : ∀ {A T C Γ Θ Γ′ Θ′} → TermSubstKit T → CotermSubstKit C → Subst (λ - → T - Θ) Γ Γ′ → Subst (C Γ) Θ Θ′ → Γ′ ⟶ Θ′ ∣ A → Γ ⟶ Θ ∣ A
-sub-coterm : ∀ {A T C Γ Θ Γ′ Θ′} → TermSubstKit T → CotermSubstKit C → Subst (λ - → T - Θ) Γ Γ′ → Subst (C Γ) Θ Θ′ → A ∣ Γ′ ⟶ Θ′ → A ∣ Γ ⟶ Θ
-sub-statement : ∀ {T C Γ Θ Γ′ Θ′} → TermSubstKit T → CotermSubstKit C → Subst (λ - → T - Θ) Γ Γ′ → Subst (C Γ) Θ Θ′ → Γ′ ↦ Θ′ → Γ ↦ Θ
-
-sub-term k₁ k₂ s t (` x) = TermSubstKit.tm k₁ (sub-var s x)
-sub-term k₁ k₂ s t `⟨ M , N ⟩ = `⟨ sub-term k₁ k₂ s t M , sub-term k₁ k₂ s t N ⟩
-sub-term k₁ k₂ s t inl⟨ M ⟩ = inl⟨ sub-term k₁ k₂ s t M ⟩
-sub-term k₁ k₂ s t inr⟨ M ⟩ = inr⟨ sub-term k₁ k₂ s t M ⟩
-sub-term k₁ k₂ s t not[ K ] = not[ sub-coterm k₁ k₂ s t K ]
-sub-term k₁ k₂ s t (μθ S) = μθ (sub-statement k₁ k₂ (lift (λ x → TermSubstKit.wk k₁ x) s) (ext (CotermSubstKit.kit k₂) t) S)
-
-sub-coterm k₁ k₂ s t (` α) = CotermSubstKit.tm k₂ (sub-var t α)
-sub-coterm k₁ k₂ s t fst[ K ] = fst[ sub-coterm k₁ k₂ s t K ]
-sub-coterm k₁ k₂ s t snd[ K ] = snd[ sub-coterm k₁ k₂ s t K ]
-sub-coterm k₁ k₂ s t `[ K , L ] = `[ sub-coterm k₁ k₂ s t K , sub-coterm k₁ k₂ s t L ]
-sub-coterm k₁ k₂ s t not⟨ M ⟩ = not⟨ (sub-term k₁ k₂ s t M) ⟩
-sub-coterm k₁ k₂ s t (μγ S) = μγ (sub-statement k₁ k₂ (ext (TermSubstKit.kit k₁) s) (lift (λ x → CotermSubstKit.wk k₂ x) t) S)
-
-sub-statement k₁ k₂ s t (M ● K) = (sub-term k₁ k₂ s t M) ● (sub-coterm k₁ k₂ s t K)
-
-
-TermKit : TermSubstKit _⟶_∣_ 
-TermKit = record 
-  {  tm = λ a → a
-  ;  wk = rename-term VarKit id-var (weaken VarKit id-var)
-  ;  kit = record { vr = `_ ; wk = rename-term VarKit (weaken VarKit id-var) id-var }
-  }
-
-CotermKit : CotermSubstKit λ Γ Θ A → A ∣ Γ ⟶ Θ
-CotermKit = record
-  {  tm = λ a → a 
-  ;  wk = rename-coterm VarKit (weaken VarKit id-var) id-var
-  ;  kit = record { vr = `_ ; wk = rename-coterm VarKit id-var (weaken VarKit id-var) }
-  }
-
 
 _⟨_/⟩ᵗ : ∀ {Γ Θ A B} 
   → Γ , A ⟶ Θ ∣ B
@@ -220,17 +108,17 @@ _[_/]ˢ : ∀ {Γ Θ A}
     ----------
   → Γ ↦ Θ
 
-N ⟨ M /⟩ᵗ = sub-term TermKit CotermKit (id-term , M) id-coterm N
+N ⟨ M /⟩ᵗ = sub-term TermKit CotermKit (λ{`Z → M ; (`S x) → ` x}) id-coterm N
 
-L ⟨ M /⟩ᶜ = sub-coterm TermKit CotermKit (id-term , M) id-coterm L
+L ⟨ M /⟩ᶜ = sub-coterm TermKit CotermKit (λ{`Z → M ; (`S x) → ` x}) id-coterm L
 
-S ⟨ M /⟩ˢ = sub-statement TermKit CotermKit (id-term , M) id-coterm S
+S ⟨ M /⟩ˢ = sub-statement TermKit CotermKit (λ{`Z → M ; (`S x) → ` x}) id-coterm S
 
-N [ K /]ᵗ = sub-term TermKit CotermKit id-term (id-coterm , K) N
+N [ K /]ᵗ = sub-term TermKit CotermKit id-term (λ{`Z → K ; (`S x) → ` x}) N
 
-L [ K /]ᶜ = sub-coterm TermKit CotermKit id-term (id-coterm , K) L
+L [ K /]ᶜ = sub-coterm TermKit CotermKit id-term (λ{`Z → K ; (`S x) → ` x}) L
 
-S [ K /]ˢ = sub-statement TermKit CotermKit id-term (id-coterm , K) S
+S [ K /]ˢ = sub-statement TermKit CotermKit id-term (λ{`Z → K ; (`S x) → ` x}) S
 
 
 data _ˢ⟶ⱽ_ : ∀ {Γ Θ} → (Γ ↦ Θ) → (Γ ↦ Θ) → Set where
@@ -272,13 +160,13 @@ data _ᶜ⟶ⱽ_ : ∀ {Γ Θ A} → (A ∣ Γ ⟶ Θ) → (A ∣ Γ ⟶ Θ) →
   
   ηL : ∀ {Γ Θ A} {K : A ∣ Γ ⟶ Θ} 
       ------------------------
-    → K ᶜ⟶ⱽ μγ ((γ 0) ● rename-coterm VarKit (weaken VarKit id-var) id-var K)
+    → K ᶜ⟶ⱽ μγ ((γ 0) ● rename-coterm (rename-weaken id-var) id-var K)
 
 data _ᵗ⟶ⱽ_ : ∀ {Γ Θ A} → (Γ ⟶ Θ ∣ A) → (Γ ⟶ Θ ∣ A) → Set where
 
   ηR : ∀ {Γ Θ A} {M : Γ ⟶ Θ ∣ A}
       ------------------------
-    → M ᵗ⟶ⱽ μθ (rename-term VarKit id-var (weaken VarKit id-var) M ● (θ 0))
+    → M ᵗ⟶ⱽ μθ (rename-term id-var (rename-weaken id-var) M ● (θ 0))
 
 
 data _ˢ⟶ᴺ_ : ∀ {Γ Θ} → (Γ ↦ Θ) → (Γ ↦ Θ) → Set where
@@ -320,12 +208,184 @@ data _ᶜ⟶ᴺ_ : ∀ {Γ Θ A} → (A ∣ Γ ⟶ Θ) → (A ∣ Γ ⟶ Θ) →
   
   ηL : ∀ {Γ Θ A} {K : A ∣ Γ ⟶ Θ} 
       ------------------------
-    → K ᶜ⟶ᴺ μγ ((γ 0) ● rename-coterm VarKit (weaken VarKit id-var) id-var K)
+    → K ᶜ⟶ᴺ μγ ((γ 0) ● rename-coterm (rename-weaken id-var) id-var K)
 
 data _ᵗ⟶ᴺ_ : ∀ {Γ Θ A} → (Γ ⟶ Θ ∣ A) → (Γ ⟶ Θ ∣ A) → Set where
 
   ηR : ∀ {Γ Θ A} {M : Γ ⟶ Θ ∣ A}
       ------------------------
-    → M ᵗ⟶ᴺ μθ (rename-term VarKit id-var (weaken VarKit id-var) M ● (θ 0))
+    → M ᵗ⟶ᴺ μθ (rename-term id-var (rename-weaken id-var) M ● (θ 0))
 
+infix  2 _ˢ—↠ⱽ_
+infix  1 beginˢⱽ_
+infixr 2 _ˢ⟶ⱽ⟨_⟩_
+infix  3 _∎ˢⱽ
+
+-- infix  2 _—↠ᴺ_
+-- infix  1 beginᴺ_
+-- infixr 2 _ˢ⟶ᴺ⟨_⟩_
+-- infix  3 _∎ᴺ
+
+data _ˢ—↠ⱽ_ {Γ Θ} : (Γ ↦ Θ) → (Γ ↦ Θ) → Set where
   
+  _∎ˢⱽ : (S : Γ ↦ Θ)
+      --------
+    → S ˢ—↠ⱽ S
+
+  _ˢ⟶ⱽ⟨_⟩_ : (S : Γ ↦ Θ) {S′ S″ : Γ ↦ Θ}
+    → S ˢ⟶ⱽ S′
+    → S′ ˢ—↠ⱽ S″
+      -----------
+    → S ˢ—↠ⱽ S″
+
+beginˢⱽ_ : ∀ {Γ Θ} {S S′ : Γ ↦ Θ}
+  → S ˢ—↠ⱽ S′
+    ---------
+  → S ˢ—↠ⱽ S′
+beginˢⱽ S—↠S′ = S—↠S′
+
+infix  2 _ᶜ—↠ⱽ_
+infix  1 beginᶜⱽ_
+infixr 2 _ᶜ⟶ⱽ⟨_⟩_
+infix  3 _∎ᶜⱽ
+
+data _ᶜ—↠ⱽ_ {Γ Θ A} : (A ∣ Γ ⟶ Θ) → (A ∣ Γ ⟶ Θ) → Set where
+  
+  _∎ᶜⱽ : (K : A ∣ Γ ⟶ Θ)
+      --------
+    → K ᶜ—↠ⱽ K
+
+  _ᶜ⟶ⱽ⟨_⟩_ : (K : A ∣ Γ ⟶ Θ) {K′ K″ : A ∣ Γ ⟶ Θ}
+    → K ᶜ⟶ⱽ K′
+    → K′ ᶜ—↠ⱽ K″
+      -----------
+    → K ᶜ—↠ⱽ K″
+
+beginᶜⱽ_ : ∀ {A Γ Θ} {K K′ : A ∣ Γ ⟶ Θ}
+  → K ᶜ—↠ⱽ K′
+    ---------
+  → K ᶜ—↠ⱽ K′
+beginᶜⱽ K—↠K′ = K—↠K′
+
+infix  2 _ᵗ—↠ⱽ_
+infix  1 beginᵗⱽ_
+infixr 2 _ᵗ⟶ⱽ⟨_⟩_
+infix  3 _∎ᵗⱽ
+
+data _ᵗ—↠ⱽ_ {Γ Θ A} : (Γ ⟶ Θ ∣ A) → (Γ ⟶ Θ ∣ A) → Set where
+  
+  _∎ᵗⱽ : (M : Γ ⟶ Θ ∣ A)
+      ---------
+    → M ᵗ—↠ⱽ M
+
+  _ᵗ⟶ⱽ⟨_⟩_ : (M : Γ ⟶ Θ ∣ A) {M′ M″ : Γ ⟶ Θ ∣ A}
+    → M ᵗ⟶ⱽ M′
+    → M′ ᵗ—↠ⱽ M″
+      -----------
+    → M ᵗ—↠ⱽ M″
+
+beginᵗⱽ_ : ∀ {A Γ Θ} {M M′ : Γ ⟶ Θ ∣ A}
+  → M ᵗ—↠ⱽ M′
+    ---------
+  → M ᵗ—↠ⱽ M′
+beginᵗⱽ M—↠M′ = M—↠M′
+
+
+infix  2 _ˢ—↠ᴺ_
+infix  1 beginˢᴺ_
+infixr 2 _ˢ⟶ᴺ⟨_⟩_
+infix  3 _∎ˢᴺ
+
+data _ˢ—↠ᴺ_ {Γ Θ} : (Γ ↦ Θ) → (Γ ↦ Θ) → Set where
+  
+  _∎ˢᴺ : (S : Γ ↦ Θ)
+      --------
+    → S ˢ—↠ᴺ S
+
+  _ˢ⟶ᴺ⟨_⟩_ : (S : Γ ↦ Θ) {S′ S″ : Γ ↦ Θ}
+    → S ˢ⟶ᴺ S′
+    → S′ ˢ—↠ᴺ S″
+      -----------
+    → S ˢ—↠ᴺ S″
+
+beginˢᴺ_ : ∀ {Γ Θ} {S S′ : Γ ↦ Θ}
+  → S ˢ—↠ᴺ S′
+    ---------
+  → S ˢ—↠ᴺ S′
+beginˢᴺ S—↠S′ = S—↠S′
+
+infix  2 _ᶜ—↠ᴺ_
+infix  1 beginᶜᴺ_
+infixr 2 _ᶜ⟶ᴺ⟨_⟩_
+infix  3 _∎ᶜᴺ
+
+data _ᶜ—↠ᴺ_ {Γ Θ A} : (A ∣ Γ ⟶ Θ) → (A ∣ Γ ⟶ Θ) → Set where
+  
+  _∎ᶜᴺ : (K : A ∣ Γ ⟶ Θ)
+      --------
+    → K ᶜ—↠ᴺ K
+
+  _ᶜ⟶ᴺ⟨_⟩_ : (K : A ∣ Γ ⟶ Θ) {K′ K″ : A ∣ Γ ⟶ Θ}
+    → K ᶜ⟶ᴺ K′
+    → K′ ᶜ—↠ⱽ K″
+      -----------
+    → K ᶜ—↠ᴺ K″
+
+beginᶜᴺ_ : ∀ {A Γ Θ} {K K′ : A ∣ Γ ⟶ Θ}
+  → K ᶜ—↠ᴺ K′
+    ---------
+  → K ᶜ—↠ᴺ K′
+beginᶜᴺ K—↠K′ = K—↠K′
+
+infix  2 _ᵗ—↠ᴺ_
+infix  1 beginᵗᴺ_
+infixr 2 _ᵗ⟶ᴺ⟨_⟩_
+infix  3 _∎ᵗᴺ
+
+data _ᵗ—↠ᴺ_ {Γ Θ A} : (Γ ⟶ Θ ∣ A) → (Γ ⟶ Θ ∣ A) → Set where
+  
+  _∎ᵗᴺ : (M : Γ ⟶ Θ ∣ A)
+      ---------
+    → M ᵗ—↠ᴺ M
+
+  _ᵗ⟶ᴺ⟨_⟩_ : (M : Γ ⟶ Θ ∣ A) {M′ M″ : Γ ⟶ Θ ∣ A}
+    → M ᵗ⟶ᴺ M′
+    → M′ ᵗ—↠ᴺ M″
+      -----------
+    → M ᵗ—↠ᴺ M″
+
+beginᵗᴺ_ : ∀ {A Γ Θ} {M M′ : Γ ⟶ Θ ∣ A}
+  → M ᵗ—↠ᴺ M′
+    ---------
+  → M ᵗ—↠ᴺ M′
+beginᵗᴺ M—↠M′ = M—↠M′
+
+lem : ∀ {A} → ∅ ⟶ ∅ ∣ A `+ `¬ A
+lem = μθ (inr⟨ not[ μγ (inl⟨ γ 0 ⟩ ● (θ 0) ) ] ⟩ ● (θ 0))
+
+lem-ref : ∀ {A} → ∅ ⟶ ∅ ∣ A  → A ∣ ∅ ⟶ ∅ → A `+ `¬ A ∣ ∅ ⟶ ∅
+lem-ref M K = `[ K , not⟨ M ⟩ ]
+
+-- lem-comp : ∀ {A} → (M : ∅ ⟶ ∅ ∣ A) → Value M → (K : A ∣ ∅ ⟶ ∅)
+--      → (lem ● lem-ref M K) ˢ—↠ⱽ M ● K
+-- lem-comp M M:V K = beginⱽ
+--       μθ (inr⟨ not[ μγ (inl⟨ γ 0 ⟩ ● (θ 0) ) ] ⟩ ● (θ 0))
+--     ● `[ K , not⟨ M ⟩ ]
+--   ˢ⟶ⱽ⟨ βR ⟩
+--       inr⟨ not[ μγ (inl⟨ γ 0 ⟩ ● `[ wkΓᶜ K , not⟨ wkΓᵗ M ⟩ ] ) ] ⟩
+--     ● `[ K , not⟨ M ⟩ ]
+--   ˢ⟶ⱽ⟨ β+₂ V-not ⟩
+--       not[ μγ (inl⟨ γ 0 ⟩ ● `[ wkΓᶜ K , not⟨ wkΓᵗ M ⟩ ] ) ]
+--     ● not⟨ M ⟩
+--   ˢ⟶ⱽ⟨ β¬ ⟩
+--       M
+--     ● μγ (inl⟨ γ 0 ⟩ ● `[ wkΓᶜ K , not⟨ wkΓᵗ M ⟩ ] )
+--   ˢ⟶ⱽ⟨ βL M:V ⟩
+--       inl⟨ M ⟩
+--     ● `[ (wkΓᶜ K) ⟨ M /⟩ᶜ , not⟨ (wkΓᵗ M) ⟨ M /⟩ᵗ ⟩ ]
+--   ˢ⟶ⱽ⟨ {!   !} ⟩
+--       inl⟨ M ⟩
+--     ● `[ K , not⟨ M ⟩ ]
+--   ˢ⟶ⱽ⟨ β+₁ M:V ⟩
+--     M ● K
+--   ∎ⱽ
