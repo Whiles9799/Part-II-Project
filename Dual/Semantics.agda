@@ -5,6 +5,8 @@ open import Dual.Substitution
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl; cong; cong₂; sym; trans)
 open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; step-≡; _∎)
+open import Data.Product using (Σ)
+open import Dual.Values
 
 
 infix 2 _ˢ⟶ⱽ_
@@ -14,62 +16,6 @@ infix 2 _ᵗ⟶ⱽ_
 infix 2 _ˢ⟶ᴺ_
 infix 2 _ᶜ⟶ᴺ_
 infix 2 _ᵗ⟶ᴺ_
-
-data Value : ∀ {Γ Θ A} → Γ ⟶ Θ ∣ A → Set 
-data Covalue : ∀ {Γ Θ A} → A ∣ Γ ⟶ Θ → Set
-
-data Value where
-
-  V-var : ∀ {Γ Θ A} {x : Γ ∋ A}
-      ---------
-    → Value {Θ = Θ} (` x)
-
-  V-prod : ∀ {Γ Θ A B} {M : Γ ⟶ Θ ∣ A} {N : Γ ⟶ Θ ∣ B}
-    → Value M
-    → Value N
-      ---------------
-    → Value `⟨ M , N ⟩
-
-  V-inl : ∀ {Γ Θ A B} {M : Γ ⟶ Θ ∣ A}
-    → Value M
-      -------------
-    → Value (inl⟨_⟩ {B = B} M)
-
-  V-inr : ∀ {Γ Θ A B} {M : Γ ⟶ Θ ∣ B}
-    → Value M
-      -------------
-    → Value (inr⟨_⟩ {A = A} M)
-
-  V-not : ∀ {Γ Θ A} {K : A ∣ Γ ⟶ Θ}
-      --------------
-    → Value not[ K ]
-
-
-data Covalue where
-  
-  CV-covar : ∀ {Γ Θ A} {α : Θ ∋ A}
-      -------
-    → Covalue {Γ = Γ} (` α)
-
-  CV-sum : ∀ {Γ Θ A B} {K : A ∣ Γ ⟶ Θ} {L : B ∣ Γ ⟶ Θ}
-    → Covalue K
-    → Covalue L
-      ------------------
-    → Covalue `[ K , L ]
-
-  CV-fst : ∀ {Γ Θ A B} {K : A ∣ Γ ⟶ Θ}
-    → Covalue K
-      ----------------
-    → Covalue (fst[_] {B = B} K)
-
-  CV-snd : ∀ {Γ Θ A B} {K : B ∣ Γ ⟶ Θ}
-    → Covalue K
-      ----------------
-    → Covalue (snd[_] {A = A} K)
-
-  CV-not : ∀ {Γ Θ A} {M : Γ ⟶ Θ ∣ A}
-      --------------
-    → Covalue not⟨ M ⟩
 
 
 _⟨_/⟩ᵗ : ∀ {Γ Θ A B} 
@@ -90,6 +36,13 @@ _⟨_/⟩ˢ : ∀ {Γ Θ A}
     ----------
   → Γ ↦ Θ
 
+_ⱽ⟨_/⟩ˢ : ∀ {Γ Θ A}
+  → Γ , A ↦ Θ
+  → TermValue Γ Θ A
+    ---------------
+  → Γ ↦ Θ
+
+
 _[_/]ᵗ : ∀ {Γ Θ A B}
   → Γ ⟶ Θ , A ∣ B
   → A ∣ Γ ⟶ Θ
@@ -108,17 +61,19 @@ _[_/]ˢ : ∀ {Γ Θ A}
     ----------
   → Γ ↦ Θ
 
-N ⟨ M /⟩ᵗ = sub-term TermKit CotermKit (λ{`Z → M ; (`S x) → ` x}) id-coterm N
+_⟨_/⟩ᵗ {Γ}{Θ} N M = sub-term TermKit CotermKit (add (λ Γ A → Γ ⟶ Θ ∣ A) M id-term) id-coterm N
 
-L ⟨ M /⟩ᶜ = sub-coterm TermKit CotermKit (λ{`Z → M ; (`S x) → ` x}) id-coterm L
+_⟨_/⟩ᶜ {Γ}{Θ} L M = sub-coterm TermKit CotermKit (add (λ Γ A → Γ ⟶ Θ ∣ A) M id-term) id-coterm L
 
-S ⟨ M /⟩ˢ = sub-statement TermKit CotermKit (λ{`Z → M ; (`S x) → ` x}) id-coterm S
+_⟨_/⟩ˢ {Γ}{Θ} S M = sub-statement TermKit CotermKit (add (λ Γ A → Γ ⟶ Θ ∣ A) M id-term) id-coterm S
 
-N [ K /]ᵗ = sub-term TermKit CotermKit id-term (λ{`Z → K ; (`S x) → ` x}) N
+_ⱽ⟨_/⟩ˢ {Γ}{Θ} S V = sub-statement TermValueKit CotermKit (add (λ Γ A → TermValue Γ Θ A) V id-termvalue) id-coterm S
 
-L [ K /]ᶜ = sub-coterm TermKit CotermKit id-term (λ{`Z → K ; (`S x) → ` x}) L
+_[_/]ᵗ {Γ}{Θ} N K = sub-term TermValueKit CotermKit id-termvalue (add (λ Θ A → A ∣ Γ ⟶ Θ) K id-coterm) N
 
-S [ K /]ˢ = sub-statement TermKit CotermKit id-term (λ{`Z → K ; (`S x) → ` x}) S
+_[_/]ᶜ {Γ}{Θ} L K = sub-coterm TermValueKit CotermKit id-termvalue (add (λ Θ A → A ∣ Γ ⟶ Θ) K id-coterm) L
+
+_[_/]ˢ {Γ}{Θ} S K = sub-statement TermValueKit CotermKit id-termvalue (add (λ Θ A → A ∣ Γ ⟶ Θ) K id-coterm) S
 
 
 data _ˢ⟶ⱽ_ : ∀ {Γ Θ} → (Γ ↦ Θ) → (Γ ↦ Θ) → Set where
@@ -147,10 +102,9 @@ data _ˢ⟶ⱽ_ : ∀ {Γ Θ} → (Γ ↦ Θ) → (Γ ↦ Θ) → Set where
       -----------------------------
     → not[ K ] ● not⟨ M ⟩ ˢ⟶ⱽ M ● K
 
-  βL : ∀ {Γ Θ A} {V : Γ ⟶ Θ ∣ A} {S : Γ , A ↦ Θ}
-    → Value V
+  βL : ∀ {Γ Θ A} {V : Γ ⟶ Θ ∣ A} {S : Γ , A ↦ Θ} (v : Value V)
       ------------------------------
-    → V ● (μγ S) ˢ⟶ⱽ S ⟨ V /⟩ˢ
+    → V ● (μγ S) ˢ⟶ⱽ S ⱽ⟨ V Data.Product., v /⟩ˢ
 
   βR : ∀ {Γ Θ A} {K : A ∣ Γ ⟶ Θ} {S : Γ ↦ Θ , A}
       ------------------------

@@ -1,9 +1,12 @@
 module Dual.Substitution where
 
 open import Dual.Syntax
+open import Dual.Values
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl; cong; cong₂; sym; trans)
 open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; step-≡; _∎)
+open import Data.Product using (Σ ; proj₁ ; proj₂) renaming ( _,_ to ⟨_,_⟩ )
+
 
 data Subst (T : Context → Type → Set): Context → Context → Set where
   ⨀  : ∀ {Γ} → Subst T Γ ∅
@@ -24,6 +27,11 @@ _–[_]→_ : Context → Sorted-Family → Context → Set
 -- Renaming map
 _↝_ : Context → Context → Set
 Γ ↝ Δ = Γ –[ _∋_ ]→ Δ
+
+-- Adding a term to a context map
+add : ∀{Γ Δ A}(T : Context → Type → Set) → T Δ A → Γ –[ T ]→ Δ → (Γ , A) –[ T ]→ Δ
+add T t σ `Z = t
+add T t σ (`S v) = σ v
 
 record VarSubstKit (T : Context → Type → Set) : Set where
   field
@@ -102,6 +110,9 @@ id-var = λ x → x
 id-term : ∀ {Γ Θ} → Γ –[ (λ - → _⟶_∣_ - Θ) ]→  Γ
 id-term x = ` x
 
+id-termvalue : ∀ {Γ Θ} → Γ –[ (λ Γ A → TermValue Γ Θ A) ]→ Γ
+id-termvalue x = ⟨ (` x) , V-var ⟩
+
 id-coterm : ∀ {Γ Θ} →  Θ –[ (λ - A → A ∣ Γ ⟶ -) ]→ Θ
 id-coterm x = ` x
 
@@ -142,6 +153,21 @@ CotermKit = record
   {  tm = λ a → a 
   ;  wkΓ = rename-coterm (rename-weaken id-var) id-var
   ;  kit = record { vr = `_ ; wk = rename-coterm id-var (rename-weaken id-var) }
+  }
+
+value-invariant-under-renaming : ∀ {Γ Γ′ Θ Θ′ A} {V : Γ ⟶ Θ ∣ A} (ρ : Γ ↝ Γ′) (ϱ : Θ ↝ Θ′) →
+  Value V → Value (rename-term ρ ϱ V)
+value-invariant-under-renaming ρ ϱ V-var = V-var
+value-invariant-under-renaming ρ ϱ (V-prod v v₁) = V-prod (value-invariant-under-renaming ρ ϱ v) (value-invariant-under-renaming ρ ϱ v₁)
+value-invariant-under-renaming ρ ϱ (V-inl v) = V-inl (value-invariant-under-renaming ρ ϱ v)
+value-invariant-under-renaming ρ ϱ (V-inr v) = V-inr (value-invariant-under-renaming ρ ϱ v)
+value-invariant-under-renaming ρ ϱ V-not = V-not  
+
+TermValueKit : TermSubstKit TermValue
+TermValueKit = record
+  {  tm = λ x → proj₁ x
+  ;  wkΘ = λ x → ⟨ (TermSubstKit.wkΘ TermKit (proj₁ x)) , value-invariant-under-renaming id-var (rename-weaken id-var) (proj₂ x) ⟩
+  ;  kit = record { vr = λ x → ⟨ ` x , V-var ⟩ ; wk = λ x → ⟨ (VarSubstKit.wk (TermSubstKit.kit TermKit) (proj₁ x)) , value-invariant-under-renaming (rename-weaken id-var) id-var (proj₂ x) ⟩ }
   }
 
 wkΓᵗ : ∀ {Γ Θ A B} → Γ ⟶ Θ ∣ A → Γ , B ⟶ Θ ∣ A
