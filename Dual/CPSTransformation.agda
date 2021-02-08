@@ -221,9 +221,17 @@ Sⱽ≡Sᵒᴺ (M ● K) c             = trans (Mⱽ≡Mᵒᴺ M c ((K ⱽᴿ) c
 --     ((M ᵒᴸ) ᴺᴿ) c (((K ᵒᴿ) ᴺᴸ) c)
 --   ∎
 
-Mⱽcλz→X≡X : ∀ {Γ Θ A} (M : Γ ⟶ Θ ∣ A) (c : Γ ⱽˣ × (`¬ˣ Θ) ⱽˣ) (X : R) → (M ⱽᴸ) c (λ z → X) ≡ X
-Kⱽcλz→X≡X : ∀ {Γ Θ A} (K : A ∣ Γ ⟶ Θ) (c : Γ ⱽˣ × (`¬ˣ Θ) ⱽˣ) (X : R) → (K ⱽᴿ) c ≡ (λ z → X)
-Sⱽcλz→X≡X : ∀ {Γ Θ}   (S : Γ ↦ Θ)     (c : Γ ⱽˣ × (`¬ˣ Θ) ⱽˣ) (X : R) → {!   !}
+cps-value : ∀ {Γ Θ A} (V : Γ ⟶ Θ ∣ A) (v : Value V) (c : Γ ⱽˣ × (`¬ˣ Θ) ⱽˣ) → (V ⱽᴸ) c ≡ λ x → x ((⟨ V , v ⟩ ⱽᴸⱽ) c)
+cps-value (` x) V-var c = refl
+cps-value `⟨ V , W ⟩ (V-prod v w) c = ext (λ x → trans ((cong (λ - → - (λ x₁ → (W ⱽᴸ) c (λ y → x ⟨ x₁ , y ⟩)))) (cps-value V v c)) (cong (λ - → - (λ y → x ⟨ (⟨ V , v ⟩ ⱽᴸⱽ) c , y ⟩)) (cps-value W w c)))
+cps-value inl⟨ V ⟩ (V-inl v) c = ext (λ x → cong (λ - → - (λ x₁ → x (inj₁ x₁))) (cps-value V v c))
+cps-value inr⟨ V ⟩ (V-inr v) c = ext (λ x → cong (λ - → - (λ x₁ → x (inj₂ x₁))) (cps-value V v c))
+cps-value not[ K ] V-not c = refl
+
+Mⱽcλz→X≡X : ∀ {Γ Θ A} (M : Γ ⟶ Θ ∣ A) (c : Γ ⱽˣ × (`¬ˣ Θ) ⱽˣ) (X : R) → ((M ⱽᴸ) c (λ x → X)) ≡ X
+Sⱽcλz→X≡X : ∀ {Γ Θ A} (S : Γ ↦ Θ , A) (c₁ : Γ ⱽˣ) (c₂ : (`¬ˣ Θ) ⱽˣ) (X : R) → ((S ⱽˢ) ⟨ c₁ , ⟨ c₂ , (λ x → X) ⟩ ⟩) ≡ X
+
+
 Mⱽcλz→X≡X (` x) c X = refl
 Mⱽcλz→X≡X `⟨ M , N ⟩ c X = trans (Mⱽcλz→X≡X M c ((N ⱽᴸ) c (λ z → X))) (Mⱽcλz→X≡X N c X)
 Mⱽcλz→X≡X inl⟨ M ⟩ c X = Mⱽcλz→X≡X M c X
@@ -231,22 +239,16 @@ Mⱽcλz→X≡X inr⟨ M ⟩ c X = Mⱽcλz→X≡X M c X
 Mⱽcλz→X≡X not[ K ] c X = refl
 Mⱽcλz→X≡X (μθ S) c X = {!   !} --⟨ proj₁ c , ⟨ proj₂ c , (λ z → X) ⟩ ⟩ X
 
-Kⱽcλz→X≡X (` α) c X = {!   !}
-Kⱽcλz→X≡X fst[ K ] c X = {!   !}
-Kⱽcλz→X≡X snd[ K ] c X = {!   !}
-Kⱽcλz→X≡X `[ K , L ] c X = {!   !}
-Kⱽcλz→X≡X not⟨ M ⟩ c X = {!  !}
-Kⱽcλz→X≡X (μγ S) c X = {!   !}
 
-Sⱽcλz→X≡X (M ● K) c X = {!   !}
+Sⱽcλz→X≡X (M ● K) c₁ c₂ X = {!   !}
 
-ren-int : ∀ Γ Γ′ → Γ ↝ Γ′ → (Γ′ ⱽˣ) → (Γ ⱽˣ)
-ren-int ∅ Γ′ ρ γ = tt
-ren-int (Γ , x) Γ′ ρ γ = ⟨ (ren-int Γ Γ′ (λ z → ρ (`S z)) γ) , ((ρ `Z ⱽⱽ) γ) ⟩
+ren-int : ∀ Γ Γ′ Θ → Γ ↝ Γ′ → ((`¬ˣ Θ) ⱽˣ) → (Γ′ ⱽˣ) → (Γ ⱽˣ)
+ren-int ∅ Γ′ Θ ρ θ γ = tt
+ren-int (Γ , A) Γ′ Θ ρ θ γ = ⟨ ren-int Γ Γ′ Θ (λ x → ρ (`S x)) θ γ , ((ρ `Z) ⱽⱽ) γ ⟩
 
-neg-ren-int : ∀ Γ Γ′ → Γ ↝ Γ′ → ((`¬ˣ Γ′) ⱽˣ) → ((`¬ˣ Γ) ⱽˣ)
-neg-ren-int ∅ Γ′ ρ γ = tt
-neg-ren-int (Γ , x) Γ′ ρ γ = ⟨ (neg-ren-int Γ Γ′ (λ z → ρ (`S z)) γ) , (ρ (`S {!   !}) ⱽⱽ) {!   !} ⟩
+neg-ren-int : ∀ Γ Θ Θ′ → Θ ↝ Θ′ → Γ ⱽˣ → ((`¬ˣ Θ′) ⱽˣ) → ((`¬ˣ Θ) ⱽˣ)
+neg-ren-int Γ ∅ Θ′ ρ γ θ = tt
+neg-ren-int Γ (Θ , A) Θ′ ρ γ θ = ⟨ (neg-ren-int Γ Θ Θ′ (λ x → ρ (`S x)) γ θ) , ((Γ∋A⇒¬Γ∋¬A (ρ `Z) ⱽⱽ) θ) ⟩
  
 termvalue-sub-int : ∀ Γ Γ′ Θ → Γ –[ (λ Γ A → TermValue Γ Θ A) ]→ Γ′ → ((`¬ˣ Θ) ⱽˣ) → (Γ′ ⱽˣ) → (Γ ⱽˣ)
 termvalue-sub-int ∅ Γ′ Θ σ θ γ = tt
@@ -275,21 +277,36 @@ sub-lemma-coterm : ∀ {Γ Γ′ Θ Θ′ A} (s : Γ –[ (λ Γ A → TermValue
 sub-lemma-statement : ∀ {Γ Γ′ Θ Θ′} (s : Γ –[ (λ Γ A → TermValue Γ Θ′ A) ]→ Γ′) (t : Θ –[ (λ Θ A → A ∣ Γ′ ⟶ Θ) ]→ Θ′) (S : Γ ↦ Θ) (γ : Γ′ ⱽˣ) (θ : (`¬ˣ Θ′) ⱽˣ ) →
   ((sub-statement TermValueKit CotermKit s t S) ⱽˢ) ⟨ γ , θ ⟩ ≡ (S ⱽˢ) ⟨ termvalue-sub-int Γ Γ′ Θ′ s θ γ , coterm-sub-int Γ′ Θ Θ′ t γ θ ⟩
 
-sub-lemma-term s t (` x) γ θ = {!   !} 
+sub-lemma-term s t (` x) γ θ = {!   !}
 sub-lemma-term {Γ}{Γ′}{Θ}{Θ′} s t `⟨ M , N ⟩ γ θ = ext (λ k → trans 
   (cong (λ - → - (λ x → (sub-term TermValueKit CotermKit s t N ⱽᴸ) ⟨ γ , θ ⟩ (λ y → k ⟨ x , y ⟩))) (sub-lemma-term s t M γ θ)) 
   (cong (λ - → (M ⱽᴸ) ⟨ termvalue-sub-int Γ Γ′ Θ′ s θ γ , coterm-sub-int Γ′ Θ Θ′ t γ θ ⟩ (λ x → - (λ y → k ⟨ x , y ⟩))) (sub-lemma-term s t N γ θ)))
 sub-lemma-term s t inl⟨ M ⟩ γ θ = ext (λ k → cong (λ - → - (λ x → k (inj₁ x))) (sub-lemma-term s t M γ θ))
 sub-lemma-term s t inr⟨ M ⟩ γ θ = ext (λ k → cong (λ - → - (λ x → k (inj₂ x))) (sub-lemma-term s t M γ θ))
 sub-lemma-term s t not[ K ] γ θ = ext (λ k → cong k (sub-lemma-coterm s t K γ θ))
-sub-lemma-term s t (μθ S) γ θ = ext (λ x → sub-lemma-statement ({!   !}) ({!   !}) {!   !} {!   !} {!   !} )
+sub-lemma-term {Γ}{Γ′}{Θ}{Θ′} s t (μθ S) γ θ = ext (λ k → 
+  begin 
+    (sub-statement TermValueKit CotermKit 
+    (fmap (λ x → ⟨ rename-term id-var (rename-weaken id-var) (proj₁ x) , 
+    value-invariant-under-renaming id-var (rename-weaken id-var) (proj₂ x) ⟩) s)
+    (sub-lift (CotermSubstKit.kit CotermKit) t) S ⱽˢ) ⟨ γ , ⟨ θ , k ⟩ ⟩
+  ≡⟨ {!   !} ⟩
+    {!   !}
+  ≡⟨ {!   !} ⟩
+    (sub-statement TermValueKit CotermKit s ( {!   !}) S ⱽˢ) ⟨ γ , θ ⟩
+  ≡⟨ sub-lemma-statement {!   !} ({!   !}) S γ θ ⟩
+    (S ⱽˢ)
+    ⟨ termvalue-sub-int Γ Γ′ Θ′ s θ γ ,
+    ⟨ coterm-sub-int Γ′ Θ Θ′ t γ θ , k ⟩ ⟩ 
+  ∎
+  )
 
 sub-lemma-coterm s t (` α) γ θ = {!   !}
 sub-lemma-coterm s t fst[ K ] γ θ = cong (λ - → λ { ⟨ x , _ ⟩ → - x }) (sub-lemma-coterm s t K γ θ)
 sub-lemma-coterm s t snd[ K ] γ θ = cong (λ - → λ { ⟨ _ , y ⟩ → - y }) (sub-lemma-coterm s t K γ θ) --ext (λ{⟨ _ , y ⟩ → cong ((λ - → λ { ⟨ _ , y ⟩ → - y }) ⟨ _ , y ⟩) (sub-lemma-coterm s t K γ θ)})
 sub-lemma-coterm {Γ} {Γ′} {Θ} {Θ′} {A `+ B} s t `[ K , L ] γ θ = ext (λ{(inj₁ x) → cong (λ - → - x) (sub-lemma-coterm s t K γ θ) ; (inj₂ y) → cong (λ - → - y) (sub-lemma-coterm s t L γ θ)})
 sub-lemma-coterm s t not⟨ M ⟩ γ θ = sub-lemma-term s t M γ θ
-sub-lemma-coterm s t (μγ S) γ θ = ext (λ x → sub-lemma-statement {!   !} {!   !} ({!   !}) {!   !} {!   !})
+sub-lemma-coterm s t (μγ S) γ θ = ext (λ x → {!   !})
 
 sub-lemma-statement {Γ} {Γ′} {Θ} {Θ′} s t (M ● K) γ θ = 
   begin
@@ -300,13 +317,31 @@ sub-lemma-statement {Γ} {Γ′} {Θ} {Θ′} s t (M ● K) γ θ =
     (M ⱽᴸ) ⟨ termvalue-sub-int Γ Γ′ Θ′ s θ γ , coterm-sub-int Γ′ Θ Θ′ t γ θ ⟩ ((K ⱽᴿ) ⟨ termvalue-sub-int Γ Γ′ Θ′ s θ γ , coterm-sub-int Γ′ Θ Θ′ t γ θ ⟩)
   ∎
 
+termvalue-sub-int-lemma : ∀ {Γ Γ′ Θ} (ρ : Γ ↝ Γ′) γ₁ γ₂ θ → termvalue-sub-int Γ Γ′ Θ (λ x → id-termvalue (ρ x)) θ ⟨ γ₁ , γ₂ ⟩ ≡ termvalue-sub-int Γ Γ Θ (λ x → id-termvalue x) θ γ₁
+termvalue-sub-int-lemma {∅} ρ γ₁ γ₂ θ = refl
+termvalue-sub-int-lemma {Γ , A} A ρ γ₁ γ₂ θ = cong (λ - → ⟨ - , proj₂ γ₁ ⟩) {!  !}
+
 id-termvalue-sub-int : ∀ Γ Θ γ θ → termvalue-sub-int Γ Γ Θ id-termvalue θ γ ≡ γ
 id-termvalue-sub-int ∅ Θ γ θ = refl
-id-termvalue-sub-int (Γ , A) Θ ⟨ γ₁ , γ₂ ⟩ θ = cong (λ - → ⟨ - , γ₂ ⟩) {!   !}
+id-termvalue-sub-int (Γ , A) Θ ⟨ γ₁ , γ₂ ⟩ θ = cong (λ - → ⟨ - , γ₂ ⟩)
+  (begin 
+    termvalue-sub-int Γ (Γ , A) Θ (λ x → id-termvalue (`S x)) θ ⟨ γ₁ , γ₂ ⟩
+  ≡⟨ termvalue-sub-int-lemma Γ Θ A `S γ₁ γ₂ θ ⟩
+    termvalue-sub-int Γ Γ Θ (λ x → id-termvalue x) θ γ₁
+  ≡⟨ id-termvalue-sub-int Γ Θ γ₁ θ ⟩
+    γ₁
+  ∎)
 
 id-coterm-sub-int : ∀ Γ Θ γ θ → coterm-sub-int Γ Θ Θ id-coterm γ θ ≡ θ
 id-coterm-sub-int Γ ∅ γ θ = refl
-id-coterm-sub-int Γ (Θ , A) γ ⟨ θ₁ , θ₂ ⟩ = cong (λ - → ⟨ - , θ₂ ⟩) {!   !}
+id-coterm-sub-int Γ (Θ , A) γ ⟨ θ₁ , θ₂ ⟩ = cong (λ - → ⟨ - , θ₂ ⟩) 
+  (begin 
+    coterm-sub-int Γ Θ (Θ , A) (λ z → id-coterm (`S z)) γ ⟨ θ₁ , θ₂ ⟩
+  ≡⟨ {!   !} ⟩ 
+    coterm-sub-int Γ Θ Θ (λ z → id-coterm z) γ θ₁
+  ≡⟨ id-coterm-sub-int Γ Θ γ θ₁ ⟩
+    θ₁
+  ∎)
 
 
 
@@ -327,7 +362,7 @@ S⟶ⱽT⇒Sⱽ≡Tⱽ {Γ} {Θ} (V ● μγ {Γ}{Θ}{A} S) .(S ⱽ⟨ ⟨ V , v
     (S ⱽˢ) ⟨ ⟨ termvalue-sub-int Γ Γ Θ (λ x → id-termvalue x) c₂ c₁ , (⟨ V , v ⟩ ⱽᴸⱽ) ⟨ c₁ , c₂ ⟩ ⟩ , c₂ ⟩
   ≡⟨ cong (λ - → (S ⱽˢ) ⟨ ⟨ - , (⟨ V , v ⟩ ⱽᴸⱽ) ⟨ c₁ , c₂ ⟩ ⟩ , c₂ ⟩) (id-termvalue-sub-int Γ Θ c₁ c₂) ⟩
     (S ⱽˢ) ⟨ ⟨ c₁ , (⟨ V , v ⟩ ⱽᴸⱽ) ⟨ c₁ , c₂ ⟩ ⟩ , c₂ ⟩
-  ≡⟨ {!   !} ⟩
+  ≡⟨ sym (cong (λ - → - (λ x → (S ⱽˢ) ⟨ ⟨ c₁ , x ⟩ , c₂ ⟩)) (cps-value V v ⟨ c₁ , c₂ ⟩)) ⟩
     (V ⱽᴸ) ⟨ c₁ , c₂ ⟩ (λ x → (S ⱽˢ) ⟨ ⟨ c₁ , x ⟩ , c₂ ⟩)
   ∎)
 S⟶ⱽT⇒Sⱽ≡Tⱽ {Γ}{Θ}(μθ {Γ}{Θ}{A} S ● K) .(S [ K /]ˢ) ⟨ c₁ , c₂ ⟩ (βR) = sym (
@@ -346,15 +381,39 @@ S—↠ⱽT⇒Sⱽ≡Tⱽ : ∀ {Γ Θ} (S T : Γ ↦ Θ) (c : (Γ ᵒˣ) ᴺˣ 
 S—↠ⱽT⇒Sⱽ≡Tⱽ S .S c (.S ∎ˢⱽ) = refl
 S—↠ⱽT⇒Sⱽ≡Tⱽ S T c ( _ˢ⟶ⱽ⟨_⟩_ .S {S′} {T} S⟶S′ S′↠T) = trans (S⟶ⱽT⇒Sⱽ≡Tⱽ S S′ c S⟶S′) (S—↠ⱽT⇒Sⱽ≡Tⱽ S′ T c S′↠T)
 
--- ren-lemma-term : ∀ {Γ Γ′ Θ Θ′ A} (s : Γ ↝ Γ′) (t : Θ ↝ Θ′) (M : Γ ⟶ Θ ∣ A) (γ : Γ′ ⱽˣ) (θ : (`¬ˣ Θ′) ⱽˣ) (k : ((`¬ A) ⱽᵀ)) →
---   (rename-term s t M ⱽᴸ) ⟨ γ , θ ⟩ k ≡ (M ⱽᴸ) ⟨ ren-int Γ Γ′ s γ , ren-int {!  !} Θ′ {!   !} {!   !} ⟩ k
+ren-lemma-term : ∀ {Γ Γ′ Θ Θ′ A} (M : Γ ⟶ Θ ∣ A) (s : Γ ↝ Γ′) (t : Θ ↝ Θ′) (c₁ : Γ′ ⱽˣ) (c₂ : `¬ˣ Θ′ ⱽˣ) (k : ((`¬ A) ⱽᵀ))
+  → (M ⱽᴸ) ⟨ ren-int Γ Γ′ Θ′ s c₂ c₁ , neg-ren-int Γ′ Θ Θ′ t c₁ c₂ ⟩ k ≡
+    (rename-term s t M ⱽᴸ) ⟨ c₁ , c₂ ⟩ k
+ren-lemma-coterm : ∀ {Γ Γ′ Θ Θ′ A} (K : A ∣ Γ ⟶ Θ) (s : Γ ↝ Γ′) (t : Θ ↝ Θ′) (c₁ : Γ′ ⱽˣ) (c₂ : `¬ˣ Θ′ ⱽˣ) (k : A ⱽᵀ)
+  → (K ⱽᴿ) ⟨ ren-int Γ Γ′ Θ′ s c₂ c₁ , neg-ren-int Γ′ Θ Θ′ t c₁ c₂ ⟩ k ≡
+    (rename-coterm s t K ⱽᴿ) ⟨ c₁ , c₂ ⟩ k
+ren-lemma-statement : ∀ {Γ Γ′ Θ Θ′} (S : Γ ↦ Θ) (s : Γ ↝ Γ′) (t : Θ ↝ Θ′) (c₁ : Γ′ ⱽˣ) (c₂ : `¬ˣ Θ′ ⱽˣ)
+  → (S ⱽˢ) ⟨ ren-int Γ Γ′ Θ′ s c₂ c₁ , neg-ren-int Γ′ Θ Θ′ t c₁ c₂ ⟩ ≡
+    (rename-statement s t S ⱽˢ) ⟨ c₁ , c₂ ⟩ 
 
--- ren-lemma-term s t (` x) γ θ k = {!   !}
--- ren-lemma-term s t `⟨ M , M₁ ⟩ γ θ k = {!   !}
--- ren-lemma-term s t inl⟨ M ⟩ γ θ k = {!   !}
--- ren-lemma-term s t inr⟨ M ⟩ γ θ k = {!   !}
--- ren-lemma-term s t not[ x ] γ θ k = {!   !}
--- ren-lemma-term s t (μθ x) γ θ k = {!   !}
+ren-lemma-term (` x) s t c₁ c₂ k = {!   !}
+ren-lemma-term {Γ}{Γ′}{Θ}{Θ′} `⟨ M , N ⟩ s t c₁ c₂ k = trans (cong (λ - → (M ⱽᴸ) ⟨ ren-int Γ Γ′ Θ′ s c₂ c₁ , neg-ren-int Γ′ Θ Θ′ t c₁ c₂ ⟩ (λ x → - (λ y → k ⟨ x , y ⟩))) (ext (λ x → ren-lemma-term N s t c₁ c₂ x))) (cong (λ - → - (λ x → (rename-term s t N ⱽᴸ) ⟨ c₁ , c₂ ⟩ (λ y → k ⟨ x , y ⟩))) (ext (λ x → ren-lemma-term M s t c₁ c₂ x)))
+ren-lemma-term inl⟨ M ⟩ s t c₁ c₂ k = ren-lemma-term M s t c₁ c₂ λ x → k (inj₁ x)
+ren-lemma-term inr⟨ M ⟩ s t c₁ c₂ k = ren-lemma-term M s t c₁ c₂ λ x → k (inj₂ x)
+ren-lemma-term not[ K ] s t c₁ c₂ k = cong k (ext (λ x → ren-lemma-coterm K s t c₁ c₂ x))
+ren-lemma-term (μθ S) s t c₁ c₂ k = {!   !}
+
+ren-lemma-coterm (` α) s t c₁ c₂ k = {!   !}
+ren-lemma-coterm fst[ K ] s t c₁ c₂ k = cong (λ - → - k) (ext (λ x → ren-lemma-coterm K s t c₁ c₂ (proj₁ x)))
+ren-lemma-coterm snd[ K ] s t c₁ c₂ k = cong (λ - → - k) (ext (λ x → ren-lemma-coterm K s t c₁ c₂ (proj₂ x)))
+ren-lemma-coterm `[ K , L ] s t c₁ c₂ k = cong (λ - → - k) (ext (λ{(inj₁ x) → ren-lemma-coterm K s t c₁ c₂ x ; (inj₂ y) → ren-lemma-coterm L s t c₁ c₂ y}))
+ren-lemma-coterm not⟨ M ⟩ s t c₁ c₂ k = ren-lemma-term M s t c₁ c₂ k
+ren-lemma-coterm {Γ}{Γ′}{Θ}{Θ′} (μγ S) s t c₁ c₂ k = {!   !}
+  -- begin 
+  --   (S ⱽˢ) ⟨ ⟨ ren-int Γ Γ′ Θ′ s c₂ c₁ , k ⟩ , neg-ren-int Γ′ Θ Θ′ t c₁ c₂ ⟩
+  -- ≡⟨ ren-lemma-statement S (rename-lift s) t ⟨ c₁ , k ⟩ c₂ ⟩
+  -- {!   !}
+
+ren-lemma-statement {Γ} {Γ′} {Θ} {Θ′} (M ● K) s t c₁ c₂ = trans (cong ((M ⱽᴸ) ⟨ ren-int Γ Γ′ Θ′ s c₂ c₁ , neg-ren-int Γ′ Θ Θ′ t c₁ c₂ ⟩ ) (ext (λ x → ren-lemma-coterm K s t c₁ c₂ x))) (cong (λ - → - (λ z → (rename-coterm s t K ⱽᴿ) ⟨ c₁ , c₂ ⟩ z)) (ext (λ x → ren-lemma-term M s t c₁ c₂ x)))
+
+weaken-ren-int-lemma : ∀ Γ Θ A γ θ k → ren-int Γ (Γ , A) Θ (rename-weaken id-var) θ ⟨ γ , k ⟩ ≡ γ
+weaken-ren-int-lemma ∅ Θ A γ θ k = refl
+weaken-ren-int-lemma (Γ , x) Θ A γ θ k = {!   !}
 
 
 M⟶ⱽN⇒Mⱽ≡Nⱽ : ∀ {Γ Θ A} (M N : Γ ⟶ Θ ∣ A) (c : (Γ ᵒˣ) ᴺˣ × `¬ˣ (Θ ᵒˣ) ᴺˣ) (k : ((`¬ A) ⱽᵀ)) → M ᵗ⟶ⱽ N → (M ⱽᴸ) c k ≡ (N ⱽᴸ) c k
@@ -364,19 +423,19 @@ M—↠ⱽN⇒Mⱽ≡Nⱽ : ∀ {Γ Θ A} (M N : Γ ⟶ Θ ∣ A) (c : (Γ ᵒˣ
 M—↠ⱽN⇒Mⱽ≡Nⱽ M .M c k (.M ∎ᵗⱽ) = refl
 M—↠ⱽN⇒Mⱽ≡Nⱽ M N c k ( _ᵗ⟶ⱽ⟨_⟩_ .M {M′} {N} M⟶M′ M′↠N) = trans (M⟶ⱽN⇒Mⱽ≡Nⱽ M M′ c k M⟶M′) (M—↠ⱽN⇒Mⱽ≡Nⱽ M′ N c k M′↠N)
 
--- lemma : ∀ {Γ Θ A} (K : A ∣ Γ ⟶ Θ) (c : (Γ ᵒˣ) ᴺˣ × `¬ˣ (Θ ᵒˣ) ᴺˣ) (k : (A) ⱽᵀ)
---   →   (K ⱽᴿ) c ≡
---       (rename-coterm (rename-weaken id-var) id-var K ⱽᴿ) ⟨ ⟨ proj₁ c , k ⟩ , proj₂ c ⟩
--- lemma (` α) c k = refl
--- lemma fst[ K ] c k = ext {!   !}
--- lemma snd[ K ] c k = {!   !}
--- lemma `[ K , L ] c k = {!   !}
--- lemma not⟨ M ⟩ c k = {!   !}
--- lemma (μγ S) c k = {!   !}
 
 K⟶ⱽL⇒Kⱽ≡Lⱽ : ∀ {Γ Θ A} (K L : A ∣ Γ ⟶ Θ) (c : (Γ ᵒˣ) ᴺˣ × `¬ˣ (Θ ᵒˣ) ᴺˣ) (k : (A) ⱽᵀ) → K ᶜ⟶ⱽ L → (K ⱽᴿ) c k ≡ (L ⱽᴿ) c k
-K⟶ⱽL⇒Kⱽ≡Lⱽ K .(μγ (` `Z ● rename-coterm (rename-weaken id-var) id-var K)) ⟨ c₁ , c₂ ⟩ k ηL = {!   !}
-
+K⟶ⱽL⇒Kⱽ≡Lⱽ {Γ}{Θ}{A} K .(μγ (` `Z ● rename-coterm (rename-weaken id-var) id-var K)) ⟨ c₁ , c₂ ⟩ k ηL =
+  begin
+    (K ⱽᴿ) ⟨ c₁ , c₂ ⟩ k
+  ≡⟨ cong (λ - → (K ⱽᴿ) ⟨ - , c₂ ⟩ k) {!   !} ⟩
+    (K ⱽᴿ) ⟨ ren-int Γ (Γ , A) Θ ((rename-weaken id-var)) c₂ ⟨ c₁ , k ⟩ , c₂ ⟩ k
+  ≡⟨ cong (λ - → (K ⱽᴿ) ⟨ ren-int Γ (Γ , A) Θ (rename-weaken id-var) c₂ ⟨ c₁ , k ⟩ , - ⟩ k) {!   !} ⟩
+    (K ⱽᴿ) ⟨ ren-int Γ (Γ , A) Θ ((rename-weaken id-var)) c₂ ⟨ c₁ , k ⟩ , neg-ren-int Γ Θ Θ id-var c₁ c₂ ⟩ k
+  ≡⟨ ren-lemma-coterm K (rename-weaken id-var) id-var ⟨ c₁ , k ⟩ c₂ k ⟩
+    (rename-coterm (rename-weaken id-var) id-var K ⱽᴿ) ⟨ ⟨ c₁ , k ⟩ , c₂ ⟩ k
+  ∎ 
+ 
 K—↠ⱽL⇒Kⱽ≡Lⱽ : ∀ {Γ Θ A} (K L : A ∣ Γ ⟶ Θ) (c : (Γ ᵒˣ) ᴺˣ × `¬ˣ (Θ ᵒˣ) ᴺˣ) (k : (A) ⱽᵀ) → K ᶜ—↠ⱽ L → (K ⱽᴿ) c k ≡ (L ⱽᴿ) c k
 K—↠ⱽL⇒Kⱽ≡Lⱽ K .K c k (.K ∎ᶜⱽ) = refl
 K—↠ⱽL⇒Kⱽ≡Lⱽ K L c k (_ᶜ⟶ⱽ⟨_⟩_ .K {K′} {L} K⟶K′ K′↠L) = trans (K⟶ⱽL⇒Kⱽ≡Lⱽ K K′ c k K⟶K′) (K—↠ⱽL⇒Kⱽ≡Lⱽ K′ L c k K′↠L)
