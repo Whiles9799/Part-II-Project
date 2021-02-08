@@ -277,7 +277,7 @@ sub-lemma-coterm : ∀ {Γ Γ′ Θ Θ′ A} (s : Γ –[ (λ Γ A → TermValue
 sub-lemma-statement : ∀ {Γ Γ′ Θ Θ′} (s : Γ –[ (λ Γ A → TermValue Γ Θ′ A) ]→ Γ′) (t : Θ –[ (λ Θ A → A ∣ Γ′ ⟶ Θ) ]→ Θ′) (S : Γ ↦ Θ) (γ : Γ′ ⱽˣ) (θ : (`¬ˣ Θ′) ⱽˣ ) →
   ((sub-statement TermValueKit CotermKit s t S) ⱽˢ) ⟨ γ , θ ⟩ ≡ (S ⱽˢ) ⟨ termvalue-sub-int Γ Γ′ Θ′ s θ γ , coterm-sub-int Γ′ Θ Θ′ t γ θ ⟩
 
-sub-lemma-term s t (` x) γ θ = {!   !}
+sub-lemma-term s t (` x) γ θ = sub-lemma-var {!   !} {!   !} {!   !} {!   !} {!   !} 
 sub-lemma-term {Γ}{Γ′}{Θ}{Θ′} s t `⟨ M , N ⟩ γ θ = ext (λ k → trans 
   (cong (λ - → - (λ x → (sub-term TermValueKit CotermKit s t N ⱽᴸ) ⟨ γ , θ ⟩ (λ y → k ⟨ x , y ⟩))) (sub-lemma-term s t M γ θ)) 
   (cong (λ - → (M ⱽᴸ) ⟨ termvalue-sub-int Γ Γ′ Θ′ s θ γ , coterm-sub-int Γ′ Θ Θ′ t γ θ ⟩ (λ x → - (λ y → k ⟨ x , y ⟩))) (sub-lemma-term s t N γ θ)))
@@ -317,16 +317,16 @@ sub-lemma-statement {Γ} {Γ′} {Θ} {Θ′} s t (M ● K) γ θ =
     (M ⱽᴸ) ⟨ termvalue-sub-int Γ Γ′ Θ′ s θ γ , coterm-sub-int Γ′ Θ Θ′ t γ θ ⟩ ((K ⱽᴿ) ⟨ termvalue-sub-int Γ Γ′ Θ′ s θ γ , coterm-sub-int Γ′ Θ Θ′ t γ θ ⟩)
   ∎
 
-termvalue-sub-int-lemma : ∀ {Γ Γ′ Θ} (ρ : Γ ↝ Γ′) γ₁ γ₂ θ → termvalue-sub-int Γ Γ′ Θ (λ x → id-termvalue (ρ x)) θ ⟨ γ₁ , γ₂ ⟩ ≡ termvalue-sub-int Γ Γ Θ (λ x → id-termvalue x) θ γ₁
-termvalue-sub-int-lemma {∅} ρ γ₁ γ₂ θ = refl
-termvalue-sub-int-lemma {Γ , A} A ρ γ₁ γ₂ θ = cong (λ - → ⟨ - , proj₂ γ₁ ⟩) {!  !}
+termvalue-sub-int-lemma : ∀ Γ Θ A γ₁ γ₂ θ   → termvalue-sub-int Γ (Γ , A) Θ (λ x → id-termvalue (`S x)) θ ⟨ γ₁ , γ₂ ⟩ ≡ termvalue-sub-int Γ Γ Θ (λ x → id-termvalue x) θ γ₁
+termvalue-sub-int-lemma ∅ Θ A γ₁ γ₂ θ = refl
+termvalue-sub-int-lemma (Γ , x) Θ A γ₁ γ₂ θ = cong (λ - → ⟨ - , proj₂ γ₁ ⟩) {!   !}
 
 id-termvalue-sub-int : ∀ Γ Θ γ θ → termvalue-sub-int Γ Γ Θ id-termvalue θ γ ≡ γ
 id-termvalue-sub-int ∅ Θ γ θ = refl
 id-termvalue-sub-int (Γ , A) Θ ⟨ γ₁ , γ₂ ⟩ θ = cong (λ - → ⟨ - , γ₂ ⟩)
   (begin 
     termvalue-sub-int Γ (Γ , A) Θ (λ x → id-termvalue (`S x)) θ ⟨ γ₁ , γ₂ ⟩
-  ≡⟨ termvalue-sub-int-lemma Γ Θ A `S γ₁ γ₂ θ ⟩
+  ≡⟨ termvalue-sub-int-lemma Γ Θ A γ₁ γ₂ θ ⟩
     termvalue-sub-int Γ Γ Θ (λ x → id-termvalue x) θ γ₁
   ≡⟨ id-termvalue-sub-int Γ Θ γ₁ θ ⟩
     γ₁
@@ -403,7 +403,7 @@ ren-lemma-coterm fst[ K ] s t c₁ c₂ k = cong (λ - → - k) (ext (λ x → r
 ren-lemma-coterm snd[ K ] s t c₁ c₂ k = cong (λ - → - k) (ext (λ x → ren-lemma-coterm K s t c₁ c₂ (proj₂ x)))
 ren-lemma-coterm `[ K , L ] s t c₁ c₂ k = cong (λ - → - k) (ext (λ{(inj₁ x) → ren-lemma-coterm K s t c₁ c₂ x ; (inj₂ y) → ren-lemma-coterm L s t c₁ c₂ y}))
 ren-lemma-coterm not⟨ M ⟩ s t c₁ c₂ k = ren-lemma-term M s t c₁ c₂ k
-ren-lemma-coterm {Γ}{Γ′}{Θ}{Θ′} (μγ S) s t c₁ c₂ k = {!   !}
+ren-lemma-coterm {Γ}{Γ′}{Θ}{Θ′} (μγ S) s t c₁ c₂ k = ?
   -- begin 
   --   (S ⱽˢ) ⟨ ⟨ ren-int Γ Γ′ Θ′ s c₂ c₁ , k ⟩ , neg-ren-int Γ′ Θ Θ′ t c₁ c₂ ⟩
   -- ≡⟨ ren-lemma-statement S (rename-lift s) t ⟨ c₁ , k ⟩ c₂ ⟩
