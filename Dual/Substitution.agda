@@ -7,11 +7,6 @@ open Eq using (_≡_; refl; cong; cong₂; sym; trans)
 open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; step-≡; _∎)
 open import Data.Product using (Σ ; proj₁ ; proj₂) renaming ( _,_ to ⟨_,_⟩ )
 
-
-data Subst (T : Context → Type → Set): Context → Context → Set where
-  ⨀  : ∀ {Γ} → Subst T Γ ∅
-  _,_ : ∀ {Γ Γ′ A} → Subst T Γ Γ′ → T Γ A → Subst T Γ (Γ′ , A)
-
 -- Families: context-indexed sets
 Family : Set₁
 Family = Context → Set
@@ -53,20 +48,12 @@ record CotermSubstKit (C : Context → Context → Type → Set) : Set where
   open module K {Γ} = VarSubstKit (kit {Γ}) renaming (wk to wkΘ) public
 
 
-weaken : ∀ {T Γ Γ′ A} → VarSubstKit T → Subst T Γ Γ′ → Subst T (Γ , A) Γ′
-weaken k ⨀ = ⨀
-weaken k (s , t) = (weaken k s) , VarSubstKit.wk k t
-
 rename-weaken : ∀ {Γ Δ A} → Γ ↝ Δ → Γ ↝ (Δ , A)
 rename-weaken ρ x = `S (ρ x)
 
 rename-lift : ∀ {Γ Δ A} → Γ ↝ Δ → (Γ , A) ↝ (Δ , A)
 rename-lift ρ `Z = `Z
 rename-lift ρ (`S x) = `S (ρ x)
-
-
-exts : ∀ {T Γ Γ′ A} → VarSubstKit T → Subst T Γ Γ′ → Subst T (Γ , A) (Γ′ , A)
-exts k s = (weaken k s) , (VarSubstKit.vr k `Z)
 
 
 rename-term : ∀ {Γ Γ′ Θ Θ′ A} → Γ ↝ Γ′ → Θ ↝ Θ′ → Γ ⟶ Θ ∣ A → Γ′ ⟶ Θ′ ∣ A
