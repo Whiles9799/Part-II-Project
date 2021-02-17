@@ -7,26 +7,34 @@ open Eq using (_≡_; refl; cong; cong₂; sym; trans)
 open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; step-≡; _∎)
 open import Data.Product using (Σ ; proj₁ ; proj₂) renaming ( _,_ to ⟨_,_⟩ )
 
--- Families: context-indexed sets
+--Families: context-indexed sets--
 Family : Set₁
 Family = Context → Set
 
--- Sorted families: sort-indexed families
+--Sorted families: sort-indexed families--
 Sorted-Family : Set₁
 Sorted-Family = Context → Type → Set
 
--- Context map
+--Context map--
 _–[_]→_ : Context → Sorted-Family → Context → Set
 Γ –[ X ]→ Δ = {A : Type} → Γ ∋ A → X Δ A
 
--- Renaming map
+--Renaming map--
 _↝_ : Context → Context → Set
 Γ ↝ Δ = Γ –[ _∋_ ]→ Δ
 
--- Adding a term to a context map
+--Adding a term to a context map--
 add : ∀{Γ Δ A}(T : Context → Type → Set) → T Δ A → Γ –[ T ]→ Δ → (Γ , A) –[ T ]→ Δ
 add T t σ `Z = t
 add T t σ (`S v) = σ v
+
+--Removing a term from a renaming map--
+ren-skip : ∀ {Γ Γ′ A} → (Γ , A) ↝ Γ′ → Γ ↝ Γ′
+ren-skip ρ x = ρ (`S x)
+
+--Removing a term from a context map
+sub-skip : ∀ {Γ Γ′ A} T → ((Γ , A) –[ T ]→ Γ′) → ( Γ –[ T ]→ Γ′)
+sub-skip T σ x = σ (`S x)
 
 record VarSubstKit (T : Context → Type → Set) : Set where
   field
