@@ -6,8 +6,7 @@ open import Data.Nat using (ℕ; zero; suc; _<_; _≤?_; z≤n; s≤s)
 infix  4 _⟶_∣_
 infix  4 _↦_ 
 infix  4 _∣_⟶_
-infix  4 _∋_
-infixl 5 _,_
+
 
 infixr 7 _⇒ⱽ_
 infixr 7 _⇒ᴺ_
@@ -24,7 +23,6 @@ infix  5 μγ
 infixl 7 _·ⱽ_
 infixl 7 _·ᴺ_
 infix  9 `_
-infix  9 `S
 infix  10 θ_
 infix  10 γ_
 
@@ -46,26 +44,12 @@ A ⇒ⱽ B = `¬ (A `× `¬ B)
 _⇒ᴺ_ : Type → Type → Type
 A ⇒ᴺ B = `¬ A `+ B
 
---Contexts--
+open import Dual.ContextandVars Type public
 
-data Context : Set where
-  ∅ : Context
-  _,_ : Context → Type → Context
 
 `¬ˣ : Context → Context
 `¬ˣ ∅ = ∅
 `¬ˣ (Γ , A) = (`¬ˣ Γ) , (`¬ A)
-
-data _∋_ : Context → Type → Set where
-
-  `Z : ∀ {Γ A}
-      -------------
-    → Γ , A ∋ A
-
-  `S : ∀ {Γ A B}
-    → Γ ∋ A
-      -------------
-    → Γ , B ∋ A
 
 --Sequents--
 
