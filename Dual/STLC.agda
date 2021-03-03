@@ -161,3 +161,24 @@ module STLC+-DC where
 
   DC-DNE : ∀ {Γ A} → Γ ⟶ ∅ ∣ (¬ (¬ A)) ⇒ A
   DC-DNE = ƛ (letcont throw[ # 1 , # 0 ])
+
+  DC-peirce : ∀ {Γ A B} → Γ ⟶ ∅ ∣ ((A ⇒ B) ⇒ A) ⇒ A 
+  DC-peirce = ƛ (letcont ((# 1) · (ƛ throw[ (# 1) , (# 0) ])))
+
+  DC-and-I : ∀ {Γ A B} → Γ , A , B ⟶ ∅ ∣ ¬ (A ⇒ ¬ B)
+  DC-and-I = letcont throw[ ((DC-DNE · (# 0)) · (# 2)) , (# 1) ]
+  
+  DC-and-E₁ : ∀ {Γ A B} → Γ , ¬ (A ⇒ ¬ B) ⟶ ∅ ∣ A
+  DC-and-E₁ = letcont throw[ (# 1) , (ƛ throw[ (# 1) , (# 0) ]) ]
+
+  DC-and-E₂ : ∀ {Γ A B} → Γ , ¬ (A ⇒ ¬ B) ⟶ ∅ ∣ B
+  DC-and-E₂ = letcont throw[ (# 1) , (ƛ (# 1)) ]
+  
+  DC-or-I₁ : ∀ {Γ A B} → Γ , A ⟶ ∅ ∣ ¬ A ⇒ B
+  DC-or-I₁ = ƛ throw[ (# 0) , (# 1) ]
+
+  DC-or-I₂ : ∀ {Γ A B} → Γ , B ⟶ ∅ ∣ ¬ A ⇒ B
+  DC-or-I₂ = ƛ (# 1)
+
+  DC-or-E : ∀ {Γ A B C} → Γ , ¬ A ⇒ B , A ⇒ C , B ⇒ C ⟶ ∅ ∣ C
+  DC-or-E = {!   !}
