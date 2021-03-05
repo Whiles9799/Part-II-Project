@@ -1,6 +1,6 @@
 {-# OPTIONS --rewriting #-}
 
-module Dual.Soundness (R : Set) where
+module Dual.CBVSoundness (R : Set) where
 
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl; cong; cong₂; sym; trans)
@@ -71,7 +71,7 @@ ren-lemma-covar (`S α) ρ θ k = ren-lemma-covar α (ren-skip ρ) θ k
 ren-lemma-term : ∀ {Γ Γ′ Θ Θ′ A} (M : Γ ⟶ Θ ∣ A) (s : Γ ↝ Γ′) (t : Θ ↝ Θ′) (c₁ : Γ′ ⱽˣ) (c₂ : `¬ˣ Θ′ ⱽˣ) (k : ((`¬ A) ⱽᵀ))
   → (rename-term s t M ⱽᴸ) ⟨ c₁ , c₂ ⟩ k ≡ (M ⱽᴸ) ⟨ ren-int-cbv Γ Γ′ s c₁ , neg-ren-int-cbv Θ Θ′ t c₂ ⟩ k 
 ren-lemma-termvalue : ∀ {Γ Γ′ Θ Θ′ A} (V : TermValue Γ Θ A) (s : Γ ↝ Γ′) (t : Θ ↝ Θ′) (c₁ : Γ′ ⱽˣ) (c₂ : `¬ˣ Θ′ ⱽˣ)
-  → (⟨ rename-term s t (proj₁ V) , value-invariant-under-renaming s t (proj₂ V) ⟩ ⱽᴸⱽ) ⟨ c₁ , c₂ ⟩ ≡ (V ⱽᴸⱽ) ⟨ ren-int-cbv Γ Γ′ s c₁ , neg-ren-int-cbv Θ Θ′ t c₂ ⟩
+  → (⟨ rename-term s t (proj₁ V) , value-rename s t (proj₂ V) ⟩ ⱽᴸⱽ) ⟨ c₁ , c₂ ⟩ ≡ (V ⱽᴸⱽ) ⟨ ren-int-cbv Γ Γ′ s c₁ , neg-ren-int-cbv Θ Θ′ t c₂ ⟩
 ren-lemma-coterm : ∀ {Γ Γ′ Θ Θ′ A} (K : A ∣ Γ ⟶ Θ) (s : Γ ↝ Γ′) (t : Θ ↝ Θ′) (c₁ : Γ′ ⱽˣ) (c₂ : `¬ˣ Θ′ ⱽˣ) (k : A ⱽᵀ)
   → (rename-coterm s t K ⱽᴿ) ⟨ c₁ , c₂ ⟩ k ≡ (K ⱽᴿ) ⟨ ren-int-cbv Γ Γ′ s c₁ , neg-ren-int-cbv Θ Θ′ t c₂ ⟩ k    
 ren-lemma-statement : ∀ {Γ Γ′ Θ Θ′} (S : Γ ↦ Θ) (s : Γ ↝ Γ′) (t : Θ ↝ Θ′) (c₁ : Γ′ ⱽˣ) (c₂ : `¬ˣ Θ′ ⱽˣ)
@@ -123,7 +123,7 @@ termvalue-sub-weaken-lemma : ∀ {Γ Γ′ Θ A B} (σ : Γ –[(λ Γ A → Ter
   → (sub-weaken {Γ}{Γ′}{B} (TermSubstKit.kit TermValueKit) σ x ⱽᴸⱽ) ⟨ ⟨ γ , k ⟩ , θ ⟩ ≡ (σ x ⱽᴸⱽ) ⟨ γ , θ ⟩ 
 termvalue-sub-weaken-lemma {Γ}{Γ′}{Θ}{A}{B} σ `Z γ θ k = 
   begin 
-    (⟨ rename-term (λ x → `S x) (λ x → x) (proj₁ (σ `Z)) , value-invariant-under-renaming (λ x → `S x) (λ x → x) (proj₂ (σ `Z)) ⟩ ⱽᴸⱽ) ⟨ ⟨ γ , k ⟩ , θ ⟩
+    (⟨ rename-term (λ x → `S x) (λ x → x) (proj₁ (σ `Z)) , value-rename (λ x → `S x) (λ x → x) (proj₂ (σ `Z)) ⟩ ⱽᴸⱽ) ⟨ ⟨ γ , k ⟩ , θ ⟩
   ≡⟨ ren-lemma-termvalue (σ `Z) (λ x → `S x) (λ x → x) ⟨ γ , k ⟩ θ ⟩
     ((σ `Z) ⱽᴸⱽ) ⟨ ren-int-cbv Γ′ (Γ′ , B) (λ x → `S x) ⟨ γ , k ⟩ , neg-ren-int-cbv Θ Θ (λ x → x) θ ⟩
   ≡⟨ cong₂ (λ -₁ -₂ → (σ `Z ⱽᴸⱽ) ⟨ -₁ , -₂ ⟩) (trans (weaken-ren-int-cbv-lemma (λ x → x) γ k) (id-ren γ)) (id-neg-ren θ) ⟩
@@ -135,7 +135,7 @@ termvalue-sub-fmap-lemma : ∀ {Γ Γ′ Θ A B} (σ : Γ –[(λ Γ A → TermV
   → (fmap {λ Γ A → TermValue Γ Θ A}{λ Γ A → TermValue Γ (Θ , B) A} (TermSubstKit.wkΘ TermValueKit) σ x ⱽᴸⱽ) ⟨ γ , ⟨ θ , k ⟩ ⟩ ≡ ((σ x) ⱽᴸⱽ) ⟨ γ , θ ⟩
 termvalue-sub-fmap-lemma {Γ}{Γ′}{Θ}{A}{B} σ `Z γ θ k = 
   begin 
-    (⟨ rename-term (λ x → x) (λ x → `S x) (proj₁ (σ `Z)) , value-invariant-under-renaming (λ x → x) (λ x → `S x) (proj₂ (σ `Z)) ⟩ ⱽᴸⱽ) ⟨ γ , ⟨ θ , k ⟩ ⟩
+    (⟨ rename-term (λ x → x) (λ x → `S x) (proj₁ (σ `Z)) , value-rename (λ x → x) (λ x → `S x) (proj₂ (σ `Z)) ⟩ ⱽᴸⱽ) ⟨ γ , ⟨ θ , k ⟩ ⟩
   ≡⟨ ren-lemma-termvalue (σ `Z) (λ x → x) (λ x → `S x) γ ⟨ θ , k ⟩ ⟩
     (σ `Z ⱽᴸⱽ) ⟨ ren-int-cbv Γ′ Γ′ (λ x → x) γ , neg-ren-int-cbv Θ (Θ , B) (λ x → `S x) ⟨ θ , k ⟩ ⟩
   ≡⟨ cong₂ (λ -₁ -₂ → (σ `Z ⱽᴸⱽ) ⟨ -₁ , -₂ ⟩) (id-ren γ) (trans (weaken-neg-ren-int-cbv-lemma (λ x → x) θ k) (id-neg-ren θ)) ⟩

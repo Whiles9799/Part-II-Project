@@ -91,13 +91,14 @@ _ⱽᴿ {Γ}{Θ}{A} (μγ S) = λ c x →  (S ⱽˢ) ⟨ ⟨ proj₁ c , x ⟩ ,
 (M ● K) ⱽˢ           = λ c → ((M ⱽᴸ) c) ((K ⱽᴿ) c)
 
 --Substitutions--
-ren-int : ∀ Γ Γ′ → Γ ↝ Γ′ → (Γ′ ⱽˣ) → (Γ ⱽˣ)
-ren-int ∅ Γ′ ρ γ = tt
-ren-int (Γ , A) Γ′ ρ γ = ⟨ ren-int Γ Γ′ (λ x → ρ (`S x)) γ , ((ρ `Z) ⱽⱽ) γ ⟩
 
-neg-ren-int : ∀ Θ Θ′ → Θ ↝ Θ′ → ((`¬ˣ Θ′) ⱽˣ) → ((`¬ˣ Θ) ⱽˣ)
-neg-ren-int ∅ Θ′ ρ θ = tt
-neg-ren-int (Θ , A) Θ′ ρ θ = ⟨ (neg-ren-int Θ Θ′ (λ x → ρ (`S x)) θ) , ((Γ∋A⇒¬Γ∋¬A (ρ `Z) ⱽⱽ) θ) ⟩
+ren-int-cbv : ∀ Γ Γ′ → Γ ↝ Γ′ → (Γ′ ⱽˣ) → (Γ ⱽˣ)
+ren-int-cbv ∅ Γ′ ρ γ = tt
+ren-int-cbv (Γ , A) Γ′ ρ γ = ⟨ ren-int-cbv Γ Γ′ (λ x → ρ (`S x)) γ , ((ρ `Z) ⱽⱽ) γ ⟩
+
+neg-ren-int-cbv : ∀ Θ Θ′ → Θ ↝ Θ′ → ((`¬ˣ Θ′) ⱽˣ) → ((`¬ˣ Θ) ⱽˣ)
+neg-ren-int-cbv ∅ Θ′ ρ θ = tt
+neg-ren-int-cbv (Θ , A) Θ′ ρ θ = ⟨ (neg-ren-int-cbv Θ Θ′ (λ x → ρ (`S x)) θ) , ((Γ∋A⇒¬Γ∋¬A (ρ `Z) ⱽⱽ) θ) ⟩
  
 termvalue-sub-int : ∀ Γ Γ′ Θ → Γ –[ (λ Γ A → TermValue Γ Θ A) ]→ Γ′ → ((`¬ˣ Θ) ⱽˣ) → (Γ′ ⱽˣ) → (Γ ⱽˣ)
 termvalue-sub-int ∅ Γ′ Θ σ θ γ = tt
@@ -132,9 +133,16 @@ _ᴺⱽ (`S x) = λ c → ((x ᴺⱽ) (proj₁ c))
 
 
 --Sequents--
+_ᴺᴿⱽ : ∀ {Γ Θ A} → (CotermValue Γ Θ A) → (Θ ᴺˣ × (`¬ˣ Γ) ᴺˣ) → (A) ᴺᵀ 
 _ᴺᴸ : ∀ {Γ Θ A} → (Γ ⟶ Θ ∣ A) → (Θ ᴺˣ × (`¬ˣ Γ) ᴺˣ) → (`¬ A) ᴺᵀ
 _ᴺᴿ : ∀ {Γ Θ A} → (A ∣ Γ ⟶ Θ) → (Θ ᴺˣ × (`¬ˣ Γ) ᴺˣ) → (`¬ `¬ A) ᴺᵀ
 _ᴺˢ : ∀ {Γ Θ}   → (Γ ↦ Θ)     → (Θ ᴺˣ × (`¬ˣ Γ) ᴺˣ) → R
+
+⟨ ` α , CV-covar ⟩ ᴺᴿⱽ = λ c → (α ᴺⱽ) (proj₁ c)
+⟨ fst[ P ] , CV-fst p ⟩ ᴺᴿⱽ = λ c → inj₁ ((⟨ P , p ⟩ ᴺᴿⱽ) c)
+⟨ snd[ P ] , CV-snd p ⟩ ᴺᴿⱽ = λ c → inj₂ ((⟨ P , p ⟩ ᴺᴿⱽ) c)
+⟨ `[ P , Q ] , CV-sum p q ⟩ ᴺᴿⱽ = λ c → ⟨ ((⟨ P , p ⟩ ᴺᴿⱽ) c) , ((⟨ Q , q ⟩ ᴺᴿⱽ) c) ⟩
+⟨ not⟨ M ⟩ , CV-not ⟩ ᴺᴿⱽ = λ c z → (M ᴺᴸ) c z
 
 (` x) ᴺᴸ             = λ c k → ((Γ∋A⇒¬Γ∋¬A x) ᴺⱽ) (proj₂ c) k
 `⟨ M , N ⟩ ᴺᴸ         = λ c → λ{(inj₁ α) → (M ᴺᴸ) c α ; (inj₂ β) → (N ᴺᴸ) c β}
@@ -152,6 +160,23 @@ _ᴺᴿ {Γ}{Θ}{A} (μγ S) = λ c x →  (S ᴺˢ) ⟨ proj₁ c , ⟨ proj₂
 
 (M ● K) ᴺˢ           = λ c → ((K ᴺᴿ) c) ((M ᴺᴸ) c)
 
+--Substitutions--
+
+ren-int-cbn : ∀ Γ Γ′ → Γ ↝ Γ′ → (Γ′ ᴺˣ) → (Γ ᴺˣ)
+ren-int-cbn ∅ Γ′ ρ γ = tt
+ren-int-cbn (Γ , A) Γ′ ρ γ = ⟨ (ren-int-cbn Γ Γ′ (λ x → ρ (`S x)) γ) , (((ρ `Z) ᴺⱽ) γ) ⟩
+
+neg-ren-int-cbn : ∀ Θ Θ′ → Θ ↝ Θ′ → ((`¬ˣ Θ′) ᴺˣ) → ((`¬ˣ Θ) ᴺˣ)
+neg-ren-int-cbn ∅ Θ′ ρ θ = tt
+neg-ren-int-cbn (Θ , A) Θ′ ρ θ = ⟨ (neg-ren-int-cbn Θ Θ′ (λ x → ρ (`S x)) θ) , (((Γ∋A⇒¬Γ∋¬A (ρ `Z)) ᴺⱽ) θ) ⟩
+ 
+term-sub-int : ∀ Γ Γ′ Θ → Γ –[ (λ Γ A → Γ ⟶ Θ ∣ A) ]→ Γ′ → (Θ ᴺˣ) → ((`¬ˣ Γ′) ᴺˣ) → ((`¬ˣ Γ) ᴺˣ)
+term-sub-int ∅ Γ′ Θ σ θ γ = tt
+term-sub-int (Γ , A) Γ′ Θ σ θ γ = ⟨ (term-sub-int Γ Γ′ Θ (λ x → σ (`S x)) θ γ) , ((σ `Z) ᴺᴸ) ⟨ θ , γ ⟩ ⟩
+
+cotermvalue-sub-int : ∀ Γ Θ Θ′ → Θ –[ (λ Θ A → CotermValue Γ Θ A) ]→ Θ′ → ((`¬ˣ Γ) ᴺˣ) → (Θ′ ᴺˣ) → (Θ ᴺˣ)
+cotermvalue-sub-int Γ ∅ Θ′ σ γ θ = tt
+cotermvalue-sub-int Γ (Θ , A) Θ′ σ γ θ = ⟨ (cotermvalue-sub-int Γ Θ Θ′ (λ x → σ (`S x)) γ θ) , ((σ `Z) ᴺᴿⱽ) ⟨ θ , γ ⟩ ⟩
 
 --Proofs of Duality--
 
@@ -245,3 +270,9 @@ cps-value inl⟨ V ⟩ (V-inl v) c = ext (λ x → cong (λ - → - (λ x₁ →
 cps-value inr⟨ V ⟩ (V-inr v) c = ext (λ x → cong (λ - → - (λ x₁ → x (inj₂ x₁))) (cps-value V v c))
 cps-value not[ K ] V-not c = refl
 
+cps-covalue : ∀ {Γ Θ A} (P : A ∣ Γ ⟶ Θ) (p : Covalue P) (c : Θ ᴺˣ × (`¬ˣ Γ) ᴺˣ) → (P ᴺᴿ) c ≡ λ z → z ((⟨ P , p ⟩ ᴺᴿⱽ) c)
+cps-covalue (` α) CV-covar c = refl
+cps-covalue fst[ P ] (CV-fst p) c = ext (λ x → cong (λ - → - (λ α → x (inj₁ α))) (cps-covalue P p c))
+cps-covalue snd[ P ] (CV-snd p) c = ext (λ x → cong (λ - → - (λ β → x (inj₂ β))) (cps-covalue P p c))
+cps-covalue `[ P , Q ] (CV-sum p q) c = ext (λ x → cong₂ (λ -₁ -₂ → -₁ (λ α → -₂ (λ β → x ⟨ α , β ⟩))) (cps-covalue P p c) (cps-covalue Q q c))
+cps-covalue not⟨ K ⟩ CV-not c = refl

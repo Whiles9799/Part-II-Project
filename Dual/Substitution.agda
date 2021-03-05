@@ -111,6 +111,9 @@ id-termvalue x = ⟨ (` x) , V-var ⟩
 id-coterm : ∀ {Γ Θ} →  Θ –[ (λ - A → A ∣ Γ ⟶ -) ]→ Θ
 id-coterm x = ` x
 
+id-cotermvalue : ∀ {Γ Θ} → Θ –[ (λ Θ A → CotermValue Γ Θ A) ]→ Θ
+id-cotermvalue x = ⟨ (` x) , CV-covar ⟩
+
 fmap : ∀ {T T′ Γ Γ′} (f : ∀ {Γ A} → T Γ A → T′ Γ A) → Γ –[ T ]→ Γ′ → Γ –[ T′ ]→ Γ′
 fmap f σ `x = f (σ `x)
 
@@ -150,19 +153,34 @@ CotermKit = record
   ;  kit = record { vr = `_ ; wk = rename-coterm id-var (rename-weaken id-var) }
   }
 
-value-invariant-under-renaming : ∀ {Γ Γ′ Θ Θ′ A} {V : Γ ⟶ Θ ∣ A} (ρ : Γ ↝ Γ′) (ϱ : Θ ↝ Θ′) →
+value-rename : ∀ {Γ Γ′ Θ Θ′ A} {V : Γ ⟶ Θ ∣ A} (ρ : Γ ↝ Γ′) (ϱ : Θ ↝ Θ′) →
   Value V → Value (rename-term ρ ϱ V)
-value-invariant-under-renaming ρ ϱ V-var = V-var
-value-invariant-under-renaming ρ ϱ (V-prod v v₁) = V-prod (value-invariant-under-renaming ρ ϱ v) (value-invariant-under-renaming ρ ϱ v₁)
-value-invariant-under-renaming ρ ϱ (V-inl v) = V-inl (value-invariant-under-renaming ρ ϱ v)
-value-invariant-under-renaming ρ ϱ (V-inr v) = V-inr (value-invariant-under-renaming ρ ϱ v)
-value-invariant-under-renaming ρ ϱ V-not = V-not  
+value-rename ρ ϱ V-var = V-var
+value-rename ρ ϱ (V-prod v w) = V-prod (value-rename ρ ϱ v) (value-rename ρ ϱ w)
+value-rename ρ ϱ (V-inl v) = V-inl (value-rename ρ ϱ v)
+value-rename ρ ϱ (V-inr v) = V-inr (value-rename ρ ϱ v)
+value-rename ρ ϱ V-not = V-not  
+
+covalue-rename : ∀ {Γ Γ′ Θ Θ′ A} {P : A ∣ Γ ⟶ Θ} (ρ : Γ ↝ Γ′) (ϱ : Θ ↝ Θ′) →
+  Covalue P → Covalue (rename-coterm ρ ϱ P)
+covalue-rename ρ ϱ CV-covar = CV-covar
+covalue-rename ρ ϱ (CV-sum p q) = CV-sum (covalue-rename ρ ϱ p) (covalue-rename ρ ϱ q)
+covalue-rename ρ ϱ (CV-fst p) = CV-fst (covalue-rename ρ ϱ p)
+covalue-rename ρ ϱ (CV-snd p) = CV-snd (covalue-rename ρ ϱ p)
+covalue-rename ρ ϱ CV-not = CV-not
 
 TermValueKit : TermSubstKit TermValue
 TermValueKit = record
-  {  tm = λ x → proj₁ x
-  ;  wkΘ = λ x → ⟨ (TermSubstKit.wkΘ TermKit (proj₁ x)) , value-invariant-under-renaming id-var (rename-weaken id-var) (proj₂ x) ⟩
-  ;  kit = record { vr = λ x → ⟨ ` x , V-var ⟩ ; wk = λ x → ⟨ (VarSubstKit.wk (TermSubstKit.kit TermKit) (proj₁ x)) , value-invariant-under-renaming (rename-weaken id-var) id-var (proj₂ x) ⟩ }
+  { tm = λ x → proj₁ x
+  ; wkΘ = λ x → ⟨ (TermSubstKit.wkΘ TermKit (proj₁ x)) , value-rename id-var (rename-weaken id-var) (proj₂ x) ⟩
+  ; kit = record { vr = λ x → ⟨ ` x , V-var ⟩ ; wk = λ x → ⟨ (VarSubstKit.wk (TermSubstKit.kit TermKit) (proj₁ x)) , value-rename (rename-weaken id-var) id-var (proj₂ x) ⟩ }
+  }
+
+CotermValueKit : CotermSubstKit CotermValue
+CotermValueKit = record 
+  { tm = λ x → proj₁ x 
+  ; wkΓ = λ x → ⟨ (CotermSubstKit.wkΓ CotermKit (proj₁ x)) , covalue-rename (rename-weaken id-var) id-var (proj₂ x) ⟩ 
+  ; kit = record { vr = λ x → ⟨ (` x) , CV-covar ⟩ ; wk = λ x → ⟨ (VarSubstKit.wk (CotermSubstKit.kit CotermKit) (proj₁ x)) , (covalue-rename id-var (rename-weaken id-var) (proj₂ x)) ⟩ } 
   }
 
 wkΓᵗ : ∀ {Γ Θ A B} → Γ ⟶ Θ ∣ A → Γ , B ⟶ Θ ∣ A

@@ -61,11 +61,17 @@ _[_/]ˢ : ∀ {Γ Θ A}
     ----------
   → Γ ↦ Θ
 
-_⟨_/⟩ᵗ {Γ}{Θ} N M = sub-term TermKit CotermKit (add (λ Γ A → Γ ⟶ Θ ∣ A) M id-term) id-coterm N
+_ⱽ[_/]ˢ : ∀ {Γ Θ A}
+  → Γ ↦ Θ , A
+  → CotermValue Γ Θ A
+    -----------------
+  → Γ ↦ Θ
 
-_⟨_/⟩ᶜ {Γ}{Θ} L M = sub-coterm TermKit CotermKit (add (λ Γ A → Γ ⟶ Θ ∣ A) M id-term) id-coterm L
+_⟨_/⟩ᵗ {Γ}{Θ} N M = sub-term TermKit CotermValueKit (add (λ Γ A → Γ ⟶ Θ ∣ A) M id-term) id-cotermvalue N
 
-_⟨_/⟩ˢ {Γ}{Θ} S M = sub-statement TermKit CotermKit (add (λ Γ A → Γ ⟶ Θ ∣ A) M id-term) id-coterm S
+_⟨_/⟩ᶜ {Γ}{Θ} L M = sub-coterm TermKit CotermValueKit (add (λ Γ A → Γ ⟶ Θ ∣ A) M id-term) id-cotermvalue L
+
+_⟨_/⟩ˢ {Γ}{Θ} S M = sub-statement TermKit CotermValueKit (add (λ Γ A → Γ ⟶ Θ ∣ A) M id-term) id-cotermvalue S
 
 _ⱽ⟨_/⟩ˢ {Γ}{Θ} S V = sub-statement TermValueKit CotermKit (add (λ Γ A → TermValue Γ Θ A) V id-termvalue) id-coterm S
 
@@ -74,6 +80,8 @@ _[_/]ᵗ {Γ}{Θ} N K = sub-term TermValueKit CotermKit id-termvalue (add (λ Θ
 _[_/]ᶜ {Γ}{Θ} L K = sub-coterm TermValueKit CotermKit id-termvalue (add (λ Θ A → A ∣ Γ ⟶ Θ) K id-coterm) L
 
 _[_/]ˢ {Γ}{Θ} S K = sub-statement TermValueKit CotermKit id-termvalue (add (λ Θ A → A ∣ Γ ⟶ Θ) K id-coterm) S
+
+_ⱽ[_/]ˢ {Γ}{Θ} S P = sub-statement TermKit CotermValueKit id-term (add (λ Θ A → CotermValue Γ Θ A) P id-cotermvalue) S
 
 
 data _ˢ⟶ⱽ_ : ∀ {Γ Θ} → (Γ ↦ Θ) → (Γ ↦ Θ) → Set where
@@ -104,7 +112,7 @@ data _ˢ⟶ⱽ_ : ∀ {Γ Θ} → (Γ ↦ Θ) → (Γ ↦ Θ) → Set where
 
   βL : ∀ {Γ Θ A} {V : Γ ⟶ Θ ∣ A} {S : Γ , A ↦ Θ} (v : Value V)
       ------------------------------
-    → V ● (μγ S) ˢ⟶ⱽ S ⱽ⟨ V Data.Product., v /⟩ˢ
+    → V ● (μγ S) ˢ⟶ⱽ S ⱽ⟨ ⟨ V , v ⟩ /⟩ˢ
 
   βR : ∀ {Γ Θ A} {K : A ∣ Γ ⟶ Θ} {S : Γ ↦ Θ , A}
       ------------------------
@@ -114,13 +122,13 @@ data _ᶜ⟶ⱽ_ : ∀ {Γ Θ A} → (A ∣ Γ ⟶ Θ) → (A ∣ Γ ⟶ Θ) →
   
   ηL : ∀ {Γ Θ A} {K : A ∣ Γ ⟶ Θ} 
       ------------------------
-    → K ᶜ⟶ⱽ μγ ((γ 0) ● rename-coterm (rename-weaken id-var) id-var K)
+    → K ᶜ⟶ⱽ μγ ((γ 0) ● wkΓᶜ K)
 
 data _ᵗ⟶ⱽ_ : ∀ {Γ Θ A} → (Γ ⟶ Θ ∣ A) → (Γ ⟶ Θ ∣ A) → Set where
 
   ηR : ∀ {Γ Θ A} {M : Γ ⟶ Θ ∣ A}
       ------------------------
-    → M ᵗ⟶ⱽ μθ (rename-term id-var (rename-weaken id-var) M ● (θ 0))
+    → M ᵗ⟶ⱽ μθ (wkΘᵗ M ● (θ 0))
 
 
 data _ˢ⟶ᴺ_ : ∀ {Γ Θ} → (Γ ↦ Θ) → (Γ ↦ Θ) → Set where
@@ -153,32 +161,26 @@ data _ˢ⟶ᴺ_ : ∀ {Γ Θ} → (Γ ↦ Θ) → (Γ ↦ Θ) → Set where
       ------------------------
     → M ● (μγ S) ˢ⟶ᴺ S ⟨ M /⟩ˢ 
 
-  βR : ∀ {Γ Θ A} {S : Γ ↦ Θ , A} {P : A ∣ Γ ⟶ Θ}
-    → Covalue P
+  βR : ∀ {Γ Θ A} {S : Γ ↦ Θ , A} {P : A ∣ Γ ⟶ Θ} (p : Covalue P)
       -------------------------
-    → (μθ S) ● P ˢ⟶ᴺ S [ P /]ˢ
+    → (μθ S) ● P ˢ⟶ᴺ S ⱽ[ ⟨ P , p ⟩ /]ˢ
 
 data _ᶜ⟶ᴺ_ : ∀ {Γ Θ A} → (A ∣ Γ ⟶ Θ) → (A ∣ Γ ⟶ Θ) → Set where
   
   ηL : ∀ {Γ Θ A} {K : A ∣ Γ ⟶ Θ} 
       ------------------------
-    → K ᶜ⟶ᴺ μγ ((γ 0) ● rename-coterm (rename-weaken id-var) id-var K)
+    → K ᶜ⟶ᴺ μγ ((γ 0) ● wkΓᶜ K)
 
 data _ᵗ⟶ᴺ_ : ∀ {Γ Θ A} → (Γ ⟶ Θ ∣ A) → (Γ ⟶ Θ ∣ A) → Set where
 
   ηR : ∀ {Γ Θ A} {M : Γ ⟶ Θ ∣ A}
       ------------------------
-    → M ᵗ⟶ᴺ μθ (rename-term id-var (rename-weaken id-var) M ● (θ 0))
+    → M ᵗ⟶ᴺ μθ (wkΘᵗ M ● (θ 0))
 
 infix  2 _ˢ—↠ⱽ_
 infix  1 beginˢⱽ_
 infixr 2 _ˢ⟶ⱽ⟨_⟩_
 infix  3 _∎ˢⱽ
-
--- infix  2 _—↠ᴺ_
--- infix  1 beginᴺ_
--- infixr 2 _ˢ⟶ᴺ⟨_⟩_
--- infix  3 _∎ᴺ
 
 data _ˢ—↠ⱽ_ {Γ Θ} : (Γ ↦ Θ) → (Γ ↦ Θ) → Set where
   
@@ -281,7 +283,7 @@ data _ᶜ—↠ᴺ_ {Γ Θ A} : (A ∣ Γ ⟶ Θ) → (A ∣ Γ ⟶ Θ) → Set 
 
   _ᶜ⟶ᴺ⟨_⟩_ : (K : A ∣ Γ ⟶ Θ) {K′ K″ : A ∣ Γ ⟶ Θ}
     → K ᶜ⟶ᴺ K′
-    → K′ ᶜ—↠ⱽ K″
+    → K′ ᶜ—↠ᴺ K″
       -----------
     → K ᶜ—↠ᴺ K″
 

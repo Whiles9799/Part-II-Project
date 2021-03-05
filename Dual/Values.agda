@@ -61,3 +61,6 @@ data Covalue where
 
 TermValue : Context → Context → Type → Set
 TermValue Γ Θ A = Σ (Γ ⟶ Θ ∣ A) Value
+
+CotermValue : Context → Context → Type → Set
+CotermValue Γ Θ A = Σ (A ∣ Γ ⟶ Θ) Covalue
