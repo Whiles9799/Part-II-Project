@@ -21,6 +21,7 @@ open import Dual.Substitution
 open import Dual.Values
 open import Dual.CPSTransformation R
 
+
 --Lemmas for proving the Renaming Lemma--
 
 --The interpretation of weakened renaming applied to an extended context is equivalent to 

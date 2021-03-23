@@ -1,65 +1,21 @@
-	Thu Dec 17 11:08 2020 Time and Allocation Profiling Report  (Final)
+	Wed Mar 10 12:21 2021 Time and Allocation Profiling Report  (Final)
 
 	   ExampleTerms.exe +RTS -p -RTS
 
 	total time  =        0.00 secs   (0 ticks @ 1000 us, 1 processor)
-	total alloc =      51,424 bytes  (excludes profiling overheads)
+	total alloc =      35,768 bytes  (excludes profiling overheads)
 
-COST CENTRE MODULE                             SRC                                                       %time %alloc
+COST CENTRE MODULE           SRC              %time %alloc
 
-MAIN        MAIN                               <built-in>                                                  0.0    1.2
-d8          MAlonzo.Code.Agda.Builtin.String   MAlonzo\Code\Agda\Builtin\String.hs:18:1-21                 0.0    1.7
-du266       MAlonzo.Code.Codata.Musical.Colist MAlonzo\Code\Codata\Musical\Colist.hs:(480,1)-(484,42)      0.0    3.0
-du10637     MAlonzo.Code.Codata.Musical.Colist MAlonzo\Code\Codata\Musical\Colist.hs:(2383,1)-(2386,35)    0.0    2.2
-fromColist  MAlonzo.Code.IO.Primitive          MAlonzo\Code\IO\Primitive.hs:(30,1)-(32,38)                 0.0    1.7
-d30         MAlonzo.Code.IO.Primitive          MAlonzo\Code\IO\Primitive.hs:102:1-27                       0.0   18.1
-d18         MAlonzo.Code.Dual.ExampleTerms     MAlonzo\Code\Dual\ExampleTerms.hs:(86,1)-(89,70)            0.0    2.2
-CAF         GHC.IO.Handle.FD                   <entire-module>                                             0.0   67.6
+MAIN        MAIN             <built-in>         0.0    1.6
+CAF         GHC.IO.Handle.FD <entire-module>    0.0   97.2
 
 
-                                                                                                                                    individual      inherited
-COST CENTRE       MODULE                                SRC                                                      no.     entries  %time %alloc   %time %alloc
+                                                                               individual      inherited
+COST CENTRE  MODULE                         SRC             no.     entries  %time %alloc   %time %alloc
 
-MAIN              MAIN                                  <built-in>                                               301           0    0.0    1.2     0.0  100.0
- CAF              GHC.IO.Handle.Text                    <entire-module>                                          531           0    0.0    0.1     0.0    0.1
- CAF              GHC.IO.Handle.FD                      <entire-module>                                          529           0    0.0   67.6     0.0   67.6
- CAF              GHC.IO.Encoding.CodePage              <entire-module>                                          520           0    0.0    0.4     0.0    0.4
- CAF              GHC.IO.Encoding                       <entire-module>                                          519           0    0.0    0.1     0.0    0.1
- CAF              MAlonzo.Code.Dual.ExampleTerms        <entire-module>                                          431           0    0.0    0.1     0.0   12.1
-  d18             MAlonzo.Code.Dual.ExampleTerms        MAlonzo\Code\Dual\ExampleTerms.hs:(86,1)-(89,70)         603           1    0.0    2.2     0.0   12.1
-   du42           MAlonzo.Code.IO                       MAlonzo\Code\IO.hs:(39,1)-(63,42)                        604           2    0.0    0.5     0.0    0.5
-    d18           MAlonzo.Code.IO.Primitive             MAlonzo\Code\IO\Primitive.hs:57:1-23                     607           1    0.0    0.0     0.0    0.0
-     d18.\        MAlonzo.Code.IO.Primitive             MAlonzo\Code\IO\Primitive.hs:57:19-23                    608           1    0.0    0.0     0.0    0.0
-    d22           MAlonzo.Code.Agda.Builtin.Coinduction MAlonzo\Code\Agda\Builtin\Coinduction.hs:(20,1)-(23,42)  618           1    0.0    0.0     0.0    0.0
-     $mC16.\      MAlonzo.Code.Agda.Builtin.Coinduction MAlonzo\Code\Agda\Builtin\Coinduction.hs:17:18-37        619           1    0.0    0.0     0.0    0.0
-   d150           MAlonzo.Code.IO                       MAlonzo\Code\IO.hs:(193,1)-(194,67)                      605           1    0.0    0.1     0.0    9.3
-    d146          MAlonzo.Code.IO                       MAlonzo\Code\IO.hs:190:1-47                              606           1    0.0    0.2     0.0    2.2
-     d6099        MAlonzo.Code.IO                       MAlonzo\Code\IO.hs:(419,1)-(422,54)                      620           1    0.0    0.2     0.0    2.0
-      d30         MAlonzo.Code.IO.Primitive             MAlonzo\Code\IO\Primitive.hs:102:1-27                    622           0    0.0    0.1     0.0    1.8
-       fromColist MAlonzo.Code.IO.Primitive             MAlonzo\Code\IO\Primitive.hs:(30,1)-(32,38)              631          13    0.0    1.7     0.0    1.7
-        flat      MAlonzo.RTE                           MAlonzo\RTE.hs:126:40-43                                 636          12    0.0    0.0     0.0    0.0
-    d8            MAlonzo.Code.Codata.Musical.Costring  MAlonzo\Code\Codata\Musical\Costring.hs:(23,1)-(26,50)   632           1    0.0    0.1     0.0    7.1
-     du266        MAlonzo.Code.Codata.Musical.Colist    MAlonzo\Code\Codata\Musical\Colist.hs:(480,1)-(484,42)   633          13    0.0    3.0     0.0    5.2
-      du10637     MAlonzo.Code.Codata.Musical.Colist    MAlonzo\Code\Codata\Musical\Colist.hs:(2383,1)-(2386,35) 637          12    0.0    2.2     0.0    2.2
-     d8           MAlonzo.Code.Agda.Builtin.String      MAlonzo\Code\Agda\Builtin\String.hs:18:1-21              635           0    0.0    1.7     0.0    1.7
-  main            MAlonzo.Code.Dual.ExampleTerms        MAlonzo\Code\Dual\ExampleTerms.hs:81:1-14                602           1    0.0    0.0     0.0    0.0
- CAF              MAlonzo.Code.IO                       <entire-module>                                          430           0    0.0    0.0     0.0    0.1
-  du6157          MAlonzo.Code.IO                       MAlonzo\Code\IO.hs:(430,1)-(433,55)                      641           1    0.0    0.1     0.0    0.1
- CAF              MAlonzo.Code.IO.Primitive             <entire-module>                                          428           0    0.0    0.0     0.0    0.1
-  d30             MAlonzo.Code.IO.Primitive             MAlonzo\Code\IO\Primitive.hs:102:1-27                    621           1    0.0    0.1     0.0    0.1
- CAF              MAlonzo.Code.Agda.Builtin.String      <entire-module>                                          317           0    0.0    0.0     0.0    0.0
-  d8              MAlonzo.Code.Agda.Builtin.String      MAlonzo\Code\Agda\Builtin\String.hs:18:1-21              634           1    0.0    0.0     0.0    0.0
- main             MAlonzo.Code.Dual.ExampleTerms        MAlonzo\Code\Dual\ExampleTerms.hs:81:1-14                613           0    0.0    0.0     0.0   18.2
-  d18             MAlonzo.Code.Dual.ExampleTerms        MAlonzo\Code\Dual\ExampleTerms.hs:(86,1)-(89,70)         614           0    0.0    0.0     0.0   18.2
-   du42           MAlonzo.Code.IO                       MAlonzo\Code\IO.hs:(39,1)-(63,42)                        615           1    0.0    0.1     0.0   18.2
-    d8            MAlonzo.Code.IO.Primitive             MAlonzo\Code\IO\Primitive.hs:43:1-19                     642           1    0.0    0.0     0.0    0.0
-     d8.\         MAlonzo.Code.IO.Primitive             MAlonzo\Code\IO\Primitive.hs:43:14-19                    643           1    0.0    0.0     0.0    0.0
-    du42.\        MAlonzo.Code.IO                       MAlonzo\Code\IO.hs:(60,17)-(62,74)                       638           1    0.0    0.1     0.0    0.2
-     d22          MAlonzo.Code.Agda.Builtin.Coinduction MAlonzo\Code\Agda\Builtin\Coinduction.hs:(20,1)-(23,42)  639           1    0.0    0.0     0.0    0.0
-      $mC16.\     MAlonzo.Code.Agda.Builtin.Coinduction MAlonzo\Code\Agda\Builtin\Coinduction.hs:17:18-37        640           1    0.0    0.0     0.0    0.0
-    d150          MAlonzo.Code.IO                       MAlonzo\Code\IO.hs:(193,1)-(194,67)                      627           0    0.0    0.0     0.0   17.9
-     d146         MAlonzo.Code.IO                       MAlonzo\Code\IO.hs:190:1-47                              628           0    0.0    0.0     0.0   17.9
-      d6099       MAlonzo.Code.IO                       MAlonzo\Code\IO.hs:(419,1)-(422,54)                      629           0    0.0    0.0     0.0   17.9
-       d30        MAlonzo.Code.IO.Primitive             MAlonzo\Code\IO\Primitive.hs:102:1-27                    630           0    0.0   17.9     0.0   17.9
-    d18           MAlonzo.Code.IO.Primitive             MAlonzo\Code\IO\Primitive.hs:57:1-23                     616           0    0.0    0.0     0.0    0.0
-     d18.\        MAlonzo.Code.IO.Primitive             MAlonzo\Code\IO\Primitive.hs:57:19-23                    617           0    0.0    0.0     0.0    0.0
+MAIN         MAIN                           <built-in>      304           0    0.0    1.6     0.0  100.0
+ CAF         GHC.IO.Handle.FD               <entire-module> 535           0    0.0   97.2     0.0   97.2
+ CAF         GHC.IO.Encoding.CodePage       <entire-module> 526           0    0.0    0.5     0.0    0.5
+ CAF         GHC.IO.Encoding                <entire-module> 525           0    0.0    0.2     0.0    0.2
+ CAF         MAlonzo.Code.Dual.ExampleTerms <entire-module> 437           0    0.0    0.5     0.0    0.5

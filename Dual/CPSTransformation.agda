@@ -12,8 +12,6 @@ open import Data.Product using (_×_; proj₁; proj₂) renaming (_,_ to ⟨_,_�
 open import Data.Sum using (_⊎_; inj₁; inj₂) renaming ([_,_] to case-⊎)
 open import Relation.Nullary using (¬_)
 open import Agda.Builtin.Equality.Rewrite
-open import Axiom.Extensionality.Propositional using (Extensionality; ExtensionalityImplicit)
-open import Level as L hiding (lift) public
 open import Dual.Syntax
 open import Dual.DualTranslation
 open import Dual.Semantics
@@ -195,10 +193,6 @@ Aⱽ≡Aᵒᴺ {`¬ A}   = cong (λ - → - → R) Aⱽ≡Aᵒᴺ
 
 {-# REWRITE Aⱽ≡Aᵒᴺ #-}
 {-# REWRITE Γⱽ≡Γᵒᴺ #-}
-
-
-postulate
-  ext  : Extensionality 0ℓ 0ℓ
 
 --Mⱽcλz→X≡Xs required for following proofs--
 

@@ -1,12 +1,19 @@
+{-# OPTIONS --rewriting #-}
+
 module Dual.Semantics where
 
 open import Dual.Syntax
 open import Dual.Substitution
+open import Dual.DualTranslation
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl; cong; cong₂; sym; trans)
 open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; step-≡; _∎)
 open import Data.Product using (Σ; _×_; proj₁; proj₂) renaming (_,_ to ⟨_,_⟩)
 open import Dual.Values
+open import Axiom.Extensionality.Propositional using (Extensionality; ExtensionalityImplicit)
+open import Level as L hiding (lift) public
+
+
 
 
 infix 2 _ˢ⟶ⱽ_
@@ -17,6 +24,9 @@ infix 2 _ˢ⟶ᴺ_
 infix 2 _ᶜ⟶ᴺ_
 infix 2 _ᵗ⟶ᴺ_
 
+postulate
+  ext  : Extensionality 0ℓ 0ℓ
+  iext : ExtensionalityImplicit 0ℓ 0ℓ
 
 _⟨_/⟩ᵗ : ∀ {Γ Θ A B} 
   → Γ , A ⟶ Θ ∣ B

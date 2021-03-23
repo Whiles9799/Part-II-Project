@@ -98,6 +98,38 @@ record λ+-Term (T : Set) (TΛ : λ+-Type T) (Λ : DC.Context T → T → Set): 
   # : ∀ {Γ} → (n : ℕ) → Λ Γ (lookup Γ n)
   # n = ` (count n)
 
+  
+record λμ-Term (T : Set) (TΛ : λ+-Type T) (Λ-Term : DC.Context T → DC.Context T → T → Set) (Λ-Comm : DC.Context T → DC.Context T → Set): Set where
+  open DC T
+  open λ+-Type TΛ
+  field
+    ` : ∀ {Γ Δ A} → Γ ∋ A → Λ-Term Γ Δ A
+    ƛ : ∀ {Γ Δ A B} → Λ-Term (Γ , A) Δ B → Λ-Term Γ Δ (A ⇒ B)
+    _·_ : ∀ {Γ Δ A B} → Λ-Term Γ Δ (A ⇒ B) → Λ-Term Γ Δ A → Λ-Term Γ Δ B
+    μ : ∀ {Γ Δ A} → Λ-Comm Γ (Δ , A) → Λ-Term Γ Δ A
+    
+  lookup : Context → ℕ → T
+  lookup (Γ , A) zero    = A
+  lookup (Γ , _) (suc n) = lookup Γ n
+  lookup ∅       _       = ⊥-elim impossible
+    where postulate impossible : ⊥ 
+
+  count : ∀ {Γ} → (n : ℕ) → Γ ∋ lookup Γ n
+  count {Γ , _} zero    = `Z
+  count {Γ , _} (suc n) = `S (count n)
+  count {∅}     _       = ⊥-elim impossible
+    where postulate impossible : ⊥
+
+  # : ∀ {Γ Δ} → (n : ℕ) → Λ-Term Γ Δ (lookup Γ n)
+  # n = ` (count n)
+
+
+record λμ-Command (T : Set) (TΛ : λ+-Type T) (Λ-Term : DC.Context T → DC.Context T → T → Set) (Λ-Comm : DC.Context T → DC.Context T → Set) : Set where
+  open DC T
+  open λ+-Type TΛ
+  field
+    [_]_ : ∀ {Γ Δ A} → Δ ∋ A → Λ-Term Γ Δ A → Λ-Comm Γ Δ
+
 
 open import Dual.Syntax
 open import Dual.Substitution
@@ -124,6 +156,19 @@ DC-λ+-Term = record
   ; letcont = λ M → μθ (not[ (θ 0) ] ● (μγ ((wkΘᵗ M) ● (θ 0))))
   ; throw[_,_] = λ M N → μθ (wkΘᵗ N ● μγ ((wkΘᵗ (wkΓᵗ M)) ● not⟨ (γ 0) ⟩))
   }
+
+
+DC-λμ-Term : λμ-Term Type DC-λ+-Type _⟶_∣_ _↦_
+DC-λμ-Term = record 
+  { ` = `_ 
+  ; ƛ = λ M → not[ μγ(γ 0 ● fst[ μγ (γ 1 ● snd[ not⟨ rename-term (rename-lift (λ x → `S x)) id-var M ⟩ ]) ]) ] 
+  ; _·_ = λ M N → μθ (wkΘᵗ M ● wkΘᵗ N ·ⱽ θ 0) 
+  ; μ = λ C → μθ C
+  }
+
+DC-λμ-Command : λμ-Command Type DC-λ+-Type _⟶_∣_ _↦_
+DC-λμ-Command = record { [_]_ = λ α M → M ● (` α) }
+
 
 module STLC-DC where
   open λ-Type DC-λ-Type  
@@ -180,5 +225,16 @@ module STLC+-DC where
   DC-or-I₂ : ∀ {Γ A B} → Γ , B ⟶ ∅ ∣ ¬ A ⇒ B
   DC-or-I₂ = ƛ (# 1)
 
-  DC-or-E : ∀ {Γ A B C} → Γ , ¬ A ⇒ B , A ⇒ C , B ⇒ C ⟶ ∅ ∣ C
-  DC-or-E = {!   !}
+  -- DC-or-E : ∀ {Γ A B C} → Γ , ¬ A ⇒ B , A ⇒ C , B ⇒ C ⟶ ∅ ∣ C
+  -- DC-or-E = {!   !}
+
+module λμ-DC where
+  open λ+-Type DC-λ+-Type
+  open λμ-Term DC-λμ-Term
+  open λμ-Command DC-λμ-Command
+  open import Dual.CPSTransformation ℕ
+
+  λμ-peirce : ∀ {Γ Δ A B} → Γ ⟶ Δ ∣ ((A ⇒ B) ⇒ A) ⇒ A
+  λμ-peirce = ƛ (μ ([ `Z ] ((# 0) · (ƛ (μ ([ (`S `Z) ] (# 0)))))))
+
+  

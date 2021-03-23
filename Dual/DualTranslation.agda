@@ -7,6 +7,8 @@ open Eq using (_≡_; refl; cong; cong₂; sym; trans)
 open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; step-≡; _∎)
 open import Agda.Builtin.Equality.Rewrite
 open import Dual.Syntax
+open import Dual.Substitution
+open import Dual.Values
 
 infix 12 _ᵒᵀ
 infix 12 _ᵒⱽ 
@@ -56,6 +58,10 @@ _ᵒᴿ : ∀ {Γ Θ A} → (A ∣ Γ ⟶ Θ) → (Θ ᵒˣ ⟶ Γ ᵒˣ ∣ A �
 
 (M ● K) ᵒˢ = K ᵒᴿ ● M ᵒᴸ
 
+dual-ren : ∀ Γ Γ′ → Γ ↝ Γ′ → (Γ ᵒˣ) ↝ (Γ′ ᵒˣ)
+dual-ren ∅ Γ′ ρ ()
+dual-ren (Γ , A) Γ′ ρ `Z = (ρ `Z) ᵒⱽ
+dual-ren (Γ , A) Γ′ ρ (`S x) = dual-ren Γ Γ′ (ren-skip ρ) x
 
 --Properties of the Dual Translation--
 
@@ -120,3 +126,17 @@ A∣Γ⟶Θ⇐Θᵒ⟶Γᵒ∣Aᵒ Kᵒᴿ = Kᵒᴿ ᵒᴸ
 
 Γ↦Θ⇐Θᵒ↦Γᵒ : ∀ {Γ Θ} → (Θ ᵒˣ ↦ Γ ᵒˣ) → Γ ↦ Θ
 Γ↦Θ⇐Θᵒ↦Γᵒ Sᵒˢ = Sᵒˢ ᵒˢ
+
+Vᵒ≡P : ∀ {Γ Θ A} (V : Γ ⟶ Θ ∣ A) → Value V → (Covalue (V ᵒᴸ))
+Vᵒ≡P (` x) V-var = CV-covar
+Vᵒ≡P (`⟨ V , W ⟩) (V-prod v w) = CV-sum (Vᵒ≡P V v) (Vᵒ≡P W w)
+Vᵒ≡P (inl⟨ V ⟩) (V-inl v) = CV-fst (Vᵒ≡P V v)
+Vᵒ≡P (inr⟨ W ⟩) (V-inr w) = CV-snd (Vᵒ≡P W w)
+Vᵒ≡P (not[ K ]) V-not = CV-not
+
+Pᵒ≡V : ∀ {Γ Θ A} (P : A ∣ Γ ⟶ Θ) → Covalue P → (Value (P ᵒᴿ))
+Pᵒ≡V (` α) CV-covar = V-var
+Pᵒ≡V (`[ P , Q ]) (CV-sum p q) = V-prod (Pᵒ≡V P p) (Pᵒ≡V Q q)
+Pᵒ≡V (fst[ P ]) (CV-fst p) = V-inl (Pᵒ≡V P p)
+Pᵒ≡V (snd[ Q ]) (CV-snd q) = V-inr (Pᵒ≡V Q q)
+Pᵒ≡V (not⟨ M ⟩) CV-not = V-not
