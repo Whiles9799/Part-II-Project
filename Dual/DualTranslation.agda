@@ -9,6 +9,8 @@ open import Agda.Builtin.Equality.Rewrite
 open import Dual.Syntax
 open import Dual.Substitution
 open import Dual.Values
+open import Data.Product using (Σ; _×_; proj₁; proj₂) renaming (_,_ to ⟨_,_⟩)
+
 
 infix 12 _ᵒᵀ
 infix 12 _ᵒⱽ 
@@ -23,7 +25,6 @@ infix 12 _ᵒˢ
 _ᵒᵀ : Type → Type
 _ᵒˣ : Context → Context
 
-(`⊤)ᵒᵀ = `⊤
 (A `+ B)ᵒᵀ  = (A ᵒᵀ `× B ᵒᵀ)
 (A `× B)ᵒᵀ  = (A ᵒᵀ `+ B ᵒᵀ)
 (`¬ A)ᵒᵀ    = (`¬ (A)ᵒᵀ) 
@@ -49,6 +50,7 @@ _ᵒᴿ : ∀ {Γ Θ A} → (A ∣ Γ ⟶ Θ) → (Θ ᵒˣ ⟶ Γ ᵒˣ ∣ A �
 (not[ K ]) ᵒᴸ           = not⟨ K ᵒᴿ ⟩
 (μθ {Γ} {Θ} {A} (S)) ᵒᴸ = μγ( _ᵒˢ {Γ} {(Θ , A)} S )
 
+
 (` α) ᵒᴿ                = ` α ᵒⱽ
 (`[ K , L ]) ᵒᴿ          = `⟨ K ᵒᴿ , L ᵒᴿ ⟩
 (fst[ K ]) ᵒᴿ           = inl⟨ K ᵒᴿ ⟩
@@ -58,10 +60,33 @@ _ᵒᴿ : ∀ {Γ Θ A} → (A ∣ Γ ⟶ Θ) → (Θ ᵒˣ ⟶ Γ ᵒˣ ∣ A �
 
 (M ● K) ᵒˢ = K ᵒᴿ ● M ᵒᴸ
 
+Vᵒ≡P : ∀ {Γ Θ A} (V : Γ ⟶ Θ ∣ A) → Value V → (Covalue (V ᵒᴸ))
+Vᵒ≡P (` x) V-var = CV-covar
+Vᵒ≡P (`⟨ V , W ⟩) (V-prod v w) = CV-sum (Vᵒ≡P V v) (Vᵒ≡P W w)
+Vᵒ≡P (inl⟨ V ⟩) (V-inl v) = CV-fst (Vᵒ≡P V v)
+Vᵒ≡P (inr⟨ W ⟩) (V-inr w) = CV-snd (Vᵒ≡P W w)
+Vᵒ≡P (not[ K ]) V-not = CV-not
+
+Pᵒ≡V : ∀ {Γ Θ A} (P : A ∣ Γ ⟶ Θ) → Covalue P → (Value (P ᵒᴿ))
+Pᵒ≡V (` α) CV-covar = V-var
+Pᵒ≡V (`[ P , Q ]) (CV-sum p q) = V-prod (Pᵒ≡V P p) (Pᵒ≡V Q q)
+Pᵒ≡V (fst[ P ]) (CV-fst p) = V-inl (Pᵒ≡V P p)
+Pᵒ≡V (snd[ Q ]) (CV-snd q) = V-inr (Pᵒ≡V Q q)
+Pᵒ≡V (not⟨ M ⟩) CV-not = V-not
+
 dual-ren : ∀ Γ Γ′ → Γ ↝ Γ′ → (Γ ᵒˣ) ↝ (Γ′ ᵒˣ)
 dual-ren ∅ Γ′ ρ ()
 dual-ren (Γ , A) Γ′ ρ `Z = (ρ `Z) ᵒⱽ
 dual-ren (Γ , A) Γ′ ρ (`S x) = dual-ren Γ Γ′ (ren-skip ρ) x
+
+dual-coterm-sub : ∀ Γ Θ Θ′ → Θ –[(λ Θ A → A ∣ Γ ⟶ Θ)]→ Θ′ → (Θ ᵒˣ) –[ (λ Θ A → Θ ⟶ Γ ᵒˣ ∣ A) ]→ (Θ′ ᵒˣ)
+dual-coterm-sub Γ (Θ , A) Θ′ σ `Z = (σ `Z) ᵒᴿ
+dual-coterm-sub Γ (Θ , A) Θ′ σ (`S x) = dual-coterm-sub Γ Θ Θ′ (sub-skip (λ Θ A → A ∣ Γ ⟶ Θ) σ) x
+
+dual-termval-sub : ∀ Γ Γ′ Θ → Γ –[(λ Γ A → TermValue Γ Θ A)]→ Γ′ → (Γ ᵒˣ) –[(λ Γ A → CotermValue (Θ ᵒˣ) Γ A)]→ (Γ′ ᵒˣ)
+dual-termval-sub ∅ Γ′ Θ σ ()
+dual-termval-sub (Γ , A) Γ′ Θ σ `Z = ⟨ ((proj₁ (σ `Z )) ᵒᴸ) , Vᵒ≡P (proj₁ (σ `Z)) (proj₂ (σ `Z)) ⟩
+dual-termval-sub (Γ , A) Γ′ Θ σ (`S x) = dual-termval-sub Γ Γ′ Θ (sub-skip (λ Γ A → TermValue Γ Θ A) σ) x
 
 --Properties of the Dual Translation--
 
@@ -72,7 +97,6 @@ dual-ren (Γ , A) Γ′ ρ (`S x) = dual-ren Γ Γ′ (ren-skip ρ) x
 [Aᵒᵀ]ᵒᵀ≡A {`¬ A}   = cong `¬_   [Aᵒᵀ]ᵒᵀ≡A 
 [Aᵒᵀ]ᵒᵀ≡A {A `+ B} = cong₂ _`+_ ([Aᵒᵀ]ᵒᵀ≡A {A}) ([Aᵒᵀ]ᵒᵀ≡A {B})
 [Aᵒᵀ]ᵒᵀ≡A {A `× B} = cong₂ _`×_ ([Aᵒᵀ]ᵒᵀ≡A {A}) ([Aᵒᵀ]ᵒᵀ≡A {B})
-[Aᵒᵀ]ᵒᵀ≡A {`⊤}     = refl
 
 [Γᵒˣ]ᵒˣ≡Γ : ∀ {Γ} → (Γ ᵒˣ) ᵒˣ ≡ Γ
 [Γᵒˣ]ᵒˣ≡Γ {∅}       = refl
@@ -126,17 +150,3 @@ A∣Γ⟶Θ⇐Θᵒ⟶Γᵒ∣Aᵒ Kᵒᴿ = Kᵒᴿ ᵒᴸ
 
 Γ↦Θ⇐Θᵒ↦Γᵒ : ∀ {Γ Θ} → (Θ ᵒˣ ↦ Γ ᵒˣ) → Γ ↦ Θ
 Γ↦Θ⇐Θᵒ↦Γᵒ Sᵒˢ = Sᵒˢ ᵒˢ
-
-Vᵒ≡P : ∀ {Γ Θ A} (V : Γ ⟶ Θ ∣ A) → Value V → (Covalue (V ᵒᴸ))
-Vᵒ≡P (` x) V-var = CV-covar
-Vᵒ≡P (`⟨ V , W ⟩) (V-prod v w) = CV-sum (Vᵒ≡P V v) (Vᵒ≡P W w)
-Vᵒ≡P (inl⟨ V ⟩) (V-inl v) = CV-fst (Vᵒ≡P V v)
-Vᵒ≡P (inr⟨ W ⟩) (V-inr w) = CV-snd (Vᵒ≡P W w)
-Vᵒ≡P (not[ K ]) V-not = CV-not
-
-Pᵒ≡V : ∀ {Γ Θ A} (P : A ∣ Γ ⟶ Θ) → Covalue P → (Value (P ᵒᴿ))
-Pᵒ≡V (` α) CV-covar = V-var
-Pᵒ≡V (`[ P , Q ]) (CV-sum p q) = V-prod (Pᵒ≡V P p) (Pᵒ≡V Q q)
-Pᵒ≡V (fst[ P ]) (CV-fst p) = V-inl (Pᵒ≡V P p)
-Pᵒ≡V (snd[ Q ]) (CV-snd q) = V-inr (Pᵒ≡V Q q)
-Pᵒ≡V (not⟨ M ⟩) CV-not = V-not

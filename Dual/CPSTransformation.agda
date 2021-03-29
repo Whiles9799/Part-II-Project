@@ -40,7 +40,6 @@ infix 12 _ᴺˢ
 _ⱽᵀ : Type → Set
 _ⱽˣ : Context → Set
 
-`⊤ ⱽᵀ       = ⊤
 `ℕ ⱽᵀ       = ℕ
 (A `× B) ⱽᵀ = (A ⱽᵀ) × (B ⱽᵀ)
 (A `+ B) ⱽᵀ = (A ⱽᵀ) ⊎ (B ⱽᵀ)
@@ -114,7 +113,6 @@ coterm-sub-int Γ (Θ , A) Θ′ σ γ θ = ⟨ (coterm-sub-int Γ Θ Θ′ (λ 
 _ᴺᵀ : Type → Set
 _ᴺˣ : Context → Set
 
-`⊤ ᴺᵀ        = ⊤
 `ℕ ᴺᵀ        = ℕ
 (A `× B) ᴺᵀ  = (A ᴺᵀ) ⊎ (B ᴺᵀ)
 (A `+ B) ᴺᵀ  = (A ᴺᵀ) × (B ᴺᵀ)
@@ -181,7 +179,6 @@ cotermvalue-sub-int Γ (Θ , A) Θ′ σ γ θ = ⟨ (cotermvalue-sub-int Γ Θ 
 --Types and Contexts--
 
 Aⱽ≡Aᵒᴺ : ∀ {A} → A ⱽᵀ ≡ (A ᵒᵀ) ᴺᵀ
-Aⱽ≡Aᵒᴺ {`⊤}     = refl
 Aⱽ≡Aᵒᴺ {`ℕ}     = refl 
 Aⱽ≡Aᵒᴺ {A `+ B} = cong₂ _⊎_ (Aⱽ≡Aᵒᴺ {A}) (Aⱽ≡Aᵒᴺ {B})
 Aⱽ≡Aᵒᴺ {A `× B} = cong₂ _×_ (Aⱽ≡Aᵒᴺ {A}) (Aⱽ≡Aᵒᴺ {B})

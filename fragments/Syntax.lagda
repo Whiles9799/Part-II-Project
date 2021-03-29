@@ -1,4 +1,6 @@
-module Dual.Syntax where
+\begin{code}
+
+module fragments.Syntax where
 
 open import Data.Empty using (⊥; ⊥-elim)
 open import Data.Nat using (ℕ; zero; suc; _<_; _≤?_; z≤n; s≤s)
@@ -26,40 +28,82 @@ infix  9 `_
 infix  10 θ_
 infix  10 γ_
 
+infix  4 _∋_
+infixl 5 _,_
+
+infix  9 `S
+
+
+\end{code}
 --Types--
 
+%<*type>
+\begin{code}
 data Type : Set where
   `ℕ : Type
   _`×_ : Type → Type → Type
   _`+_ : Type → Type → Type
   `¬_ : Type → Type
+\end{code}
+%</type>
   
 --implication is defined in terms of other connectives
 --it is defined differently for CBN and CBV
 
+%<*funtype>
+\begin{code}
 _⇒ⱽ_ : Type → Type → Type
 A ⇒ⱽ B = `¬ (A `× `¬ B)
 
 _⇒ᴺ_ : Type → Type → Type
 A ⇒ᴺ B = `¬ A `+ B
+\end{code}
+%</funtype>
 
-open import Dual.ContextandVars Type public
+%<*ctx>
+\begin{code}
+data Context : Set where
+  ∅ : Context
+  _,_ : Context → Type → Context
 
+\end{code}
+%</ctx>
 
+%<*var>
+\begin{code}
+data _∋_ : Context → Type → Set where
+  `Z : ∀ {Γ A}
+      -------------
+    → Γ , A ∋ A
+
+  `S : ∀ {Γ A B}
+    → Γ ∋ A
+      -------------
+    → Γ , B ∋ A
+\end{code}
+%</var>
+
+\begin{code}
 `¬ˣ : Context → Context
 `¬ˣ ∅ = ∅
 `¬ˣ (Γ , A) = (`¬ˣ Γ) , (`¬ A)
+\end{code}
 
 --Sequents--
-
+%<*seqdef>
+\begin{code}
 data _⟶_∣_ : Context → Context → Type → Set 
 
 data _∣_⟶_ : Type → Context → Context → Set
 
 data _↦_ : Context → Context → Set
+\end{code}
+%</seqdef>
 
 --lambdas and function application are syntactic sugar
 
+%<*fundef>
+\begin{code}
 ƛⱽ_ : ∀ {Γ Θ A B}
   → Γ , A `× `¬ B , A ⟶ Θ ∣ B
     --------------------------
@@ -81,7 +125,11 @@ _·ᴺ_ : ∀ {Γ Θ A B}
     → B ∣ Γ ⟶ Θ
       ---------------
     → A ⇒ᴺ B ∣ Γ ⟶ Θ 
+\end{code}
+%</fundef>
 
+%<*lseq>
+\begin{code}
 data _⟶_∣_ where
   
   `_ : ∀ {Γ Θ A}
@@ -114,7 +162,11 @@ data _⟶_∣_ where
     → Γ ↦ Θ , A
       ----------
     → Γ ⟶ Θ ∣ A
+\end{code}
+%</lseq>
 
+%<*rseq>
+\begin{code}
 data _∣_⟶_ where
   
   `_ : ∀ {Γ Θ A}
@@ -147,7 +199,11 @@ data _∣_⟶_ where
     → Γ , A ↦ Θ
       ----------
     → A ∣ Γ ⟶ Θ
+\end{code}
+%</rseq>
 
+%<*cseq>
+\begin{code}
 data _↦_ where
 
   _●_ : ∀ {Γ Θ A}
@@ -155,7 +211,11 @@ data _↦_ where
     → A ∣ Γ ⟶ Θ
       ----------
     → Γ ↦ Θ
+\end{code}
+%</cseq>
 
+
+\begin{code}
 
 lookup : Context → ℕ → Type
 lookup (Γ , A) zero    = A
@@ -176,10 +236,13 @@ count {∅}     _       = ⊥-elim impossible
 
 θ_ : ∀ {Γ Θ} → (n : ℕ) → lookup Θ n ∣ Γ ⟶ Θ
 θ n = ` count n
+\end{code}
+
 
 
 --Lambda Abstraction and Function Application--
-
+%<*fun>
+\begin{code}
 ƛⱽ N = not[ μγ(γ 0 ● fst[ μγ (γ 1 ● snd[ not⟨ N ⟩ ]) ]) ]
 
 ƛᴺ N = μθ (inl⟨ not[ μγ(inr⟨ N ⟩ ● θ 0) ] ⟩ ● θ 0) 
@@ -187,4 +250,5 @@ count {∅}     _       = ⊥-elim impossible
 M ·ⱽ N = not⟨ `⟨ M , not[ N ] ⟩ ⟩
 
 M ·ᴺ N = `[ not⟨ M ⟩ , N ]
-
+\end{code}
+%</fun>

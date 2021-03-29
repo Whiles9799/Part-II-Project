@@ -59,6 +59,40 @@ dual-ren-lemma-statement (M ● K) s t = cong₂ _●_ (dual-ren-lemma-coterm K 
 {-# REWRITE dual-ren-weaken-lemma #-}
 {-# REWRITE dual-ren-id-lemma #-}
 
+dual-sub-lemma-var : ∀ {Γ Γ′ Θ′ A} (x : Γ ∋ A) (s : Γ –[ (λ Γ A → TermValue Γ Θ′ A) ]→ Γ′) →
+  proj₁ (s x) ᵒᴸ ≡ proj₁ (dual-termval-sub Γ Γ′ Θ′ s (x ᵒⱽ))
+dual-sub-lemma-var `Z s = refl
+dual-sub-lemma-var {Γ}{Γ′}{Θ′} (`S x) s = dual-sub-lemma-var x (sub-skip (λ Γ A → TermValue Γ Θ′ A) s)
+
+dual-sub-lemma-covar : ∀ {Γ′ Θ Θ′ A} (α : Θ ∋ A) (t : Θ –[ (λ Θ A → A ∣ Γ′ ⟶ Θ) ]→ Θ′) →
+  t α ᵒᴿ ≡ dual-coterm-sub Γ′ Θ Θ′ t (α ᵒⱽ)
+dual-sub-lemma-covar `Z t = refl
+dual-sub-lemma-covar {Γ′} (`S α) t = dual-sub-lemma-covar α (sub-skip (λ Θ A → A ∣ Γ′ ⟶ Θ) t)
+
+
+dual-sub-lemma-term : ∀ {Γ Γ′ Θ Θ′ A} (M : Γ ⟶ Θ ∣ A) (s : Γ –[ (λ Γ A → TermValue Γ Θ′ A) ]→ Γ′) (t : Θ –[ (λ Θ A → A ∣ Γ′ ⟶ Θ) ]→ Θ′) →
+  sub-term TermValueKit CotermKit s t M ᵒᴸ ≡ sub-coterm TermKit CotermValueKit (dual-coterm-sub Γ′ Θ Θ′ t) (dual-termval-sub Γ Γ′ Θ′ s) (M ᵒᴸ)
+dual-sub-lemma-coterm : ∀ {Γ Γ′ Θ Θ′ A} (K : A ∣ Γ ⟶ Θ) (s : Γ –[ (λ Γ A → TermValue Γ Θ′ A) ]→ Γ′) (t : Θ –[ (λ Θ A → A ∣ Γ′ ⟶ Θ) ]→ Θ′) →
+  sub-coterm TermValueKit CotermKit s t K ᵒᴿ ≡ sub-term TermKit CotermValueKit (dual-coterm-sub Γ′ Θ Θ′ t) (dual-termval-sub Γ Γ′ Θ′ s) (K ᵒᴿ)
+dual-sub-lemma-statement : ∀ {Γ Γ′ Θ Θ′} (S : Γ ↦ Θ) (s : Γ –[ (λ Γ A → TermValue Γ Θ′ A) ]→ Γ′) (t : Θ –[ (λ Θ A → A ∣ Γ′ ⟶ Θ) ]→ Θ′) →
+  (sub-statement TermValueKit CotermKit s t S ᵒˢ) ≡ sub-statement TermKit CotermValueKit (dual-coterm-sub Γ′ Θ Θ′ t) (dual-termval-sub Γ Γ′ Θ′ s) (S ᵒˢ)
+
+dual-sub-lemma-term (` x) s t = dual-sub-lemma-var x s
+dual-sub-lemma-term `⟨ M , N ⟩ s t = cong₂ `[_,_] (dual-sub-lemma-term M s t) (dual-sub-lemma-term N s t)
+dual-sub-lemma-term inl⟨ M ⟩ s t = cong fst[_] (dual-sub-lemma-term M s t)
+dual-sub-lemma-term inr⟨ M ⟩ s t = cong snd[_] (dual-sub-lemma-term M s t)
+dual-sub-lemma-term not[ K ] s t = cong not⟨_⟩ (dual-sub-lemma-coterm K s t)
+dual-sub-lemma-term (μθ S) s t = {!   !}
+
+dual-sub-lemma-coterm (` α) s t = dual-sub-lemma-covar α t
+dual-sub-lemma-coterm fst[ K ] s t = cong inl⟨_⟩ (dual-sub-lemma-coterm K s t)
+dual-sub-lemma-coterm snd[ K ] s t = cong inr⟨_⟩ (dual-sub-lemma-coterm K s t)
+dual-sub-lemma-coterm `[ K , L ] s t = cong₂ `⟨_,_⟩ (dual-sub-lemma-coterm K s t) (dual-sub-lemma-coterm L s t)
+dual-sub-lemma-coterm not⟨ M ⟩ s t = cong not[_] (dual-sub-lemma-term M s t)
+dual-sub-lemma-coterm (μγ S) s t = {!   !}
+
+dual-sub-lemma-statement (M ● K) s t = cong₂ _●_ {!   !} {!   !}
+
 
 M⟶ⱽN⇒Mᵒ⟶ᴺNᵒ : ∀ {Γ Θ A} (M N : Γ ⟶ Θ ∣ A) → M ᵗ⟶ⱽ N → (M ᵒᴸ) ᶜ⟶ᴺ (N ᵒᴸ)
 M⟶ⱽN⇒Mᵒ⟶ᴺNᵒ M .(μθ (rename-term (λ x → x) (λ x → `S x) M ● ` `Z)) ηR = ηL
@@ -87,6 +121,6 @@ S⟶ᴺT⇒Sᵒ⟶ⱽTᵒ (`⟨ M , N ⟩ ● snd[ Q ]) (N ● Q) (β×₂ q) = 
 S⟶ᴺT⇒Sᵒ⟶ⱽTᵒ (inl⟨ M ⟩ ● `[ P , Q ]) (M ● P) (β+₁ p q) = β×₁ (Pᵒ≡V P p) (Pᵒ≡V Q q)
 S⟶ᴺT⇒Sᵒ⟶ⱽTᵒ (inr⟨ N ⟩ ● `[ P , Q ]) (N ● Q) (β+₂ p q) = β×₂ (Pᵒ≡V P p) (Pᵒ≡V Q q)
 S⟶ᴺT⇒Sᵒ⟶ⱽTᵒ (not[ K ] ● not⟨ M ⟩) (M ● K) β¬ = β¬
-S⟶ᴺT⇒Sᵒ⟶ⱽTᵒ (M ● μγ S) .(sub-statement TermKit CotermValueKit (add (λ Γ → _⟶_∣_ Γ _) M (λ x → ` x)) (λ x → ⟨ ` x , CV-covar ⟩) S) βL = {!   !}
-S⟶ᴺT⇒Sᵒ⟶ⱽTᵒ (μθ S ● P) .(sub-statement TermKit CotermValueKit (λ x → ` x) (add (λ Θ A → Σ (A ∣ _ ⟶ Θ) Covalue) ⟨ P , p ⟩ (λ x → ⟨ ` x , CV-covar ⟩)) S) (βR p) = {!   !}
+S⟶ᴺT⇒Sᵒ⟶ⱽTᵒ {Γ}{Θ} (M ● μγ S) .(sub-statement TermKit CotermValueKit (add (λ Γ A → Γ ⟶ Θ ∣ A) M id-term) id-cotermvalue S) βL = {!   !}
+S⟶ᴺT⇒Sᵒ⟶ⱽTᵒ {Γ}{Θ} (μθ S ● P) .(sub-statement TermKit CotermValueKit id-term (add (λ Θ A → CotermValue Γ Θ A) ⟨ P , p ⟩ id-cotermvalue) S) (βR p) = {!   !}
 
