@@ -102,31 +102,6 @@ data _↦_ : Context → Context → Set
 
 --lambdas and function application are syntactic sugar
 
-%<*fundef>
-\begin{code}
-ƛⱽ_ : ∀ {Γ Θ A B}
-  → Γ , A `× `¬ B , A ⟶ Θ ∣ B
-    --------------------------
-  → Γ ⟶ Θ ∣ A ⇒ⱽ B 
-
-ƛᴺ_ : ∀ {Γ Θ A B}
-  → Γ , A ⟶ Θ , `¬ A `+ B ∣ B
-    --------------------------
-  → Γ ⟶ Θ ∣ A ⇒ᴺ B
-
-_·ⱽ_ : ∀ {Γ Θ A B}
-    → Γ ⟶ Θ ∣ A
-    → B ∣ Γ ⟶ Θ
-      ---------------
-    → A ⇒ⱽ B ∣ Γ ⟶ Θ 
-
-_·ᴺ_ : ∀ {Γ Θ A B}
-    → Γ ⟶ Θ ∣ A
-    → B ∣ Γ ⟶ Θ
-      ---------------
-    → A ⇒ᴺ B ∣ Γ ⟶ Θ 
-\end{code}
-%</fundef>
 
 %<*lseq>
 \begin{code}
@@ -241,6 +216,33 @@ count {∅}     _       = ⊥-elim impossible
 
 
 --Lambda Abstraction and Function Application--
+
+%<*fundef>
+\begin{code}
+ƛⱽ_ : ∀ {Γ Θ A B}
+  → Γ , A `× `¬ B , A ⟶ Θ ∣ B
+    --------------------------
+  → Γ ⟶ Θ ∣ A ⇒ⱽ B 
+
+ƛᴺ_ : ∀ {Γ Θ A B}
+  → Γ , A ⟶ Θ , `¬ A `+ B ∣ B
+    --------------------------
+  → Γ ⟶ Θ ∣ A ⇒ᴺ B
+
+_·ⱽ_ : ∀ {Γ Θ A B}
+    → Γ ⟶ Θ ∣ A
+    → B ∣ Γ ⟶ Θ
+      ---------------
+    → A ⇒ⱽ B ∣ Γ ⟶ Θ 
+
+_·ᴺ_ : ∀ {Γ Θ A B}
+    → Γ ⟶ Θ ∣ A
+    → B ∣ Γ ⟶ Θ
+      ---------------
+    → A ⇒ᴺ B ∣ Γ ⟶ Θ 
+\end{code}
+%</fundef>
+
 %<*fun>
 \begin{code}
 ƛⱽ N = not[ μγ(γ 0 ● fst[ μγ (γ 1 ● snd[ not⟨ N ⟩ ]) ]) ]
