@@ -131,31 +131,53 @@ not⟨ M ⟩ ⱽᴿ           = λ c z → (λ k → (M ⱽᴸ) c k) z
 \end{code}
 
 --Substitutions--
-%<*v-ren+sub>
+%<*v-renty>
 \begin{code}
 ren-int-cbv : ∀ Γ Γ′ → Γ ↝ Γ′ → (Γ′ ⱽˣ) → (Γ ⱽˣ)
+\end{code}
+%</v-renty>
+%<*v-ren>
+\begin{code}
 ren-int-cbv ∅ Γ′ ρ γ = tt
 ren-int-cbv (Γ , A) Γ′ ρ γ = 
   ⟨ ren-int-cbv Γ Γ′ (λ x → ρ (`S x)) γ , ((ρ `Z) ⱽⱽ) γ ⟩
-
+\end{code}
+%</v-ren>
+%<*v-negren>
+\begin{code}
 neg-ren-int-cbv : ∀ Θ Θ′ → Θ ↝ Θ′ → ((`¬ˣ Θ′) ⱽˣ) → ((`¬ˣ Θ) ⱽˣ)
+\end{code}
+%</v-negren>
+\begin{code}
 neg-ren-int-cbv ∅ Θ′ ρ θ = tt
 neg-ren-int-cbv (Θ , A) Θ′ ρ θ = 
   ⟨ (neg-ren-int-cbv Θ Θ′ (λ x → ρ (`S x)) θ) , ((Γ∋A⇒¬Γ∋¬A (ρ `Z) ⱽⱽ) θ) ⟩
- 
+\end{code}
+
+%<*v-tvsub>
+\begin{code}
 termvalue-sub-int : ∀ Γ Γ′ Θ → Γ –[ (λ Γ A → TermValue Γ Θ A) ]→ Γ′ 
   → ((`¬ˣ Θ) ⱽˣ) → (Γ′ ⱽˣ) → (Γ ⱽˣ)
+\end{code}
+%</v-tvsub>
+\begin{code}
 termvalue-sub-int ∅ Γ′ Θ σ θ γ = tt
 termvalue-sub-int (Γ , A) Γ′ Θ σ θ γ = 
   ⟨ (termvalue-sub-int Γ Γ′ Θ (λ x → σ (`S x)) θ γ) , ((σ `Z ⱽᴸⱽ) ⟨ γ , θ ⟩) ⟩
+\end{code}
 
+%<*v-csub>
+\begin{code}
 coterm-sub-int : ∀ Γ Θ Θ′ → Θ –[ (λ Θ A → A ∣ Γ ⟶ Θ) ]→ Θ′ 
   → Γ ⱽˣ → ((`¬ˣ Θ′) ⱽˣ) → ((`¬ˣ Θ) ⱽˣ)
+\end{code}
+%</v-csub>
+\begin{code}
 coterm-sub-int Γ ∅ Θ′ σ γ _ = tt
 coterm-sub-int Γ (Θ , A) Θ′ σ γ θ = 
   ⟨ (coterm-sub-int Γ Θ Θ′ (λ z → σ (`S z)) γ θ) , (((σ `Z) ⱽᴿ) ⟨ γ , θ ⟩) ⟩
 \end{code}
-%</v-ren+sub>
+
 --Call-by-Name CPS Transformation--
 
 
@@ -251,40 +273,54 @@ cotermvalue-sub-int Γ (Θ , A) Θ′ σ γ θ =
 --Proofs of Duality--
 
 --Types and Contexts--
-%<*dual-tyctx>
+%<*dual-ty>
 \begin{code}
 Aⱽ≡Aᵒᴺ : ∀ {A} → A ⱽᵀ ≡ (A ᵒᵀ) ᴺᵀ
+\end{code}
+%</dual-ty>
+\begin{code}
 Aⱽ≡Aᵒᴺ {`ℕ}     = refl 
 Aⱽ≡Aᵒᴺ {A `+ B} = cong₂ _⊎_ (Aⱽ≡Aᵒᴺ {A}) (Aⱽ≡Aᵒᴺ {B})
 Aⱽ≡Aᵒᴺ {A `× B} = cong₂ _×_ (Aⱽ≡Aᵒᴺ {A}) (Aⱽ≡Aᵒᴺ {B})
 Aⱽ≡Aᵒᴺ {`¬ A}   = cong (λ - → - → R) Aⱽ≡Aᵒᴺ
-
+\end{code}
+%<*dual-ctx>
+\begin{code}
 Γⱽ≡Γᵒᴺ : ∀ {Γ} → Γ ⱽˣ ≡ (Γ ᵒˣ) ᴺˣ
+\end{code}
+%</dual-ctx>
+\begin{code}
 Γⱽ≡Γᵒᴺ {∅}       = refl
 Γⱽ≡Γᵒᴺ {(Γ , A)} = cong₂ _×_ Γⱽ≡Γᵒᴺ Aⱽ≡Aᵒᴺ
-\end{code}
-%</dual-tyctx>
-\begin{code}
+
 {-# REWRITE Aⱽ≡Aᵒᴺ #-}
 {-# REWRITE Γⱽ≡Γᵒᴺ #-}
 \end{code}
 --lemmas required for following proofs--
-%<*dual-lemmas>
+%<*dual-lemma1>
 \begin{code}
 [¬Γ]ᵒ≡¬[Γᵒ] : ∀ {Γ} → (`¬ˣ Γ) ᵒˣ ≡ `¬ˣ (Γ ᵒˣ)
+\end{code}
+%</dual-lemma1>
+\begin{code}
 [¬Γ]ᵒ≡¬[Γᵒ] {∅}       = refl
 [¬Γ]ᵒ≡¬[Γᵒ] {(Γ , A)} = cong₂ _,_ ([¬Γ]ᵒ≡¬[Γᵒ] {Γ}) refl
 
 {-# REWRITE [¬Γ]ᵒ≡¬[Γᵒ] #-}
+\end{code}
 
+%<*dual-lemma2>
+\begin{code}
 [Γ∋A⇒¬Γ∋¬Ax]ᵒ≡Γ∋A⇒¬Γ∋¬A[xᵒ] : ∀ {Γ A} (x : Γ ∋ A) 
   → Γ∋A⇒¬Γ∋¬A x ᵒⱽ ≡ Γ∋A⇒¬Γ∋¬A (x ᵒⱽ)
+\end{code}
+%</dual-lemma2>
+\begin{code}
 [Γ∋A⇒¬Γ∋¬Ax]ᵒ≡Γ∋A⇒¬Γ∋¬A[xᵒ] `Z     = refl
 [Γ∋A⇒¬Γ∋¬Ax]ᵒ≡Γ∋A⇒¬Γ∋¬A[xᵒ] (`S x) = cong `S ([Γ∋A⇒¬Γ∋¬Ax]ᵒ≡Γ∋A⇒¬Γ∋¬A[xᵒ] x)
 
 {-# REWRITE [Γ∋A⇒¬Γ∋¬Ax]ᵒ≡Γ∋A⇒¬Γ∋¬A[xᵒ] #-}
 \end{code}
-%</dual-lemmas>
 --Variables--
 %<*dual-var>
 \begin{code}
@@ -303,51 +339,80 @@ Kⱽ≡Kᵒᴺ : ∀ {Γ Θ A} (K : A ∣ Γ ⟶ Θ) (c : Γ ⱽˣ × (`¬ˣ Θ)
   → (K ⱽᴿ) c k ≡ ((K ᵒᴿ) ᴺᴸ) c k
 Sⱽ≡Sᵒᴺ : ∀ {Γ Θ}   (S : Γ ↦ Θ)     (c : Γ ⱽˣ × (`¬ˣ Θ) ⱽˣ)                   
   → (S ⱽˢ) c   ≡ ((S ᵒˢ) ᴺˢ) c
-
-Mⱽ≡Mᵒᴺ (` x) ⟨ c , _ ⟩ k       = cong  (λ - → k(-  c)) (xⱽ≡xᵒᴺ x)
-Mⱽ≡Mᵒᴺ `⟨ M , N ⟩ c k          = trans 
-  (Mⱽ≡Mᵒᴺ M c (λ x → (N ⱽᴸ) c ((λ y → k ⟨ x , y ⟩))))
-  (cong (λ - → (((M ᵒᴸ) ᴺᴿ) c) - ) (ext (λ x → Mⱽ≡Mᵒᴺ N c (λ y → k ⟨ x , y ⟩))))
-Mⱽ≡Mᵒᴺ inl⟨ M ⟩ c k            = Mⱽ≡Mᵒᴺ M c λ x → k (inj₁ x ) 
-Mⱽ≡Mᵒᴺ inr⟨ M ⟩ c k            = Mⱽ≡Mᵒᴺ M c λ x → k (inj₂ x )
+\end{code}
+%</dual-seq>
+\begin{code}
+Mⱽ≡Mᵒᴺ (` x) ⟨ c , _ ⟩ k       = cong  (λ - → k (-  c)) (xⱽ≡xᵒᴺ x)
+Mⱽ≡Mᵒᴺ `⟨ M , N ⟩ c k          = cong₂ (λ -₁ -₂ → -₁ (λ x → -₂ (λ y → k ⟨ x , y ⟩))) 
+                                  (ext (λ k → Mⱽ≡Mᵒᴺ M c k)) (ext (λ  k → Mⱽ≡Mᵒᴺ N c k))
+Mⱽ≡Mᵒᴺ inl⟨ M ⟩ c k            = Mⱽ≡Mᵒᴺ M c λ x → k (inj₁ x) 
+Mⱽ≡Mᵒᴺ inr⟨ M ⟩ c k            = Mⱽ≡Mᵒᴺ M c λ x → k (inj₂ x)
 Mⱽ≡Mᵒᴺ not[ K ] c k           = cong k (ext (λ x → Kⱽ≡Kᵒᴺ K c x))
-Mⱽ≡Mᵒᴺ (μθ α) c k             = Sⱽ≡Sᵒᴺ α ⟨ proj₁ c , ⟨ proj₂ c , k ⟩ ⟩ 
-
-Kⱽ≡Kᵒᴺ (` α) c k             = cong (λ x → x (proj₂ c) k) (xⱽ≡xᵒᴺ (Γ∋A⇒¬Γ∋¬A α)) 
+\end{code}
+%<*dual-covarabs>
+\begin{code}
+Mⱽ≡Mᵒᴺ (μθ S) ⟨ c₁ , c₂ ⟩ k    = Sⱽ≡Sᵒᴺ S ⟨ c₁ , ⟨ c₂ , k ⟩ ⟩ 
+\end{code}
+%</dual-covarabs>
+\begin{code}
+Kⱽ≡Kᵒᴺ (` α) ⟨ _ , c ⟩ k      = cong (λ - → - c k) (xⱽ≡xᵒᴺ (Γ∋A⇒¬Γ∋¬A α)) 
 Kⱽ≡Kᵒᴺ fst[ K ] c ⟨ k , _ ⟩   = Kⱽ≡Kᵒᴺ K c k
 Kⱽ≡Kᵒᴺ snd[ K ] c ⟨ _ , k ⟩   = Kⱽ≡Kᵒᴺ K c k
 Kⱽ≡Kᵒᴺ `[ K , L ] c (inj₁ k) = Kⱽ≡Kᵒᴺ K c k
 Kⱽ≡Kᵒᴺ `[ K , L ] c (inj₂ k) = Kⱽ≡Kᵒᴺ L c k
 Kⱽ≡Kᵒᴺ not⟨ M ⟩ c k           = Mⱽ≡Mᵒᴺ M c k
-Kⱽ≡Kᵒᴺ (μγ x) c k            = Sⱽ≡Sᵒᴺ x ⟨ ⟨ proj₁ c , k ⟩ , proj₂ c ⟩
-
-Sⱽ≡Sᵒᴺ (M ● K) c             = trans 
-  (Mⱽ≡Mᵒᴺ M c ((K ⱽᴿ) c)) 
-  (cong (λ - → ((M ᵒᴸ) ᴺᴿ) c -) (ext (λ x → Kⱽ≡Kᵒᴺ K c x)))
 \end{code}
-%</dual-seq>
+%<*dual-covarabs>
+\begin{code}
+Kⱽ≡Kᵒᴺ (μγ S) ⟨ c₁ , c₂ ⟩ k   = Sⱽ≡Sᵒᴺ S ⟨ ⟨ c₁ , k ⟩ , c₂ ⟩
+\end{code}
+%</dual-covarabs>
+\begin{code}
+Sⱽ≡Sᵒᴺ (M ● K) c             = (cong₂ (λ -₁ -₂ → -₁ -₂)) 
+                                 (ext (λ k → Mⱽ≡Mᵒᴺ M c k)) (ext (λ k → Kⱽ≡Kᵒᴺ K c k))
+\end{code}
+
 
 
 --CPS Transformation of Values--
-%<*val>
+%<*valty>
 \begin{code}
-cps-value : ∀ {Γ Θ A} (V : Γ ⟶ Θ ∣ A) (v : Value V) (c : Γ ⱽˣ × (`¬ˣ Θ) ⱽˣ) 
+cps-value : ∀ {Γ Θ A} (V : Γ ⟶ Θ ∣ A) (v : Value V) (c : Γ ⱽˣ × (`¬ˣ Θ) ⱽˣ)
   → (V ⱽᴸ) c ≡ λ x → x ((⟨ V , v ⟩ ⱽᴸⱽ) c)
+\end{code}
+%</valty>
+\begin{code}
 cps-value (` x) V-var c = refl
-cps-value `⟨ V , W ⟩ (V-prod v w) c = ext (λ x → trans 
-  ((cong (λ - → - (λ x₁ → (W ⱽᴸ) c (λ y → x ⟨ x₁ , y ⟩)))) (cps-value V v c)) 
-  (cong (λ - → - (λ y → x ⟨ (⟨ V , v ⟩ ⱽᴸⱽ) c , y ⟩)) (cps-value W w c)))
-cps-value inl⟨ V ⟩ (V-inl v) c = ext (λ x → cong (λ - → - (λ x₁ → x (inj₁ x₁))) (cps-value V v c))
-cps-value inr⟨ V ⟩ (V-inr v) c = ext (λ x → cong (λ - → - (λ x₁ → x (inj₂ x₁))) (cps-value V v c))
+cps-value `⟨ V , W ⟩ (V-prod v w) c = ext (λ k → 
+  cong₂ (λ -₁ -₂ → -₁ (λ x → -₂ (λ y → k ⟨ x , y ⟩))) (cps-value V v c) (cps-value W w c))
+\end{code}
+%<*valeg>
+\begin{code}
+cps-value inl⟨ V ⟩ (V-inl v) c = ext (λ k → cong (λ - → - (λ x → k (inj₁ x))) (cps-value V v c))
+\end{code}
+%</valeg>
+\begin{code}
+cps-value inr⟨ V ⟩ (V-inr v) c = ext (λ k → cong (λ - → - (λ y → k (inj₂ y))) (cps-value V v c))
 cps-value not[ K ] V-not c = refl
+\end{code}
 
+%<*covalty>
+\begin{code}
 cps-covalue : ∀ {Γ Θ A} (P : A ∣ Γ ⟶ Θ) (p : Covalue P) (c : Θ ᴺˣ × (`¬ˣ Γ) ᴺˣ) 
   → (P ᴺᴿ) c ≡ λ z → z ((⟨ P , p ⟩ ᴺᴿⱽ) c)
+\end{code}
+%</covalty>
+\begin{code}
 cps-covalue (` α) CV-covar c = refl
-cps-covalue fst[ P ] (CV-fst p) c = ext (λ x → cong (λ - → - (λ α → x (inj₁ α))) (cps-covalue P p c))
-cps-covalue snd[ P ] (CV-snd p) c = ext (λ x → cong (λ - → - (λ β → x (inj₂ β))) (cps-covalue P p c))
-cps-covalue `[ P , Q ] (CV-sum p q) c = ext (λ x → 
-  cong₂ (λ -₁ -₂ → -₁ (λ α → -₂ (λ β → x ⟨ α , β ⟩))) (cps-covalue P p c) (cps-covalue Q q c))
+cps-covalue fst[ P ] (CV-fst p) c = ext (λ z → cong (λ - → - (λ α → z (inj₁ α))) (cps-covalue P p c))
+cps-covalue snd[ P ] (CV-snd p) c = ext (λ z → cong (λ - → - (λ β → z (inj₂ β))) (cps-covalue P p c))
+\end{code}
+%<*covaleg>
+\begin{code}
+cps-covalue `[ P , Q ] (CV-sum p q) c = ext (λ z → 
+  cong₂ (λ -₁ -₂ → -₁ (λ α → -₂ (λ β → z ⟨ α , β ⟩))) (cps-covalue P p c) (cps-covalue Q q c))
+\end{code}
+%</covaleg>
+\begin{code}
 cps-covalue not⟨ K ⟩ CV-not c = refl
 \end{code}
-%</val>

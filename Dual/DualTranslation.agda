@@ -84,7 +84,6 @@ dual-coterm-sub Γ (Θ , A) Θ′ σ `Z = (σ `Z) ᵒᴿ
 dual-coterm-sub Γ (Θ , A) Θ′ σ (`S x) = dual-coterm-sub Γ Θ Θ′ (sub-skip (λ Θ A → A ∣ Γ ⟶ Θ) σ) x
 
 dual-termval-sub : ∀ Γ Γ′ Θ → Γ –[(λ Γ A → TermValue Γ Θ A)]→ Γ′ → (Γ ᵒˣ) –[(λ Γ A → CotermValue (Θ ᵒˣ) Γ A)]→ (Γ′ ᵒˣ)
-dual-termval-sub ∅ Γ′ Θ σ ()
 dual-termval-sub (Γ , A) Γ′ Θ σ `Z = ⟨ ((proj₁ (σ `Z )) ᵒᴸ) , Vᵒ≡P (proj₁ (σ `Z)) (proj₂ (σ `Z)) ⟩
 dual-termval-sub (Γ , A) Γ′ Θ σ (`S x) = dual-termval-sub Γ Γ′ Θ (sub-skip (λ Γ A → TermValue Γ Θ A) σ) x
 

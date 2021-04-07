@@ -195,6 +195,12 @@ wkΓᶜ = CotermSubstKit.wkΓ CotermKit
 wkΘᶜ : ∀ {Γ Θ A B} → A ∣ Γ ⟶ Θ → A ∣ Γ ⟶ Θ , B
 wkΘᶜ = CotermSubstKit.wkΘ CotermKit
 
+wkΓⱽ : ∀ {Γ Θ A B} → TermValue Γ Θ A → TermValue (Γ , B) Θ A
+wkΓⱽ = TermSubstKit.wkΓ TermValueKit
+
+wkΘⱽ : ∀ {Γ Θ A B} → TermValue Γ Θ A → TermValue Γ (Θ , B) A
+wkΘⱽ = TermSubstKit.wkΘ TermValueKit
+
 _++_ : ∀ {T Γ Γ′ Γ″} → Γ ↝ Γ′ → Γ′ –[ T ]→ Γ″ → Γ –[ T ]→ Γ″
 (s ++ t) x = t (s x)
 

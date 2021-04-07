@@ -254,16 +254,20 @@ Sⱽ≡Sᵒᴺ (M ● K) c             = trans (Mⱽ≡Mᵒᴺ M c ((K ⱽᴿ) c
 
 
 --CPS Transformation of Values--
-cps-value : ∀ {Γ Θ A} (V : Γ ⟶ Θ ∣ A) (v : Value V) (c : Γ ⱽˣ × (`¬ˣ Θ) ⱽˣ) → (V ⱽᴸ) c ≡ λ x → x ((⟨ V , v ⟩ ⱽᴸⱽ) c)
+cps-value : ∀ {Γ Θ A} (V : Γ ⟶ Θ ∣ A) (v : Value V) (c : Γ ⱽˣ × (`¬ˣ Θ) ⱽˣ) 
+  → (V ⱽᴸ) c ≡ λ x → x ((⟨ V , v ⟩ ⱽᴸⱽ) c)
 cps-value (` x) V-var c = refl
-cps-value `⟨ V , W ⟩ (V-prod v w) c = ext (λ x → trans ((cong (λ - → - (λ x₁ → (W ⱽᴸ) c (λ y → x ⟨ x₁ , y ⟩)))) (cps-value V v c)) (cong (λ - → - (λ y → x ⟨ (⟨ V , v ⟩ ⱽᴸⱽ) c , y ⟩)) (cps-value W w c)))
-cps-value inl⟨ V ⟩ (V-inl v) c = ext (λ x → cong (λ - → - (λ x₁ → x (inj₁ x₁))) (cps-value V v c))
-cps-value inr⟨ V ⟩ (V-inr v) c = ext (λ x → cong (λ - → - (λ x₁ → x (inj₂ x₁))) (cps-value V v c))
+cps-value `⟨ V , W ⟩ (V-prod v w) c = ext (λ k → 
+  cong₂ (λ -₁ -₂ → -₁ (λ x → -₂ (λ y → k ⟨ x , y ⟩))) (cps-value V v c) (cps-value W w c))
+cps-value inl⟨ V ⟩ (V-inl v) c = ext (λ k → cong (λ - → - (λ x → k (inj₁ x))) (cps-value V v c))
+cps-value inr⟨ V ⟩ (V-inr v) c = ext (λ k → cong (λ - → - (λ x → k (inj₂ x))) (cps-value V v c))
 cps-value not[ K ] V-not c = refl
 
-cps-covalue : ∀ {Γ Θ A} (P : A ∣ Γ ⟶ Θ) (p : Covalue P) (c : Θ ᴺˣ × (`¬ˣ Γ) ᴺˣ) → (P ᴺᴿ) c ≡ λ z → z ((⟨ P , p ⟩ ᴺᴿⱽ) c)
+cps-covalue : ∀ {Γ Θ A} (P : A ∣ Γ ⟶ Θ) (p : Covalue P) (c : Θ ᴺˣ × (`¬ˣ Γ) ᴺˣ) 
+  → (P ᴺᴿ) c ≡ λ z → z ((⟨ P , p ⟩ ᴺᴿⱽ) c)
 cps-covalue (` α) CV-covar c = refl
-cps-covalue fst[ P ] (CV-fst p) c = ext (λ x → cong (λ - → - (λ α → x (inj₁ α))) (cps-covalue P p c))
-cps-covalue snd[ P ] (CV-snd p) c = ext (λ x → cong (λ - → - (λ β → x (inj₂ β))) (cps-covalue P p c))
-cps-covalue `[ P , Q ] (CV-sum p q) c = ext (λ x → cong₂ (λ -₁ -₂ → -₁ (λ α → -₂ (λ β → x ⟨ α , β ⟩))) (cps-covalue P p c) (cps-covalue Q q c))
+cps-covalue fst[ P ] (CV-fst p) c = ext (λ z → cong (λ - → - (λ α → z (inj₁ α))) (cps-covalue P p c))
+cps-covalue snd[ P ] (CV-snd p) c = ext (λ z → cong (λ - → - (λ β → z (inj₂ β))) (cps-covalue P p c))
+cps-covalue `[ P , Q ] (CV-sum p q) c = ext (λ z → 
+  cong₂ (λ -₁ -₂ → -₁ (λ α → -₂ (λ β → z ⟨ α , β ⟩))) (cps-covalue P p c) (cps-covalue Q q c))
 cps-covalue not⟨ K ⟩ CV-not c = refl

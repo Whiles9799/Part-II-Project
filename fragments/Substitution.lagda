@@ -81,7 +81,7 @@ rename-weaken ρ x = `S (ρ x)
 \begin{code}
 rename-lift : ∀ {Γ Δ A} → Γ ↝ Δ → (Γ , A) ↝ (Δ , A)
 rename-lift ρ `Z = `Z
-rename-lift ρ (`S x) = `S (ρ x)
+rename-lift ρ (`S x) = rename-weaken ρ x
 \end{code}
 %</ren-lift>
 
