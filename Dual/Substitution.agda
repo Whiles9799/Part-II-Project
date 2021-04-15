@@ -7,6 +7,11 @@ open Eq using (_≡_; refl; cong; cong₂; sym; trans)
 open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; step-≡; _∎)
 open import Data.Product using (Σ ; proj₁ ; proj₂) renaming ( _,_ to ⟨_,_⟩ )
 
+infix  5 ƛⱽ_
+infix  5 ƛᴺ_
+infixl 7 _·ⱽ_
+infixl 7 _·ᴺ_
+
 --Families: context-indexed sets--
 Family : Set₁
 Family = Context → Set
@@ -200,6 +205,46 @@ wkΓⱽ = TermSubstKit.wkΓ TermValueKit
 
 wkΘⱽ : ∀ {Γ Θ A B} → TermValue Γ Θ A → TermValue Γ (Θ , B) A
 wkΘⱽ = TermSubstKit.wkΘ TermValueKit
+
+wkΓᶜⱽ : ∀ {Γ Θ A B} → CotermValue Γ Θ A → CotermValue (Γ , B) Θ A
+wkΓᶜⱽ = CotermSubstKit.wkΓ CotermValueKit
+
+wkΘᶜⱽ : ∀ {Γ Θ A B} → CotermValue Γ Θ A → CotermValue Γ (Θ , B) A
+wkΘᶜⱽ = CotermSubstKit.wkΘ CotermValueKit
+
+intΓᵗ : ∀ {Γ Θ A B C} → Γ , A , B ⟶ Θ ∣ C → Γ , B , A ⟶ Θ ∣ C
+intΓᵗ M = rename-term (add _∋_ (`S `Z) (rename-lift (rename-weaken id-var))) id-var M
+
+
+ƛⱽ_ : ∀ {Γ Θ A B}
+  → Γ , A ⟶ Θ ∣ B
+    --------------------------
+  → Γ ⟶ Θ ∣ A ⇒ⱽ B 
+
+ƛᴺ_ : ∀ {Γ Θ A B}
+  → Γ , A ⟶ Θ ∣ B
+    --------------------------
+  → Γ ⟶ Θ ∣ A ⇒ᴺ B
+
+_·ⱽ_ : ∀ {Γ Θ A B}
+    → Γ ⟶ Θ ∣ A
+    → B ∣ Γ ⟶ Θ
+      ---------------
+    → A ⇒ⱽ B ∣ Γ ⟶ Θ 
+
+_·ᴺ_ : ∀ {Γ Θ A B}
+    → Γ ⟶ Θ ∣ A
+    → B ∣ Γ ⟶ Θ
+      ---------------
+    → A ⇒ᴺ B ∣ Γ ⟶ Θ 
+
+ƛⱽ N = not[ μγ(γ 0 ● fst[ μγ (γ 1 ● snd[ not⟨ intΓᵗ (wkΓᵗ N) ⟩ ]) ]) ]
+
+ƛᴺ N = μθ (inl⟨ not[ μγ(inr⟨ wkΘᵗ N ⟩ ● θ 0) ] ⟩ ● θ 0) 
+
+M ·ⱽ N = not⟨ `⟨ M , not[ N ] ⟩ ⟩
+
+M ·ᴺ N = `[ not⟨ M ⟩ , N ]
 
 _++_ : ∀ {T Γ Γ′ Γ″} → Γ ↝ Γ′ → Γ′ –[ T ]→ Γ″ → Γ –[ T ]→ Γ″
 (s ++ t) x = t (s x)

@@ -260,14 +260,10 @@ beginˢⱽ S—↠S′ = S—↠S′
 example : ∀ {A B} → (V : ∅ ⟶ ∅ ∣ A) → (W : ∅ ⟶ ∅ ∣ B) → (K : A ∣ ∅ ⟶ ∅)
      → Value V → Value W
      → (not[ fst[ K ] ] ● not⟨ `⟨ V , W ⟩ ⟩) ˢ—↠ⱽ V ● K
-example V W K v w = 
-  beginˢⱽ
-    (not[ fst[ K ] ]) ● (not⟨ `⟨ V , W ⟩ ⟩)
-  ˢ⟶ⱽ⟨ β¬ ⟩
-    `⟨ V , W ⟩ ● fst[ K ]
-  ˢ⟶ⱽ⟨ β×₁ v w ⟩
-    V ● K
-  ∎ˢⱽ
+example V W K v w = beginˢⱽ
+  (not[ fst[ K ] ]) ● (not⟨ `⟨ V , W ⟩ ⟩)  ˢ⟶ⱽ⟨ β¬ ⟩
+  `⟨ V , W ⟩ ● fst[ K ]                   ˢ⟶ⱽ⟨ β×₁ v w ⟩
+  V ● K                                   ∎ˢⱽ
 \end{code}
 %</example>
 

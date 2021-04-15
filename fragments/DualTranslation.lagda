@@ -56,38 +56,26 @@ _ᵒⱽ : ∀ {Γ A} → (Γ ∋ A) → (Γ ᵒˣ ∋ A ᵒᵀ)
 _ᵒˢ : ∀ {Γ Θ} → (Γ ↦ Θ) → (Θ ᵒˣ ↦ Γ ᵒˣ)
 _ᵒᴸ : ∀ {Γ Θ A} → (Γ ⟶ Θ ∣ A) → (A ᵒᵀ ∣ Θ ᵒˣ ⟶ Γ ᵒˣ)
 _ᵒᴿ : ∀ {Γ Θ A} → (A ∣ Γ ⟶ Θ) → (Θ ᵒˣ ⟶ Γ ᵒˣ ∣ A ᵒᵀ)
-\end{code}
-%</seq>
-\begin{code}
+
 (` x)ᵒᴸ                 = ` x ᵒⱽ
 (`⟨ M , N ⟩) ᵒᴸ           = `[ M ᵒᴸ , N ᵒᴸ ]
 (inl⟨ M ⟩) ᵒᴸ            = fst[ M ᵒᴸ ] 
 (inr⟨ M ⟩) ᵒᴸ            = snd[ M ᵒᴸ ]
 (not[ K ]) ᵒᴸ           = not⟨ K ᵒᴿ ⟩
-\end{code}
-%<*seqb1>
-\begin{code}
 (μθ {Γ} {Θ} {A} (S)) ᵒᴸ = μγ( _ᵒˢ {Γ} {(Θ , A)} S )
-\end{code}
-%</seqb1>
 
-\begin{code}
 (` α) ᵒᴿ                = ` α ᵒⱽ
 (`[ K , L ]) ᵒᴿ          = `⟨ K ᵒᴿ , L ᵒᴿ ⟩
 (fst[ K ]) ᵒᴿ           = inl⟨ K ᵒᴿ ⟩
 (snd[ K ]) ᵒᴿ           = inr⟨ K ᵒᴿ ⟩
 (not⟨ M ⟩) ᵒᴿ            = not[ M ᵒᴸ ]
-\end{code}
-
-%<*seqb2>
-\begin{code}
 (μγ {Γ} {Θ} {A} (S)) ᵒᴿ = μθ( _ᵒˢ {(Γ , A)} {Θ} (S) )
-\end{code}
-%</seqb2>
-\begin{code}
+
 (M ● K) ᵒˢ = K ᵒᴿ ● M ᵒᴸ
+\end{code}
+%</seq>
 
-
+\begin{code}
 Vᵒ≡P : ∀ {Γ Θ A} (V : Γ ⟶ Θ ∣ A) → Value V → (Covalue (V ᵒᴸ))
 Vᵒ≡P (` x) V-var = CV-covar
 Vᵒ≡P (`⟨ V , W ⟩) (V-prod v w) = CV-sum (Vᵒ≡P V v) (Vᵒ≡P W w)

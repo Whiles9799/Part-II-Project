@@ -18,12 +18,8 @@ infix 10 `¬_
 infix 10 `¬ˣ
 
 infix 4 _●_
-infix  5 ƛⱽ_
-infix  5 ƛᴺ_
 infix  5 μθ
 infix  5 μγ
-infixl 7 _·ⱽ_
-infixl 7 _·ᴺ_
 infix  9 `_
 infix  10 θ_
 infix  10 γ_
@@ -72,14 +68,8 @@ data Context : Set where
 %<*var>
 \begin{code}
 data _∋_ : Context → Type → Set where
-  `Z : ∀ {Γ A}
-      -------------
-    → Γ , A ∋ A
-
-  `S : ∀ {Γ A B}
-    → Γ ∋ A
-      -------------
-    → Γ , B ∋ A
+  `Z : ∀ {Γ A}             → Γ , A ∋ A
+  `S : ∀ {Γ A B}  → Γ ∋ A  → Γ , B ∋ A
 \end{code}
 %</var>
 
@@ -142,6 +132,11 @@ data _∣_⟶_ where
     → Θ ∋ A
     → A ∣ Γ ⟶ Θ
 
+  `[_,_] : ∀ {Γ Θ A B}
+    → A ∣ Γ ⟶ Θ
+    → B ∣ Γ ⟶ Θ
+    → A `+ B ∣ Γ ⟶ Θ
+
   fst[_] : ∀ {Γ Θ A B}
     → A ∣ Γ ⟶ Θ
     → A `× B ∣ Γ ⟶ Θ
@@ -149,11 +144,6 @@ data _∣_⟶_ where
   snd[_] : ∀ {Γ Θ A B}
     → B ∣ Γ ⟶ Θ
     → A `× B ∣ Γ ⟶ Θ
-
-  `[_,_] : ∀ {Γ Θ A B}
-    → A ∣ Γ ⟶ Θ
-    → B ∣ Γ ⟶ Θ
-    → A `+ B ∣ Γ ⟶ Θ
 
   not⟨_⟩ : ∀ {Γ Θ A}
     → Γ ⟶ Θ ∣ A
@@ -168,10 +158,7 @@ data _∣_⟶_ where
 %<*cseq>
 \begin{code}
 data _↦_ where
-  _●_ : ∀ {Γ Θ A}
-    → Γ ⟶ Θ ∣ A
-    → A ∣ Γ ⟶ Θ
-    → Γ ↦ Θ
+  _●_ : ∀ {Γ Θ A} →   Γ ⟶ Θ ∣ A  →  A ∣ Γ ⟶ Θ   →   Γ ↦ Θ
 \end{code}
 %</cseq>
 
@@ -203,40 +190,3 @@ count {∅}     _       = ⊥-elim impossible
 
 --Lambda Abstraction and Function Application--
 
-%<*fundef>
-\begin{code}
-ƛⱽ_ : ∀ {Γ Θ A B}
-  → Γ , A `× `¬ B , A ⟶ Θ ∣ B
-    --------------------------
-  → Γ ⟶ Θ ∣ A ⇒ⱽ B 
-
-ƛᴺ_ : ∀ {Γ Θ A B}
-  → Γ , A ⟶ Θ , `¬ A `+ B ∣ B
-    --------------------------
-  → Γ ⟶ Θ ∣ A ⇒ᴺ B
-
-_·ⱽ_ : ∀ {Γ Θ A B}
-    → Γ ⟶ Θ ∣ A
-    → B ∣ Γ ⟶ Θ
-      ---------------
-    → A ⇒ⱽ B ∣ Γ ⟶ Θ 
-
-_·ᴺ_ : ∀ {Γ Θ A B}
-    → Γ ⟶ Θ ∣ A
-    → B ∣ Γ ⟶ Θ
-      ---------------
-    → A ⇒ᴺ B ∣ Γ ⟶ Θ 
-\end{code}
-%</fundef>
-
-%<*fun>
-\begin{code}
-ƛⱽ N = not[ μγ(γ 0 ● fst[ μγ (γ 1 ● snd[ not⟨ N ⟩ ]) ]) ]
-
-ƛᴺ N = μθ (inl⟨ not[ μγ(inr⟨ N ⟩ ● θ 0) ] ⟩ ● θ 0) 
-
-M ·ⱽ N = not⟨ `⟨ M , not[ N ] ⟩ ⟩
-
-M ·ᴺ N = `[ not⟨ M ⟩ , N ]
-\end{code}
-%</fun>

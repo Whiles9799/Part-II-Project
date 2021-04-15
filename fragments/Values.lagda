@@ -67,12 +67,16 @@ data Covalue where
     → Covalue not⟨ M ⟩
 \end{code}
 
-%<*tvcv>
+%<*tv>
 \begin{code}
 TermValue : Context → Context → Type → Set
 TermValue Γ Θ A = Σ (Γ ⟶ Θ ∣ A) Value
+\end{code}
+%</tv>
 
+%<*cv>
+\begin{code}
 CotermValue : Context → Context → Type → Set
 CotermValue Γ Θ A = Σ (A ∣ Γ ⟶ Θ) Covalue
 \end{code}
-%</tvcv>
+%</cv>

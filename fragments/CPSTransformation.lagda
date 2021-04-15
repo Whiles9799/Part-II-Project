@@ -43,10 +43,7 @@ infix 12 _ᴺˢ
 \begin{code}
 _ⱽᵀ : Type → Set
 _ⱽˣ : Context → Set
-\end{code}  
-%</v-ty+ctx>
 
-\begin{code}
 `ℕ ⱽᵀ       = ℕ
 (A `× B) ⱽᵀ = (A ⱽᵀ) × (B ⱽᵀ)
 (A `+ B) ⱽᵀ = (A ⱽᵀ) ⊎ (B ⱽᵀ)
@@ -54,7 +51,8 @@ _ⱽˣ : Context → Set
 
 ∅ ⱽˣ       = ⊤
 (Γ , A) ⱽˣ = Γ ⱽˣ  × A ⱽᵀ
-\end{code}
+\end{code}  
+%</v-ty+ctx>
 
 --Variables--
 %<*v-var>
@@ -140,7 +138,7 @@ ren-int-cbv : ∀ Γ Γ′ → Γ ↝ Γ′ → (Γ′ ⱽˣ) → (Γ ⱽˣ)
 \begin{code}
 ren-int-cbv ∅ Γ′ ρ γ = tt
 ren-int-cbv (Γ , A) Γ′ ρ γ = 
-  ⟨ ren-int-cbv Γ Γ′ (λ x → ρ (`S x)) γ , ((ρ `Z) ⱽⱽ) γ ⟩
+  ⟨ (ren-int-cbv Γ Γ′ (λ z → ρ (`S z)) γ) , (((ρ `Z) ⱽⱽ) γ) ⟩
 \end{code}
 %</v-ren>
 %<*v-negren>

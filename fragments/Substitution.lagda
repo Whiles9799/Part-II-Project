@@ -8,6 +8,11 @@ open Eq using (_≡_; refl; cong; cong₂; sym; trans)
 open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; step-≡; _∎)
 open import Data.Product using (Σ ; proj₁ ; proj₂) renaming ( _,_ to ⟨_,_⟩ )
 
+infix  5 ƛⱽ_
+infix  5 ƛᴺ_
+infixl 7 _·ⱽ_
+infixl 7 _·ᴺ_
+
 --Families: context-indexed sets--
 Family : Set₁
 Family = Context → Set
@@ -20,11 +25,9 @@ Sorted-Family = Context → Type → Set
 
 %<*maps>
 \begin{code}
---Context map--
 _–[_]→_ : Context → Sorted-Family → Context → Set
 Γ –[ X ]→ Δ = {A : Type} → Γ ∋ A → X Δ A
 
---Renaming map--
 _↝_ : Context → Context → Set
 Γ ↝ Δ = Γ –[ _∋_ ]→ Δ
 \end{code}
@@ -73,15 +76,17 @@ record CotermSubstKit (C : Context → Context → Type → Set) : Set where
 %<*ren-weaken>
 \begin{code}
 rename-weaken : ∀ {Γ Δ A} → Γ ↝ Δ → Γ ↝ (Δ , A)
-rename-weaken ρ x = `S (ρ x)
 \end{code}
 %</ren-weaken>
+\begin{code}
+rename-weaken ρ x = `S (ρ x)
+\end{code}
 
 %<*ren-lift>
 \begin{code}
 rename-lift : ∀ {Γ Δ A} → Γ ↝ Δ → (Γ , A) ↝ (Δ , A)
 rename-lift ρ `Z = `Z
-rename-lift ρ (`S x) = rename-weaken ρ x
+rename-lift ρ (`S x) = `S (ρ x)
 \end{code}
 %</ren-lift>
 
@@ -237,7 +242,8 @@ TermKit = record
   ;  kit = record { vr = `_ ; wk = rename-term (rename-weaken id-var) id-var }
   }
 \end{code}
-%<*cortermkit>
+
+%<*cotermkit>
 \begin{code}
 CotermKit : CotermSubstKit λ Γ Θ A → A ∣ Γ ⟶ Θ
 CotermKit = record
@@ -250,16 +256,16 @@ CotermKit = record
 
 %<*valren>
 \begin{code}
-value-rename : ∀ {Γ Γ′ Θ Θ′ A} {V : Γ ⟶ Θ ∣ A} (ρ : Γ ↝ Γ′) (ϱ : Θ ↝ Θ′) →
+value-rename : ∀ {Γ Γ′ Θ Θ′ A} {V : Γ ⟶ Θ ∣ A} {ρ : Γ ↝ Γ′} {ϱ : Θ ↝ Θ′} →
   Value V → Value (rename-term ρ ϱ V)
 \end{code}
 %</valren>
 \begin{code}
-value-rename ρ ϱ V-var = V-var
-value-rename ρ ϱ (V-prod v w) = V-prod (value-rename ρ ϱ v) (value-rename ρ ϱ w)
-value-rename ρ ϱ (V-inl v) = V-inl (value-rename ρ ϱ v)
-value-rename ρ ϱ (V-inr v) = V-inr (value-rename ρ ϱ v)
-value-rename ρ ϱ V-not = V-not  
+value-rename V-var = V-var
+value-rename (V-prod v w) = V-prod (value-rename v) (value-rename w)
+value-rename (V-inl v) = V-inl (value-rename v)
+value-rename (V-inr v) = V-inr (value-rename v)
+value-rename V-not = V-not  
 \end{code}
 
 %<*covalren>
@@ -282,11 +288,11 @@ TermValueKit : TermSubstKit TermValue
 TermValueKit = record
   { tm = λ x → proj₁ x
   ; wkΘ = λ x → ⟨ (TermSubstKit.wkΘ TermKit (proj₁ x)) 
-                , value-rename id-var (rename-weaken id-var) (proj₂ x) ⟩
+                , value-rename (proj₂ x) ⟩
   ; kit = record 
     { vr = λ x → ⟨ ` x , V-var ⟩ 
     ; wk = λ x → ⟨ (VarSubstKit.wk (TermSubstKit.kit TermKit) (proj₁ x)) 
-                 , value-rename (rename-weaken id-var) id-var (proj₂ x) ⟩ }
+                 , value-rename (proj₂ x) ⟩ }
   }
 \end{code}
 %</termvalkit>
@@ -302,6 +308,8 @@ CotermValueKit = record
                 , (covalue-rename id-var (rename-weaken id-var) (proj₂ x)) ⟩ } 
   }
 \end{code}
+
+\begin{code}
 wkΓᵗ : ∀ {Γ Θ A B} → Γ ⟶ Θ ∣ A → Γ , B ⟶ Θ ∣ A
 wkΓᵗ = TermSubstKit.wkΓ TermKit
 
@@ -313,6 +321,34 @@ wkΓᶜ = CotermSubstKit.wkΓ CotermKit
 
 wkΘᶜ : ∀ {Γ Θ A B} → A ∣ Γ ⟶ Θ → A ∣ Γ ⟶ Θ , B
 wkΘᶜ = CotermSubstKit.wkΘ CotermKit
+
+wkΓᶜⱽ : ∀ {Γ Θ A B} → CotermValue Γ Θ A → CotermValue (Γ , B) Θ A
+wkΓᶜⱽ = CotermSubstKit.wkΓ CotermValueKit
+
+wkΘᶜⱽ : ∀ {Γ Θ A B} → CotermValue Γ Θ A → CotermValue Γ (Θ , B) A
+wkΘᶜⱽ = CotermSubstKit.wkΘ CotermValueKit
+
+intΓᵗ : ∀ {Γ Θ A B C} → Γ , A , B ⟶ Θ ∣ C → Γ , B , A ⟶ Θ ∣ C
+intΓᵗ M = rename-term (add _∋_ (`S `Z) (rename-lift (rename-weaken id-var))) id-var M
+\end{code}
+
+%<*fundef>
+\begin{code}
+ƛⱽ_ : ∀ {Γ Θ A B}  → Γ , A ⟶ Θ ∣ B            → Γ ⟶ Θ ∣ A ⇒ⱽ B 
+ƛᴺ_ : ∀ {Γ Θ A B}  → Γ , A ⟶ Θ ∣ B            → Γ ⟶ Θ ∣ A ⇒ᴺ B
+_·ⱽ_ : ∀ {Γ Θ A B} → Γ ⟶ Θ ∣ A → B ∣ Γ ⟶ Θ   → A ⇒ⱽ B ∣ Γ ⟶ Θ 
+_·ᴺ_ : ∀ {Γ Θ A B} → Γ ⟶ Θ ∣ A → B ∣ Γ ⟶ Θ   → A ⇒ᴺ B ∣ Γ ⟶ Θ 
+\end{code}
+%</fundef>
+
+%<*fun>
+\begin{code}
+ƛⱽ N = not[ μγ(γ 0 ● fst[ μγ (γ 1 ● snd[ not⟨ intΓᵗ (wkΓᵗ N) ⟩ ]) ]) ]
+ƛᴺ N = μθ (inl⟨ not[ μγ(inr⟨ wkΘᵗ N ⟩ ● θ 0) ] ⟩ ● θ 0) 
+M ·ⱽ N = not⟨ `⟨ M , not[ N ] ⟩ ⟩
+M ·ᴺ N = `[ not⟨ M ⟩ , N ]
+\end{code}
+%</fun>
 
 _++_ : ∀ {T Γ Γ′ Γ″} → Γ ↝ Γ′ → Γ′ –[ T ]→ Γ″ → Γ –[ T ]→ Γ″
 (s ++ t) x = t (s x)

@@ -9,7 +9,9 @@ open import Dual.Semantics
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl; cong; cong₂; sym; trans; subst; subst₂)
 open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; step-≡; _∎)
-open import Data.Product using (Σ; _×_; proj₁; proj₂) renaming (_,_ to ⟨_,_⟩)
+import Data.Product as Prod 
+open Prod using (Σ; _×_; proj₁; proj₂) renaming (_,_ to ⟨_,_⟩)
+open import Data.Product.Properties using (Σ-≡,≡↔≡)
 open import Dual.Values
 open import Axiom.Extensionality.Propositional using (Extensionality; ExtensionalityImplicit)
 open import Level as L hiding (lift) public
@@ -62,7 +64,7 @@ dual-ren-lemma-statement (M ● K) s t = cong₂ _●_ (dual-ren-lemma-coterm K 
 dual-termval-sub-weaken-lemma : ∀ Γ Γ′ Θ′ A {B} (σ : Γ –[ (λ Γ A → TermValue Γ Θ′ A) ]→ Γ′) (x : Γ ᵒˣ ∋ B) 
   → dual-termval-sub Γ (Γ′ , A) Θ′ (sub-weaken (TermSubstKit.kit TermValueKit) σ) x
     ≡ sub-weaken (CotermSubstKit.kit CotermValueKit) (dual-termval-sub Γ Γ′ Θ′ σ) x
-dual-termval-sub-weaken-lemma (Γ , C) Γ′ Θ′ A σ `Z = {!   !}
+dual-termval-sub-weaken-lemma (Γ , C) Γ′ Θ′ A σ `Z = {! Data.Product.Properties.Σ-≡,≡↔≡  !}
 dual-termval-sub-weaken-lemma (Γ , C) Γ′ Θ′ A σ (`S x) = dual-termval-sub-weaken-lemma Γ Γ′ Θ′ A (sub-skip (λ Γ A → TermValue Γ Θ′ A) σ) x
 
 dual-termval-sub-lift-lemma : ∀ Γ Γ′ Θ′ A {B} (σ : Γ –[ (λ Γ A → TermValue Γ Θ′ A) ]→ Γ′) (x : (Γ , A) ᵒˣ ∋ B)
@@ -70,6 +72,51 @@ dual-termval-sub-lift-lemma : ∀ Γ Γ′ Θ′ A {B} (σ : Γ –[ (λ Γ A �
     ≡ sub-lift (CotermSubstKit.kit CotermValueKit) (dual-termval-sub Γ Γ′ Θ′ σ) x
 dual-termval-sub-lift-lemma Γ Γ′ Θ′ A σ `Z = refl
 dual-termval-sub-lift-lemma Γ Γ′ Θ′ A σ (`S x) = dual-termval-sub-weaken-lemma Γ Γ′ Θ′ A σ x
+
+dual-termval-sub-fmap-lemma : ∀ Γ Γ′ Θ′ A {B} (σ : Γ –[ (λ Γ A → TermValue Γ Θ′ A) ]→ Γ′) (x : Γ ᵒˣ ∋ B)
+  → dual-termval-sub Γ Γ′ (Θ′ , A) (fmap {λ Γ B → TermValue Γ Θ′ B}{λ Γ B → TermValue Γ (Θ′ , A) B} wkΘⱽ σ) x 
+    ≡ fmap {λ Γ B → CotermValue (Θ′ ᵒˣ) Γ B}{λ Γ B → CotermValue ((Θ′ , A) ᵒˣ) Γ B} wkΓᶜⱽ (dual-termval-sub Γ Γ′ Θ′ σ) x
+dual-termval-sub-fmap-lemma (Γ , C) Γ′ Θ′ A σ `Z = {!   !}
+dual-termval-sub-fmap-lemma (Γ , C) Γ′ Θ′ A σ (`S x) = dual-termval-sub-fmap-lemma Γ Γ′ Θ′ A (sub-skip (λ Γ A → TermValue Γ Θ′ A) σ) x
+
+dual-termval-sub-id-lemma : ∀ Γ Θ A (x : Γ ᵒˣ ∋ A)
+  → dual-termval-sub Γ Γ Θ id-termvalue x ≡ id-cotermvalue x
+dual-termval-sub-id-lemma (Γ , B) Θ A `Z = refl 
+dual-termval-sub-id-lemma (Γ , B) Θ A (`S x) = trans (dual-termval-sub-weaken-lemma Γ Γ Θ B id-termvalue x) {!   !} 
+
+dual-coterm-sub-weaken-lemma : ∀ Γ′ Θ Θ′ A {B} (σ : Θ –[ (λ Θ A → A ∣ Γ′ ⟶ Θ) ]→ Θ′) (x : Θ ᵒˣ ∋ B) 
+  → dual-coterm-sub Γ′ Θ (Θ′ , A) (sub-weaken (CotermSubstKit.kit CotermKit) σ) x
+    ≡ sub-weaken (TermSubstKit.kit TermKit) (dual-coterm-sub Γ′ Θ Θ′ σ) x
+dual-coterm-sub-weaken-lemma Γ′ (Θ , C) Θ′ A σ `Z = 
+  trans 
+    (dual-ren-lemma-coterm (σ `Z) (λ z → z) (rename-weaken (λ z → z))) 
+    (cong₂ (λ -₁ -₂ → rename-term (λ {A} → -₁ {A}) (λ {A} → -₂ {A}) (σ `Z ᵒᴿ))
+      (iext λ {C} → ext (λ x → trans (dual-ren-weaken-lemma Θ′ Θ′ id-var x) (cong `S (dual-ren-id-lemma Θ′ C x)))) 
+      (iext (λ {C} → ext (λ x → dual-ren-id-lemma Γ′ C x))))
+dual-coterm-sub-weaken-lemma Γ′ (Θ , C) Θ′ A σ (`S x) = dual-coterm-sub-weaken-lemma Γ′ Θ Θ′ A (sub-skip (λ Θ A → A ∣ Γ′ ⟶ Θ) σ) x
+
+dual-coterm-sub-lift-lemma : ∀ Γ′ Θ Θ′ A {B} (σ : Θ –[ (λ Θ A → A ∣ Γ′ ⟶ Θ) ]→ Θ′) (x : (Θ , A) ᵒˣ ∋ B)
+  → dual-coterm-sub Γ′ (Θ , A) (Θ′ , A) (sub-lift (CotermSubstKit.kit CotermKit) σ) x
+      ≡ sub-lift (TermSubstKit.kit TermKit) (dual-coterm-sub Γ′ Θ Θ′ σ) x
+dual-coterm-sub-lift-lemma Γ′ Θ Θ′ A σ `Z = refl
+dual-coterm-sub-lift-lemma Γ′ Θ Θ′ A σ (`S x) = dual-coterm-sub-weaken-lemma Γ′ Θ Θ′ A σ x
+
+dual-coterm-sub-fmap-lemma : ∀ Γ′ Θ Θ′ A {B} (σ : Θ –[ (λ Θ A → A ∣ Γ′ ⟶ Θ) ]→ Θ′) (x : Θ ᵒˣ ∋ B)
+  → dual-coterm-sub (Γ′ , A) Θ Θ′ (fmap {λ Θ B → B ∣ Γ′ ⟶ Θ}{λ Θ B → B ∣ Γ′ , A ⟶ Θ} wkΓᶜ σ) x
+    ≡ fmap {λ Θ B → Θ ⟶ Γ′ ᵒˣ ∣ B}{λ Θ B → Θ ⟶ (Γ′ , A) ᵒˣ ∣ B} wkΘᵗ (dual-coterm-sub Γ′ Θ Θ′ σ) x
+dual-coterm-sub-fmap-lemma Γ′ (Θ , C) Θ′ A {B} σ `Z = 
+  trans 
+    (dual-ren-lemma-coterm (σ `Z) (rename-weaken (λ z → z)) (λ z → z))
+    (cong₂ (λ -₁ -₂ → rename-term (λ { {A} → -₁ {A} }) (λ { {A} → -₂ {A} }) (σ `Z ᵒᴿ))
+      (iext λ {C} → ext (λ x → dual-ren-id-lemma Θ′ C x)) 
+      (iext (λ {C} → ext (λ x → trans (dual-ren-weaken-lemma Γ′ Γ′ id-var x) (cong `S (dual-ren-id-lemma Γ′ C x))))))
+dual-coterm-sub-fmap-lemma Γ′ (Θ , C) Θ′ A σ (`S x) = dual-coterm-sub-fmap-lemma Γ′ Θ Θ′ A (sub-skip (λ Θ A → A ∣ Γ′ ⟶ Θ) σ) x
+
+dual-coterm-sub-id-lemma : ∀ Γ Θ A (x : Θ ᵒˣ ∋ A)
+  → dual-coterm-sub Γ Θ Θ id-coterm x ≡ id-term x 
+dual-coterm-sub-id-lemma Γ (Θ , B) .(B ᵒᵀ) `Z = refl
+dual-coterm-sub-id-lemma Γ (Θ , B) A (`S x) = trans (dual-coterm-sub-weaken-lemma Γ Θ Θ B `_ x) (cong (rename-term (λ x₁ → `S x₁) (λ x₁ → x₁)) (dual-coterm-sub-id-lemma Γ Θ A x))
+
 
 dual-sub-lemma-var : ∀ {Γ Γ′ Θ′ A} (x : Γ ∋ A) (s : Γ –[ (λ Γ A → TermValue Γ Θ′ A) ]→ Γ′) →
   proj₁ (s x) ᵒᴸ ≡ proj₁ (dual-termval-sub Γ Γ′ Θ′ s (x ᵒⱽ))
@@ -84,7 +131,7 @@ dual-sub-lemma-covar {Γ′} (`S α) t = dual-sub-lemma-covar α (sub-skip (λ �
 
 dual-sub-lemma-term : ∀ {Γ Γ′ Θ Θ′ A} (M : Γ ⟶ Θ ∣ A) (s : Γ –[ (λ Γ A → TermValue Γ Θ′ A) ]→ Γ′) (t : Θ –[ (λ Θ A → A ∣ Γ′ ⟶ Θ) ]→ Θ′) →
   sub-term TermValueKit CotermKit s t M ᵒᴸ ≡ sub-coterm TermKit CotermValueKit (dual-coterm-sub Γ′ Θ Θ′ t) (dual-termval-sub Γ Γ′ Θ′ s) (M ᵒᴸ)
-dual-sub-lemma-coterm : ∀ {Γ Γ′ Θ Θ′ A} (K : A ∣ Γ ⟶ Θ) (s {B} : Γ –[ (λ Γ A → TermValue Γ Θ′ A) ]→ Γ′) (t {B} : Θ –[ (λ Θ A → A ∣ Γ′ ⟶ Θ) ]→ Θ′) →
+dual-sub-lemma-coterm : ∀ {Γ Γ′ Θ Θ′ A} (K : A ∣ Γ ⟶ Θ) (s : Γ –[ (λ Γ A → TermValue Γ Θ′ A) ]→ Γ′) (t : Θ –[ (λ Θ A → A ∣ Γ′ ⟶ Θ) ]→ Θ′) →
   sub-coterm TermValueKit CotermKit s t K ᵒᴿ ≡ sub-term TermKit CotermValueKit (dual-coterm-sub Γ′ Θ Θ′ t) (dual-termval-sub Γ Γ′ Θ′ s) (K ᵒᴿ)
 dual-sub-lemma-statement : ∀ {Γ Γ′ Θ Θ′} (S : Γ ↦ Θ) (s : Γ –[ (λ Γ A → TermValue Γ Θ′ A) ]→ Γ′) (t : Θ –[ (λ Θ A → A ∣ Γ′ ⟶ Θ) ]→ Θ′) →
   (sub-statement TermValueKit CotermKit s t S ᵒˢ) ≡ sub-statement TermKit CotermValueKit (dual-coterm-sub Γ′ Θ Θ′ t) (dual-termval-sub Γ Γ′ Θ′ s) (S ᵒˢ)
@@ -94,7 +141,25 @@ dual-sub-lemma-term `⟨ M , N ⟩ s t = cong₂ `[_,_] (dual-sub-lemma-term M s
 dual-sub-lemma-term inl⟨ M ⟩ s t = cong fst[_] (dual-sub-lemma-term M s t)
 dual-sub-lemma-term inr⟨ M ⟩ s t = cong snd[_] (dual-sub-lemma-term M s t)
 dual-sub-lemma-term not[ K ] s t = cong not⟨_⟩ (dual-sub-lemma-coterm K s t)
-dual-sub-lemma-term (μθ S) s t = {!   !}
+dual-sub-lemma-term {Γ}{Γ′}{Θ}{Θ′}{A} (μθ S) s t = cong μγ (
+  begin 
+    sub-statement TermValueKit CotermKit 
+      (fmap {λ Γ B → TermValue Γ Θ′ B}{λ Γ B → TermValue Γ (Θ′ , A) B} wkΘⱽ s) 
+      (sub-lift (CotermSubstKit.kit CotermKit) t) 
+      S ᵒˢ
+  ≡⟨ dual-sub-lemma-statement S (fmap {λ Γ B → TermValue Γ Θ′ B}{λ Γ B → TermValue Γ (Θ′ , A) B} wkΘⱽ s) (sub-lift (CotermSubstKit.kit CotermKit) t) ⟩
+    sub-statement TermKit CotermValueKit
+      (dual-coterm-sub Γ′ (Θ , A) (Θ′ , A) (sub-lift (CotermSubstKit.kit CotermKit) t))
+      (dual-termval-sub Γ Γ′ (Θ′ , A) (fmap {λ Γ B → TermValue Γ Θ′ B}{λ Γ B → TermValue Γ (Θ′ , A) B} wkΘⱽ s))
+      (S ᵒˢ)
+  ≡⟨ cong₂(λ -₁ -₂ → sub-statement TermKit CotermValueKit (λ {A} → -₁ {A}) (λ {A} → -₂ {A}) (S ᵒˢ))
+      (iext (ext (λ x → dual-coterm-sub-lift-lemma Γ′ Θ Θ′ A t x))) 
+      (iext (ext (λ x → dual-termval-sub-fmap-lemma Γ Γ′ Θ′ A s x))) ⟩
+    (sub-statement TermKit CotermValueKit 
+      (sub-lift (TermSubstKit.kit TermKit) (dual-coterm-sub Γ′ Θ Θ′ t)) 
+      (fmap {λ Γ B → CotermValue (Θ′ ᵒˣ) Γ B}{λ Γ B → CotermValue ((Θ′ , A) ᵒˣ) Γ B} wkΓᶜⱽ (dual-termval-sub Γ Γ′ Θ′ s)) 
+      (S ᵒˢ)) 
+  ∎)
 
 dual-sub-lemma-coterm (` α) s t = dual-sub-lemma-covar α t
 dual-sub-lemma-coterm fst[ K ] s t = cong inl⟨_⟩ (dual-sub-lemma-coterm K s t)
@@ -103,15 +168,17 @@ dual-sub-lemma-coterm `[ K , L ] s t = cong₂ `⟨_,_⟩ (dual-sub-lemma-coterm
 dual-sub-lemma-coterm not⟨ M ⟩ s t = cong not[_] (dual-sub-lemma-term M s t)
 dual-sub-lemma-coterm {Γ}{Γ′}{Θ}{Θ′}{A} (μγ S) s t = cong μθ (
   begin 
-    sub-statement TermValueKit CotermKit (sub-lift (TermSubstKit.kit TermValueKit) s) (fmap wkΓᶜ t) S ᵒˢ
-  ≡⟨ dual-sub-lemma-statement S (sub-lift (TermSubstKit.kit TermValueKit) s) (fmap wkΓᶜ t) ⟩ 
+    sub-statement TermValueKit CotermKit (sub-lift (TermSubstKit.kit TermValueKit) s) (fmap {λ Θ B → B ∣ Γ′ ⟶ Θ}{λ Θ B → B ∣ Γ′ , A ⟶ Θ} wkΓᶜ t) S ᵒˢ
+  ≡⟨ dual-sub-lemma-statement S (sub-lift (TermSubstKit.kit TermValueKit) s) (fmap {λ Θ B → B ∣ Γ′ ⟶ Θ}{λ Θ B → B ∣ Γ′ , A ⟶ Θ} wkΓᶜ t) ⟩ 
     sub-statement TermKit CotermValueKit 
-      (dual-coterm-sub (Γ′ , A) Θ Θ′ (fmap wkΓᶜ t)) 
+      (dual-coterm-sub (Γ′ , A) Θ Θ′ (fmap {λ Θ B → B ∣ Γ′ ⟶ Θ}{λ Θ B → B ∣ Γ′ , A ⟶ Θ} wkΓᶜ t)) 
       (dual-termval-sub (Γ , A) (Γ′ , A) Θ′ (sub-lift (TermSubstKit.kit TermValueKit) s))
       (S ᵒˢ)
-  ≡⟨ cong₂ (λ -₁ -₂ → sub-statement TermKit CotermValueKit (λ{ {A} → -₁ {A} }) (λ{ {A} → -₂ {A} }) (S ᵒˢ) ) {!   !} {!   !} ⟩ 
+  ≡⟨ cong₂ (λ -₁ -₂ → sub-statement TermKit CotermValueKit (λ{ {A} → -₁ {A} }) (λ{ {A} → -₂ {A} }) (S ᵒˢ) )
+      (iext (ext (λ x → dual-coterm-sub-fmap-lemma Γ′ Θ Θ′ A t x))) 
+      (iext (ext (λ x → dual-termval-sub-lift-lemma Γ Γ′ Θ′ A s x))) ⟩ 
     sub-statement TermKit CotermValueKit
-      (fmap wkΘᵗ (dual-coterm-sub Γ′ Θ Θ′ t))
+      (fmap {λ Θ B → Θ ⟶ Γ′ ᵒˣ ∣ B}{λ Θ B → Θ ⟶ (Γ′ , A) ᵒˣ ∣ B} wkΘᵗ (dual-coterm-sub Γ′ Θ Θ′ t))
       (sub-lift (CotermSubstKit.kit CotermValueKit) (dual-termval-sub Γ Γ′ Θ′ s))
       (S ᵒˢ)
   ∎)
@@ -137,13 +204,17 @@ S⟶ⱽT⇒Sᵒ⟶ᴺTᵒ {Γ}{Θ} (V ● μγ S) .(sub-statement TermValueKit C
   subst (λ - → μθ (S ᵒˢ) ● V ᵒᴸ ˢ⟶ᴺ -) 
     (sym (trans 
       (dual-sub-lemma-statement S (add (λ Γ A → Σ (Γ ⟶ Θ ∣ A) Value) ⟨ V , v ⟩ id-termvalue) id-coterm) 
-      {!   !})) 
+      (cong₂ (λ -₁ -₂ → sub-statement TermKit CotermValueKit (λ {A} → -₁ {A}) (λ {A} → -₂ {A}) (S ᵒˢ))
+        (iext (λ {C} → ext (λ x → dual-coterm-sub-id-lemma Γ Θ C x))) 
+        (iext λ {C} → ext (λ x → {!   !}))))) 
     (βR (Vᵒ≡P V v))
 S⟶ⱽT⇒Sᵒ⟶ᴺTᵒ {Γ}{Θ} (μθ S ● K) .(sub-statement TermValueKit CotermKit (λ x → ⟨ ` x , V-var ⟩) (add (λ Θ A → A ∣ _ ⟶ Θ) K (λ x → ` x)) S) βR = 
   subst (λ - → K ᵒᴿ ● μγ (S ᵒˢ) ˢ⟶ᴺ -) 
     (sym (trans 
       (dual-sub-lemma-statement S id-termvalue (add (λ Θ A → A ∣ Γ ⟶ Θ) K id-coterm)) 
-      {!   !})) 
+      (cong₂ (λ -₁ -₂ → sub-statement TermKit CotermValueKit (λ {A} → -₁ {A}) (λ {A} → -₂ {A}) (S ᵒˢ))
+        (iext (λ {C} → ext (λ x → {!    !}))) 
+        (iext λ {C} → ext (λ x → dual-termval-sub-id-lemma Γ Θ C x))))) 
     βL
 
 -- M⟶ᴺN⇒Mᵒ⟶ⱽNᵒ : ∀ {Γ Θ A} (M N : Γ ⟶ Θ ∣ A) → M ᵗ⟶ᴺ N → (M ᵒᴸ) ᶜ⟶ⱽ (N ᵒᴸ)
