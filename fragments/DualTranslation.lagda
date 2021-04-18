@@ -28,10 +28,7 @@ infix 12 _ᵒˢ
 \begin{code}
 _ᵒᵀ : Type → Type
 _ᵒˣ : Context → Context
-\end{code}
-%</ty+ctx>
 
-\begin{code}
 (A `+ B)ᵒᵀ  = (A ᵒᵀ `× B ᵒᵀ)
 (A `× B)ᵒᵀ  = (A ᵒᵀ `+ B ᵒᵀ)
 (`¬ A)ᵒᵀ    = (`¬ (A)ᵒᵀ) 
@@ -40,6 +37,7 @@ _ᵒˣ : Context → Context
 (∅ ᵒˣ)     = ∅
 (Γ , A) ᵒˣ = ((Γ ᵒˣ) , (A ᵒᵀ))
 \end{code}
+%</ty+ctx>
 
 %<*var>
 \begin{code}

@@ -10,9 +10,6 @@ open Eq using (_≡_; refl; cong; cong₂; sym; trans)
 open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; step-≡; _∎)
 open import Data.Product using (Σ; _×_; proj₁; proj₂) renaming (_,_ to ⟨_,_⟩)
 open import Dual.Values
-open import Axiom.Extensionality.Propositional using (Extensionality; ExtensionalityImplicit)
-open import Level as L hiding (lift) public
-
 
 
 
@@ -24,9 +21,7 @@ infix 2 _ˢ⟶ᴺ_
 infix 2 _ᶜ⟶ᴺ_
 infix 2 _ᵗ⟶ᴺ_
 
-postulate
-  ext  : Extensionality 0ℓ 0ℓ
-  iext : ExtensionalityImplicit 0ℓ 0ℓ
+
 
 _⟨_/⟩ᵗ : ∀ {Γ Θ A B} 
   → Γ , A ⟶ Θ ∣ B
@@ -77,21 +72,21 @@ _ⱽ[_/]ˢ : ∀ {Γ Θ A}
     -----------------
   → Γ ↦ Θ
 
-_⟨_/⟩ᵗ {Γ}{Θ} N M = sub-term TermKit CotermValueKit (add (λ Γ A → Γ ⟶ Θ ∣ A) M id-term) id-cotermvalue N
+_⟨_/⟩ᵗ {Γ}{Θ} N M = sub-term TK CVK (add (λ Γ A → Γ ⟶ Θ ∣ A) M id-term) id-cotermvalue N
 
-_⟨_/⟩ᶜ {Γ}{Θ} L M = sub-coterm TermKit CotermValueKit (add (λ Γ A → Γ ⟶ Θ ∣ A) M id-term) id-cotermvalue L
+_⟨_/⟩ᶜ {Γ}{Θ} L M = sub-coterm TK CVK (add (λ Γ A → Γ ⟶ Θ ∣ A) M id-term) id-cotermvalue L
 
-_⟨_/⟩ˢ {Γ}{Θ} S M = sub-statement TermKit CotermValueKit (add (λ Γ A → Γ ⟶ Θ ∣ A) M id-term) id-cotermvalue S
+_⟨_/⟩ˢ {Γ}{Θ} S M = sub-statement TK CVK (add (λ Γ A → Γ ⟶ Θ ∣ A) M id-term) id-cotermvalue S
 
-_ⱽ⟨_/⟩ˢ {Γ}{Θ} S V = sub-statement TermValueKit CotermKit (add (λ Γ A → TermValue Γ Θ A) V id-termvalue) id-coterm S
+_ⱽ⟨_/⟩ˢ {Γ}{Θ} S V = sub-statement TVK CK (add (λ Γ A → TermValue Γ Θ A) V id-termvalue) id-coterm S
 
-_[_/]ᵗ {Γ}{Θ} N K = sub-term TermValueKit CotermKit id-termvalue (add (λ Θ A → A ∣ Γ ⟶ Θ) K id-coterm) N
+_[_/]ᵗ {Γ}{Θ} N K = sub-term TVK CK id-termvalue (add (λ Θ A → A ∣ Γ ⟶ Θ) K id-coterm) N
 
-_[_/]ᶜ {Γ}{Θ} L K = sub-coterm TermValueKit CotermKit id-termvalue (add (λ Θ A → A ∣ Γ ⟶ Θ) K id-coterm) L
+_[_/]ᶜ {Γ}{Θ} L K = sub-coterm TVK CK id-termvalue (add (λ Θ A → A ∣ Γ ⟶ Θ) K id-coterm) L
 
-_[_/]ˢ {Γ}{Θ} S K = sub-statement TermValueKit CotermKit id-termvalue (add (λ Θ A → A ∣ Γ ⟶ Θ) K id-coterm) S
+_[_/]ˢ {Γ}{Θ} S K = sub-statement TVK CK id-termvalue (add (λ Θ A → A ∣ Γ ⟶ Θ) K id-coterm) S
 
-_ⱽ[_/]ˢ {Γ}{Θ} S P = sub-statement TermKit CotermValueKit id-term (add (λ Θ A → CotermValue Γ Θ A) P id-cotermvalue) S
+_ⱽ[_/]ˢ {Γ}{Θ} S P = sub-statement TK CVK id-term (add (λ Θ A → CotermValue Γ Θ A) P id-cotermvalue) S
 
 
 data _ˢ⟶ⱽ_ : ∀ {Γ Θ} → (Γ ↦ Θ) → (Γ ↦ Θ) → Set where
@@ -332,24 +327,24 @@ beginᵗᴺ M—↠M′ = M—↠M′
 -- β⊃ⱽ {Γ}{Θ}{A}{B} V N L v = beginˢⱽ 
 --   (ƛⱽ N ● V ·ⱽ L) ˢ⟶ⱽ⟨ β¬ ⟩ 
 --   (`⟨ V , not[ L ] ⟩ ● μγ ((γ 0) ● fst[ (μγ ((γ 1) ● snd[ not⟨ (intΓᵗ (wkΓᵗ N)) ⟩ ])) ])) ˢ⟶ⱽ⟨ βL (V-prod v V-not) ⟩
---   `⟨ V , not[ L ] ⟩ ● fst[ μγ (`⟨ wkΓᵗ V , not[ wkΓᶜ L ] ⟩ ● snd[ not⟨ sub-term TermValueKit CotermKit (sub-lift (TermSubstKit.kit TermValueKit) (add (λ Γ₁ A₁ → Σ (Γ₁ ⟶ Θ ∣ A₁) Value) ⟨ `⟨ V , not[ L ] ⟩ , V-prod v V-not ⟩ id-termvalue))
+--   `⟨ V , not[ L ] ⟩ ● fst[ μγ (`⟨ wkΓᵗ V , not[ wkΓᶜ L ] ⟩ ● snd[ not⟨ sub-term TVK CK (sub-lift (TermSubstKit.kit TVK) (add (λ Γ₁ A₁ → Σ (Γ₁ ⟶ Θ ∣ A₁) Value) ⟨ `⟨ V , not[ L ] ⟩ , V-prod v V-not ⟩ id-termvalue))
 --        id-coterm
 --        (intΓᵗ (wkΓᵗ N))
 --        ⟩
 --        ])
 --       ] ˢ⟶ⱽ⟨ β×₁ v V-not ⟩ 
---   (V ● μγ (`⟨ wkΓᵗ V , not[ wkΓᶜ L ] ⟩ ● snd[ not⟨ sub-term TermValueKit CotermKit (sub-lift (TermSubstKit.kit TermValueKit) (add (λ Γ₁ A₁ → Σ (Γ₁ ⟶ Θ ∣ A₁) Value) ⟨ `⟨ V , not[ L ] ⟩ , V-prod v V-not ⟩ id-termvalue))
+--   (V ● μγ (`⟨ wkΓᵗ V , not[ wkΓᶜ L ] ⟩ ● snd[ not⟨ sub-term TVK CK (sub-lift (TermSubstKit.kit TVK) (add (λ Γ₁ A₁ → Σ (Γ₁ ⟶ Θ ∣ A₁) Value) ⟨ `⟨ V , not[ L ] ⟩ , V-prod v V-not ⟩ id-termvalue))
 --        id-coterm
 --        (intΓᵗ (wkΓᵗ N))
 --        ⟩
 --        ])) ˢ⟶ⱽ⟨ βL v ⟩ 
 --   `⟨
---       sub-term TermValueKit CotermKit
+--       sub-term TVK CK
 --       (add (λ Γ₁ A₁ → Σ (Γ₁ ⟶ Θ ∣ A₁) Value) ⟨ V , v ⟩ id-termvalue)
 --       id-coterm (wkΓᵗ V)
 --       ,
 --       not[
---       sub-coterm TermValueKit CotermKit
+--       sub-coterm TVK CK
 --       (add (λ Γ₁ A₁ → Σ (Γ₁ ⟶ Θ ∣ A₁) Value) ⟨ V , v ⟩ id-termvalue)
 --       id-coterm (wkΓᶜ L)
 --       ]
@@ -357,13 +352,13 @@ beginᵗᴺ M—↠M′ = M—↠M′
 --       ●
 --       snd[
 --       not⟨
---       sub-term TermValueKit CotermKit
+--       sub-term TVK CK
 --       (add (λ Γ₁ A₁ → Σ (Γ₁ ⟶ Θ ∣ A₁) Value) ⟨ V , v ⟩
 --        id-termvalue)
 --       id-coterm
---       (sub-term TermValueKit CotermKit
+--       (sub-term TVK CK
 --        (sub-lift
---         (TermSubstKit.kit TermValueKit)
+--         (TermSubstKit.kit TVK)
 --         (add (λ Γ₁ A₁ → Σ (Γ₁ ⟶ Θ ∣ A₁) Value)
 --          ⟨ `⟨ V , not[ L ] ⟩ , V-prod v V-not ⟩ id-termvalue))
 --        id-coterm
@@ -371,18 +366,18 @@ beginᵗᴺ M—↠M′ = M—↠M′
 --       ⟩
 --       ] ˢ⟶ⱽ⟨ β×₂ {!   !} V-not ⟩ 
 --       not[
---       sub-coterm TermValueKit CotermKit
+--       sub-coterm TVK CK
 --       (add (λ Γ₁ A₁ → Σ (Γ₁ ⟶ Θ ∣ A₁) Value) ⟨ V , v ⟩ id-termvalue)
 --       id-coterm (wkΓᶜ L)
 --       ]
 --       ●
 --       not⟨
---       sub-term TermValueKit CotermKit
+--       sub-term TVK CK
 --       (add (λ Γ₁ A₁ → Σ (Γ₁ ⟶ Θ ∣ A₁) Value) ⟨ V , v ⟩ id-termvalue)
 --       id-coterm
---       (sub-term TermValueKit CotermKit
+--       (sub-term TVK CK
 --        (sub-lift
---         (TermSubstKit.kit TermValueKit)
+--         (TermSubstKit.kit TVK)
 --         (add (λ Γ₁ A₁ → Σ (Γ₁ ⟶ Θ ∣ A₁) Value)
 --          ⟨ `⟨ V , not[ L ] ⟩ , V-prod v V-not ⟩ id-termvalue))
 --        id-coterm (intΓᵗ (wkΓᵗ N)))

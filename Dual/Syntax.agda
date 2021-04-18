@@ -2,6 +2,8 @@ module Dual.Syntax where
 
 open import Data.Empty using (⊥; ⊥-elim)
 open import Data.Nat using (ℕ; zero; suc; _<_; _≤?_; z≤n; s≤s)
+open import Axiom.Extensionality.Propositional using (Extensionality; ExtensionalityImplicit)
+open import Level as L hiding (lift) public
 
 infix  4 _⟶_∣_
 infix  4 _↦_ 
@@ -23,6 +25,10 @@ infix  5 μγ
 infix  9 `_
 infix  10 θ_
 infix  10 γ_
+
+postulate
+  ext  : Extensionality 0ℓ 0ℓ
+  iext : ExtensionalityImplicit 0ℓ 0ℓ
 
 --Types--
 
@@ -132,6 +138,20 @@ data _↦_ where
       ----------
     → Γ ↦ Θ
 
+Term : Context → Context → Type → Set 
+Term Γ Θ A = Γ ⟶ Θ ∣ A
+
+Coterm : Context → Context → Type → Set 
+Coterm Γ Θ A = A ∣ Γ ⟶ Θ
+
+Statement : Context → Context → Set 
+Statement Γ Θ = Γ ↦ Θ
+
+Fix₁ : (T : Context → Context → Type → Set) (Γ : Context) → (Context → Type → Set)
+Fix₁ T Γ = λ Θ A → T Γ Θ A
+
+Fix₂ : (T : Context → Context → Type → Set) (Θ : Context) → (Context → Type → Set)
+Fix₂ T Θ = λ Γ A → T Γ Θ A
 
 lookup : Context → ℕ → Type
 lookup (Γ , A) zero    = A
