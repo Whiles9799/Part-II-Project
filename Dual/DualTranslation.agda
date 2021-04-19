@@ -60,14 +60,14 @@ _ᵒᴿ : ∀ {Γ Θ A} → (A ∣ Γ ⟶ Θ) → (Θ ᵒˣ ⟶ Γ ᵒˣ ∣ A �
 
 (M ● K) ᵒˢ = K ᵒᴿ ● M ᵒᴸ
 
-Vᵒ≡P : ∀ {Γ Θ A} (V : Γ ⟶ Θ ∣ A) → Value V → (Covalue (V ᵒᴸ))
+Vᵒ≡P : ∀ {Γ Θ A} (V : Γ ⟶ Θ ∣ A) → Value V → (CoV (V ᵒᴸ))
 Vᵒ≡P (` x) V-var = CV-covar
 Vᵒ≡P (`⟨ V , W ⟩) (V-prod v w) = CV-sum (Vᵒ≡P V v) (Vᵒ≡P W w)
 Vᵒ≡P (inl⟨ V ⟩) (V-inl v) = CV-fst (Vᵒ≡P V v)
 Vᵒ≡P (inr⟨ W ⟩) (V-inr w) = CV-snd (Vᵒ≡P W w)
 Vᵒ≡P (not[ K ]) V-not = CV-not
 
-Pᵒ≡V : ∀ {Γ Θ A} (P : A ∣ Γ ⟶ Θ) → Covalue P → (Value (P ᵒᴿ))
+Pᵒ≡V : ∀ {Γ Θ A} (P : A ∣ Γ ⟶ Θ) → CoV P → (Value (P ᵒᴿ))
 Pᵒ≡V (` α) CV-covar = V-var
 Pᵒ≡V (`[ P , Q ]) (CV-sum p q) = V-prod (Pᵒ≡V P p) (Pᵒ≡V Q q)
 Pᵒ≡V (fst[ P ]) (CV-fst p) = V-inl (Pᵒ≡V P p)
@@ -79,13 +79,13 @@ dual-ren ∅ Γ′ ρ ()
 dual-ren (Γ , A) Γ′ ρ `Z = (ρ `Z) ᵒⱽ
 dual-ren (Γ , A) Γ′ ρ (`S x) = dual-ren Γ Γ′ (ren-skip ρ) x
 
-dual-coterm-sub : ∀ Γ Θ Θ′ → Θ –[(λ Θ A → A ∣ Γ ⟶ Θ)]→ Θ′ → (Θ ᵒˣ) –[ (λ Θ A → Θ ⟶ Γ ᵒˣ ∣ A) ]→ (Θ′ ᵒˣ)
-dual-coterm-sub Γ (Θ , A) Θ′ σ `Z = (σ `Z) ᵒᴿ
-dual-coterm-sub Γ (Θ , A) Θ′ σ (`S x) = dual-coterm-sub Γ Θ Θ′ (sub-skip (λ Θ A → A ∣ Γ ⟶ Θ) σ) x
+dual-C-sub : ∀ Γ Θ Θ′ → Θ –[(Fix₁ Coterm Γ)]→ Θ′ → (Θ ᵒˣ) –[ (Fix₂ Term (Γ ᵒˣ) ) ]→ (Θ′ ᵒˣ)
+dual-C-sub Γ (Θ , A) Θ′ σ `Z = (σ `Z) ᵒᴿ
+dual-C-sub Γ (Θ , A) Θ′ σ (`S x) = dual-C-sub Γ Θ Θ′ (sub-skip (Fix₁ Coterm Γ) σ) x
 
-dual-termval-sub : ∀ Γ Γ′ Θ → Γ –[(λ Γ A → TermValue Γ Θ A)]→ Γ′ → (Γ ᵒˣ) –[(λ Γ A → CotermValue (Θ ᵒˣ) Γ A)]→ (Γ′ ᵒˣ)
-dual-termval-sub (Γ , A) Γ′ Θ σ `Z = ⟨ ((proj₁ (σ `Z )) ᵒᴸ) , Vᵒ≡P (proj₁ (σ `Z)) (proj₂ (σ `Z)) ⟩
-dual-termval-sub (Γ , A) Γ′ Θ σ (`S x) = dual-termval-sub Γ Γ′ Θ (sub-skip (λ Γ A → TermValue Γ Θ A) σ) x
+dual-TV-sub : ∀ Γ Γ′ Θ → Γ –[(Fix₂ TermValue Θ)]→ Γ′ → (Γ ᵒˣ) –[(Fix₁ CotermValue (Θ ᵒˣ))]→ (Γ′ ᵒˣ)
+dual-TV-sub (Γ , A) Γ′ Θ σ `Z = ⟨ ((proj₁ (σ `Z )) ᵒᴸ) , Vᵒ≡P (proj₁ (σ `Z)) (proj₂ (σ `Z)) ⟩
+dual-TV-sub (Γ , A) Γ′ Θ σ (`S x) = dual-TV-sub Γ Γ′ Θ (sub-skip (Fix₂ TermValue Θ) σ) x
 
 --Properties of the Dual Translation--
 
@@ -101,8 +101,8 @@ dual-termval-sub (Γ , A) Γ′ Θ σ (`S x) = dual-termval-sub Γ Γ′ Θ (sub
 [Γᵒˣ]ᵒˣ≡Γ {∅}       = refl
 [Γᵒˣ]ᵒˣ≡Γ {(Γ , A)} = cong₂ _,_ [Γᵒˣ]ᵒˣ≡Γ [Aᵒᵀ]ᵒᵀ≡A
 
---we use these rewrite rules to handle equality between a term and a dual translated term
---as those two terms will be indexed by different contexts and type
+--we use these rewrite rules to handle equality between a T and a dual translated T
+--as those two Ts will be indexed by different contexts and type
 {-# REWRITE [Aᵒᵀ]ᵒᵀ≡A #-}
 {-# REWRITE [Γᵒˣ]ᵒˣ≡Γ #-}
 
@@ -130,7 +130,7 @@ dual-termval-sub (Γ , A) Γ′ Θ σ (`S x) = dual-termval-sub Γ Γ′ Θ (sub
 
 [Sᵒˢ]ᵒˢ≡S (M ● K)     = cong₂ _●_   ([Mᵒᴸ]ᵒᴿ≡M M) ([Kᵒᴿ]ᵒᴸ≡K K)
 
---A Dual Calculus term is derivable iff its dual is derivable--
+--A Dual Calculus T is derivable iff its dual is derivable--
 
 Γ⟶Θ∣A⇒Aᵒ∣Θᵒ⟶Γᵒ : ∀ {Γ Θ A} → (Γ ⟶ Θ ∣ A) → A ᵒᵀ ∣ Θ ᵒˣ ⟶ Γ ᵒˣ
 Γ⟶Θ∣A⇒Aᵒ∣Θᵒ⟶Γᵒ M = M ᵒᴸ

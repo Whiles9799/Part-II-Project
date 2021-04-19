@@ -141,7 +141,7 @@ DC-λ-Type = record { B = `ℕ ; _⇒_ = _⇒ⱽ_ }
 DC-λ-Term : λ-Term Type DC-λ-Type (λ Γ A → Γ ⟶ ∅ ∣ A)
 DC-λ-Term = record { 
   ` = `_ ; 
-  ƛ = λ M → not[ μγ(γ 0 ● fst[ μγ (γ 1 ● snd[ not⟨ rename-term (rename-lift (λ x → `S x)) id-var M ⟩ ]) ]) ] ; 
+  ƛ = λ M → not[ μγ(γ 0 ● fst[ μγ (γ 1 ● snd[ not⟨ ren-T (ren-lift (λ x → `S x)) id-var M ⟩ ]) ]) ] ; 
   _·_ = λ M N → μθ (wkΘᵗ M ● wkΘᵗ N ·ⱽ θ 0)
   }
 
@@ -151,7 +151,7 @@ DC-λ+-Type = record { B = `ℕ ; _⇒_ = _⇒ⱽ_ ; ¬ = `¬_ }
 DC-λ+-Term : λ+-Term Type DC-λ+-Type (λ Γ A → Γ ⟶ ∅ ∣ A)
 DC-λ+-Term = record 
   { ` = `_ 
-  ; ƛ = λ M → not[ μγ(γ 0 ● fst[ μγ (γ 1 ● snd[ not⟨ rename-term (rename-lift (λ x → `S x)) id-var M ⟩ ]) ]) ] 
+  ; ƛ = λ M → not[ μγ(γ 0 ● fst[ μγ (γ 1 ● snd[ not⟨ ren-T (ren-lift (λ x → `S x)) id-var M ⟩ ]) ]) ] 
   ; _·_ = λ M N → μθ (wkΘᵗ M ● wkΘᵗ N ·ⱽ θ 0) 
   ; letcont = λ M → μθ (not[ (θ 0) ] ● (μγ ((wkΘᵗ M) ● (θ 0))))
   ; throw[_,_] = λ M N → μθ (wkΘᵗ N ● μγ ((wkΘᵗ (wkΓᵗ M)) ● not⟨ (γ 0) ⟩))
@@ -161,7 +161,7 @@ DC-λ+-Term = record
 DC-λμ-Term : λμ-Term Type DC-λ+-Type _⟶_∣_ _↦_
 DC-λμ-Term = record 
   { ` = `_ 
-  ; ƛ = λ M → not[ μγ(γ 0 ● fst[ μγ (γ 1 ● snd[ not⟨ rename-term (rename-lift (λ x → `S x)) id-var M ⟩ ]) ]) ] 
+  ; ƛ = λ M → not[ μγ(γ 0 ● fst[ μγ (γ 1 ● snd[ not⟨ ren-T (ren-lift (λ x → `S x)) id-var M ⟩ ]) ]) ] 
   ; _·_ = λ M N → μθ (wkΘᵗ M ● wkΘᵗ N ·ⱽ θ 0) 
   ; μ = λ C → μθ C
   }

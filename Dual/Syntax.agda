@@ -38,7 +38,7 @@ data Type : Set where
   _`+_ : Type → Type → Type
   `¬_ : Type → Type
   
---implication is defined in terms of other connectives
+--implication is defined in Ts of other connectives
 --it is defined differently for CBN and CBV
 
 _⇒ⱽ_ : Type → Type → Type

@@ -97,13 +97,13 @@ neg-ren-int-cbv : ∀ Θ Θ′ → Θ ↝ Θ′ → ((`¬ˣ Θ′) ⱽˣ) → ((
 neg-ren-int-cbv ∅ Θ′ ρ θ = tt
 neg-ren-int-cbv (Θ , A) Θ′ ρ θ = ⟨ (neg-ren-int-cbv Θ Θ′ (λ x → ρ (`S x)) θ) , ((Γ∋A⇒¬Γ∋¬A (ρ `Z) ⱽⱽ) θ) ⟩
  
-termvalue-sub-int : ∀ Γ Γ′ Θ → Γ –[ (λ Γ A → TermValue Γ Θ A) ]→ Γ′ → ((`¬ˣ Θ) ⱽˣ) → (Γ′ ⱽˣ) → (Γ ⱽˣ)
-termvalue-sub-int ∅ Γ′ Θ σ θ γ = tt
-termvalue-sub-int (Γ , A) Γ′ Θ σ θ γ = ⟨ (termvalue-sub-int Γ Γ′ Θ (λ x → σ (`S x)) θ γ) , ((σ `Z ⱽᴸⱽ) ⟨ γ , θ ⟩) ⟩
+TV-sub-int : ∀ Γ Γ′ Θ → Γ –[ (Fix₂ TermValue Θ) ]→ Γ′ → ((`¬ˣ Θ) ⱽˣ) → (Γ′ ⱽˣ) → (Γ ⱽˣ)
+TV-sub-int ∅ Γ′ Θ σ θ γ = tt
+TV-sub-int (Γ , A) Γ′ Θ σ θ γ = ⟨ (TV-sub-int Γ Γ′ Θ (λ x → σ (`S x)) θ γ) , ((σ `Z ⱽᴸⱽ) ⟨ γ , θ ⟩) ⟩
 
-coterm-sub-int : ∀ Γ Θ Θ′ → Θ –[ (λ Θ A → A ∣ Γ ⟶ Θ) ]→ Θ′ → Γ ⱽˣ → ((`¬ˣ Θ′) ⱽˣ) → ((`¬ˣ Θ) ⱽˣ)
-coterm-sub-int Γ ∅ Θ′ σ γ _ = tt
-coterm-sub-int Γ (Θ , A) Θ′ σ γ θ = ⟨ (coterm-sub-int Γ Θ Θ′ (λ z → σ (`S z)) γ θ)  , (((σ `Z) ⱽᴿ) ⟨ γ , θ ⟩) ⟩
+C-sub-int : ∀ Γ Θ Θ′ → Θ –[ (Fix₁ Coterm Γ) ]→ Θ′ → Γ ⱽˣ → ((`¬ˣ Θ′) ⱽˣ) → ((`¬ˣ Θ) ⱽˣ)
+C-sub-int Γ ∅ Θ′ σ γ _ = tt
+C-sub-int Γ (Θ , A) Θ′ σ γ θ = ⟨ (C-sub-int Γ Θ Θ′ (λ z → σ (`S z)) γ θ)  , (((σ `Z) ⱽᴿ) ⟨ γ , θ ⟩) ⟩
 
 
 --Call-by-Name CPS Transformation--
@@ -166,13 +166,13 @@ neg-ren-int-cbn : ∀ Θ Θ′ → Θ ↝ Θ′ → ((`¬ˣ Θ′) ᴺˣ) → ((
 neg-ren-int-cbn ∅ Θ′ ρ θ = tt
 neg-ren-int-cbn (Θ , A) Θ′ ρ θ = ⟨ (neg-ren-int-cbn Θ Θ′ (λ x → ρ (`S x)) θ) , (((Γ∋A⇒¬Γ∋¬A (ρ `Z)) ᴺⱽ) θ) ⟩
  
-term-sub-int : ∀ Γ Γ′ Θ → Γ –[ (λ Γ A → Γ ⟶ Θ ∣ A) ]→ Γ′ → (Θ ᴺˣ) → ((`¬ˣ Γ′) ᴺˣ) → ((`¬ˣ Γ) ᴺˣ)
-term-sub-int ∅ Γ′ Θ σ θ γ = tt
-term-sub-int (Γ , A) Γ′ Θ σ θ γ = ⟨ (term-sub-int Γ Γ′ Θ (λ x → σ (`S x)) θ γ) , ((σ `Z) ᴺᴸ) ⟨ θ , γ ⟩ ⟩
+T-sub-int : ∀ Γ Γ′ Θ → Γ –[ (Fix₂ Term Θ) ]→ Γ′ → (Θ ᴺˣ) → ((`¬ˣ Γ′) ᴺˣ) → ((`¬ˣ Γ) ᴺˣ)
+T-sub-int ∅ Γ′ Θ σ θ γ = tt
+T-sub-int (Γ , A) Γ′ Θ σ θ γ = ⟨ (T-sub-int Γ Γ′ Θ (λ x → σ (`S x)) θ γ) , ((σ `Z) ᴺᴸ) ⟨ θ , γ ⟩ ⟩
 
-cotermvalue-sub-int : ∀ Γ Θ Θ′ → Θ –[ (λ Θ A → CotermValue Γ Θ A) ]→ Θ′ → ((`¬ˣ Γ) ᴺˣ) → (Θ′ ᴺˣ) → (Θ ᴺˣ)
-cotermvalue-sub-int Γ ∅ Θ′ σ γ θ = tt
-cotermvalue-sub-int Γ (Θ , A) Θ′ σ γ θ = ⟨ (cotermvalue-sub-int Γ Θ Θ′ (λ x → σ (`S x)) γ θ) , ((σ `Z) ᴺᴿⱽ) ⟨ θ , γ ⟩ ⟩
+CV-sub-int : ∀ Γ Θ Θ′ → Θ –[ (Fix₁ CotermValue Γ) ]→ Θ′ → ((`¬ˣ Γ) ᴺˣ) → (Θ′ ᴺˣ) → (Θ ᴺˣ)
+CV-sub-int Γ ∅ Θ′ σ γ θ = tt
+CV-sub-int Γ (Θ , A) Θ′ σ γ θ = ⟨ (CV-sub-int Γ Θ Θ′ (λ x → σ (`S x)) γ θ) , ((σ `Z) ᴺᴿⱽ) ⟨ θ , γ ⟩ ⟩
 
 --Proofs of Duality--
 
@@ -254,20 +254,20 @@ Sⱽ≡Sᵒᴺ (M ● K) c             = trans (Mⱽ≡Mᵒᴺ M c ((K ⱽᴿ) c
 
 
 --CPS Transformation of Values--
-cps-value : ∀ {Γ Θ A} (V : Γ ⟶ Θ ∣ A) (v : Value V) (c : Γ ⱽˣ × (`¬ˣ Θ) ⱽˣ) 
+cps-V : ∀ {Γ Θ A} (V : Γ ⟶ Θ ∣ A) (v : Value V) (c : Γ ⱽˣ × (`¬ˣ Θ) ⱽˣ) 
   → (V ⱽᴸ) c ≡ λ x → x ((⟨ V , v ⟩ ⱽᴸⱽ) c)
-cps-value (` x) V-var c = refl
-cps-value `⟨ V , W ⟩ (V-prod v w) c = ext (λ k → 
-  cong₂ (λ -₁ -₂ → -₁ (λ x → -₂ (λ y → k ⟨ x , y ⟩))) (cps-value V v c) (cps-value W w c))
-cps-value inl⟨ V ⟩ (V-inl v) c = ext (λ k → cong (λ - → - (λ x → k (inj₁ x))) (cps-value V v c))
-cps-value inr⟨ V ⟩ (V-inr v) c = ext (λ k → cong (λ - → - (λ x → k (inj₂ x))) (cps-value V v c))
-cps-value not[ K ] V-not c = refl
+cps-V (` x) V-var c = refl
+cps-V `⟨ V , W ⟩ (V-prod v w) c = ext (λ k → 
+  cong₂ (λ -₁ -₂ → -₁ (λ x → -₂ (λ y → k ⟨ x , y ⟩))) (cps-V V v c) (cps-V W w c))
+cps-V inl⟨ V ⟩ (V-inl v) c = ext (λ k → cong (λ - → - (λ x → k (inj₁ x))) (cps-V V v c))
+cps-V inr⟨ V ⟩ (V-inr v) c = ext (λ k → cong (λ - → - (λ x → k (inj₂ x))) (cps-V V v c))
+cps-V not[ K ] V-not c = refl
 
-cps-covalue : ∀ {Γ Θ A} (P : A ∣ Γ ⟶ Θ) (p : Covalue P) (c : Θ ᴺˣ × (`¬ˣ Γ) ᴺˣ) 
+cps-CV : ∀ {Γ Θ A} (P : A ∣ Γ ⟶ Θ) (p : CoV P) (c : Θ ᴺˣ × (`¬ˣ Γ) ᴺˣ) 
   → (P ᴺᴿ) c ≡ λ z → z ((⟨ P , p ⟩ ᴺᴿⱽ) c)
-cps-covalue (` α) CV-covar c = refl
-cps-covalue fst[ P ] (CV-fst p) c = ext (λ z → cong (λ - → - (λ α → z (inj₁ α))) (cps-covalue P p c))
-cps-covalue snd[ P ] (CV-snd p) c = ext (λ z → cong (λ - → - (λ β → z (inj₂ β))) (cps-covalue P p c))
-cps-covalue `[ P , Q ] (CV-sum p q) c = ext (λ z → 
-  cong₂ (λ -₁ -₂ → -₁ (λ α → -₂ (λ β → z ⟨ α , β ⟩))) (cps-covalue P p c) (cps-covalue Q q c))
-cps-covalue not⟨ K ⟩ CV-not c = refl
+cps-CV (` α) CV-covar c = refl
+cps-CV fst[ P ] (CV-fst p) c = ext (λ z → cong (λ - → - (λ α → z (inj₁ α))) (cps-CV P p c))
+cps-CV snd[ P ] (CV-snd p) c = ext (λ z → cong (λ - → - (λ β → z (inj₂ β))) (cps-CV P p c))
+cps-CV `[ P , Q ] (CV-sum p q) c = ext (λ z → 
+  cong₂ (λ -₁ -₂ → -₁ (λ α → -₂ (λ β → z ⟨ α , β ⟩))) (cps-CV P p c) (cps-CV Q q c))
+cps-CV not⟨ K ⟩ CV-not c = refl

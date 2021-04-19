@@ -72,21 +72,21 @@ _ⱽ[_/]ˢ : ∀ {Γ Θ A}
     -----------------
   → Γ ↦ Θ
 
-_⟨_/⟩ᵗ {Γ}{Θ} N M = sub-term TK CVK (add (λ Γ A → Γ ⟶ Θ ∣ A) M id-term) id-cotermvalue N
+_⟨_/⟩ᵗ {Γ}{Θ} N M = sub-T TK CVK (add (Fix₂ Term Θ) M id-T) id-CV N
 
-_⟨_/⟩ᶜ {Γ}{Θ} L M = sub-coterm TK CVK (add (λ Γ A → Γ ⟶ Θ ∣ A) M id-term) id-cotermvalue L
+_⟨_/⟩ᶜ {Γ}{Θ} L M = sub-C TK CVK (add (Fix₂ Term Θ) M id-T) id-CV L
 
-_⟨_/⟩ˢ {Γ}{Θ} S M = sub-statement TK CVK (add (λ Γ A → Γ ⟶ Θ ∣ A) M id-term) id-cotermvalue S
+_⟨_/⟩ˢ {Γ}{Θ} S M = sub-S TK CVK (add (Fix₂ Term Θ) M id-T) id-CV S
 
-_ⱽ⟨_/⟩ˢ {Γ}{Θ} S V = sub-statement TVK CK (add (λ Γ A → TermValue Γ Θ A) V id-termvalue) id-coterm S
+_ⱽ⟨_/⟩ˢ {Γ}{Θ} S V = sub-S TVK CK (add (Fix₂ TermValue Θ) V id-TV) id-C S
 
-_[_/]ᵗ {Γ}{Θ} N K = sub-term TVK CK id-termvalue (add (λ Θ A → A ∣ Γ ⟶ Θ) K id-coterm) N
+_[_/]ᵗ {Γ}{Θ} N K = sub-T TVK CK id-TV (add (Fix₁ Coterm Γ) K id-C) N
 
-_[_/]ᶜ {Γ}{Θ} L K = sub-coterm TVK CK id-termvalue (add (λ Θ A → A ∣ Γ ⟶ Θ) K id-coterm) L
+_[_/]ᶜ {Γ}{Θ} L K = sub-C TVK CK id-TV (add (Fix₁ Coterm Γ) K id-C) L
 
-_[_/]ˢ {Γ}{Θ} S K = sub-statement TVK CK id-termvalue (add (λ Θ A → A ∣ Γ ⟶ Θ) K id-coterm) S
+_[_/]ˢ {Γ}{Θ} S K = sub-S TVK CK id-TV (add (Fix₁ Coterm Γ) K id-C) S
 
-_ⱽ[_/]ˢ {Γ}{Θ} S P = sub-statement TK CVK id-term (add (λ Θ A → CotermValue Γ Θ A) P id-cotermvalue) S
+_ⱽ[_/]ˢ {Γ}{Θ} S P = sub-S TK CVK id-T (add (Fix₁ CotermValue Γ) P id-CV) S
 
 
 data _ˢ⟶ⱽ_ : ∀ {Γ Θ} → (Γ ↦ Θ) → (Γ ↦ Θ) → Set where
@@ -139,22 +139,22 @@ data _ᵗ⟶ⱽ_ : ∀ {Γ Θ A} → (Γ ⟶ Θ ∣ A) → (Γ ⟶ Θ ∣ A) →
 data _ˢ⟶ᴺ_ : ∀ {Γ Θ} → (Γ ↦ Θ) → (Γ ↦ Θ) → Set where
   
   β×₁ : ∀ {Γ Θ A B} {M : Γ ⟶ Θ ∣ A} {N : Γ ⟶ Θ ∣ B} {P : A ∣ Γ ⟶ Θ}
-    → Covalue P
+    → CoV P
       -------------------------------
     → `⟨ M , N ⟩ ● fst[ P ] ˢ⟶ᴺ M ● P
 
   β×₂ : ∀ {Γ Θ A B} {M : Γ ⟶ Θ ∣ A} {N : Γ ⟶ Θ ∣ B} {Q : B ∣ Γ ⟶ Θ}
-    → Covalue Q
+    → CoV Q
       --------------------------------
     → `⟨ M , N ⟩ ● snd[ Q ] ˢ⟶ᴺ N ● Q
 
   β+₁ : ∀ {Γ Θ A B} {M : Γ ⟶ Θ ∣ A} {P : A ∣ Γ ⟶ Θ} {Q : B ∣ Γ ⟶ Θ}
-    → Covalue P → Covalue Q
+    → CoV P → CoV Q
       --------------------------------
     → inl⟨ M ⟩ ● `[ P , Q ] ˢ⟶ᴺ M ● P
 
   β+₂ : ∀ {Γ Θ A B} {N : Γ ⟶ Θ ∣ B} {P : A ∣ Γ ⟶ Θ} {Q : B ∣ Γ ⟶ Θ}
-    → Covalue P → Covalue Q
+    → CoV P → CoV Q
       --------------------------------
     → inr⟨ N ⟩ ● `[ P , Q ] ˢ⟶ᴺ N ● Q
 
@@ -166,7 +166,7 @@ data _ˢ⟶ᴺ_ : ∀ {Γ Θ} → (Γ ↦ Θ) → (Γ ↦ Θ) → Set where
       ------------------------
     → M ● (μγ S) ˢ⟶ᴺ S ⟨ M /⟩ˢ 
 
-  βR : ∀ {Γ Θ A} {S : Γ ↦ Θ , A} {P : A ∣ Γ ⟶ Θ} (p : Covalue P)
+  βR : ∀ {Γ Θ A} {S : Γ ↦ Θ , A} {P : A ∣ Γ ⟶ Θ} (p : CoV P)
       -------------------------
     → (μθ S) ● P ˢ⟶ᴺ S ⱽ[ ⟨ P , p ⟩ /]ˢ
 
@@ -327,60 +327,60 @@ beginᵗᴺ M—↠M′ = M—↠M′
 -- β⊃ⱽ {Γ}{Θ}{A}{B} V N L v = beginˢⱽ 
 --   (ƛⱽ N ● V ·ⱽ L) ˢ⟶ⱽ⟨ β¬ ⟩ 
 --   (`⟨ V , not[ L ] ⟩ ● μγ ((γ 0) ● fst[ (μγ ((γ 1) ● snd[ not⟨ (intΓᵗ (wkΓᵗ N)) ⟩ ])) ])) ˢ⟶ⱽ⟨ βL (V-prod v V-not) ⟩
---   `⟨ V , not[ L ] ⟩ ● fst[ μγ (`⟨ wkΓᵗ V , not[ wkΓᶜ L ] ⟩ ● snd[ not⟨ sub-term TVK CK (sub-lift (TermSubstKit.kit TVK) (add (λ Γ₁ A₁ → Σ (Γ₁ ⟶ Θ ∣ A₁) Value) ⟨ `⟨ V , not[ L ] ⟩ , V-prod v V-not ⟩ id-termvalue))
---        id-coterm
+--   `⟨ V , not[ L ] ⟩ ● fst[ μγ (`⟨ wkΓᵗ V , not[ wkΓᶜ L ] ⟩ ● snd[ not⟨ sub-T TVK CK (sub-lift (TVK.kit) (add (λ Γ₁ A₁ → Σ (Γ₁ ⟶ Θ ∣ A₁) Value) ⟨ `⟨ V , not[ L ] ⟩ , V-prod v V-not ⟩ id-TV))
+--        id-C
 --        (intΓᵗ (wkΓᵗ N))
 --        ⟩
 --        ])
 --       ] ˢ⟶ⱽ⟨ β×₁ v V-not ⟩ 
---   (V ● μγ (`⟨ wkΓᵗ V , not[ wkΓᶜ L ] ⟩ ● snd[ not⟨ sub-term TVK CK (sub-lift (TermSubstKit.kit TVK) (add (λ Γ₁ A₁ → Σ (Γ₁ ⟶ Θ ∣ A₁) Value) ⟨ `⟨ V , not[ L ] ⟩ , V-prod v V-not ⟩ id-termvalue))
---        id-coterm
+--   (V ● μγ (`⟨ wkΓᵗ V , not[ wkΓᶜ L ] ⟩ ● snd[ not⟨ sub-T TVK CK (sub-lift (TVK.kit) (add (λ Γ₁ A₁ → Σ (Γ₁ ⟶ Θ ∣ A₁) Value) ⟨ `⟨ V , not[ L ] ⟩ , V-prod v V-not ⟩ id-TV))
+--        id-C
 --        (intΓᵗ (wkΓᵗ N))
 --        ⟩
 --        ])) ˢ⟶ⱽ⟨ βL v ⟩ 
 --   `⟨
---       sub-term TVK CK
---       (add (λ Γ₁ A₁ → Σ (Γ₁ ⟶ Θ ∣ A₁) Value) ⟨ V , v ⟩ id-termvalue)
---       id-coterm (wkΓᵗ V)
+--       sub-T TVK CK
+--       (add (λ Γ₁ A₁ → Σ (Γ₁ ⟶ Θ ∣ A₁) Value) ⟨ V , v ⟩ id-TV)
+--       id-C (wkΓᵗ V)
 --       ,
 --       not[
---       sub-coterm TVK CK
---       (add (λ Γ₁ A₁ → Σ (Γ₁ ⟶ Θ ∣ A₁) Value) ⟨ V , v ⟩ id-termvalue)
---       id-coterm (wkΓᶜ L)
+--       sub-C TVK CK
+--       (add (λ Γ₁ A₁ → Σ (Γ₁ ⟶ Θ ∣ A₁) Value) ⟨ V , v ⟩ id-TV)
+--       id-C (wkΓᶜ L)
 --       ]
 --       ⟩
 --       ●
 --       snd[
 --       not⟨
---       sub-term TVK CK
+--       sub-T TVK CK
 --       (add (λ Γ₁ A₁ → Σ (Γ₁ ⟶ Θ ∣ A₁) Value) ⟨ V , v ⟩
---        id-termvalue)
---       id-coterm
---       (sub-term TVK CK
+--        id-TV)
+--       id-C
+--       (sub-T TVK CK
 --        (sub-lift
---         (TermSubstKit.kit TVK)
+--         (TVK.kit)
 --         (add (λ Γ₁ A₁ → Σ (Γ₁ ⟶ Θ ∣ A₁) Value)
---          ⟨ `⟨ V , not[ L ] ⟩ , V-prod v V-not ⟩ id-termvalue))
---        id-coterm
+--          ⟨ `⟨ V , not[ L ] ⟩ , V-prod v V-not ⟩ id-TV))
+--        id-C
 --        (intΓᵗ (wkΓᵗ N)))
 --       ⟩
 --       ] ˢ⟶ⱽ⟨ β×₂ {!   !} V-not ⟩ 
 --       not[
---       sub-coterm TVK CK
---       (add (λ Γ₁ A₁ → Σ (Γ₁ ⟶ Θ ∣ A₁) Value) ⟨ V , v ⟩ id-termvalue)
---       id-coterm (wkΓᶜ L)
+--       sub-C TVK CK
+--       (add (λ Γ₁ A₁ → Σ (Γ₁ ⟶ Θ ∣ A₁) Value) ⟨ V , v ⟩ id-TV)
+--       id-C (wkΓᶜ L)
 --       ]
 --       ●
 --       not⟨
---       sub-term TVK CK
---       (add (λ Γ₁ A₁ → Σ (Γ₁ ⟶ Θ ∣ A₁) Value) ⟨ V , v ⟩ id-termvalue)
---       id-coterm
---       (sub-term TVK CK
+--       sub-T TVK CK
+--       (add (λ Γ₁ A₁ → Σ (Γ₁ ⟶ Θ ∣ A₁) Value) ⟨ V , v ⟩ id-TV)
+--       id-C
+--       (sub-T TVK CK
 --        (sub-lift
---         (TermSubstKit.kit TVK)
+--         (TVK.kit)
 --         (add (λ Γ₁ A₁ → Σ (Γ₁ ⟶ Θ ∣ A₁) Value)
---          ⟨ `⟨ V , not[ L ] ⟩ , V-prod v V-not ⟩ id-termvalue))
---        id-coterm (intΓᵗ (wkΓᵗ N)))
+--          ⟨ `⟨ V , not[ L ] ⟩ , V-prod v V-not ⟩ id-TV))
+--        id-C (intΓᵗ (wkΓᵗ N)))
 --       ⟩ ˢ⟶ⱽ⟨ β¬ ⟩ 
 --       {!   !}
 
