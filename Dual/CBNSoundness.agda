@@ -102,62 +102,62 @@ ren-lemma-CV ⟨ not⟨ K ⟩ , CV-not ⟩ s t γ θ = ext (λ x → ren-lemma-T
 ren-lemma-S (M ● K) s t γ θ = cong₂ (λ -₁ -₂ → -₁ -₂) (ext (λ x → ren-lemma-C K s t γ θ x)) (ext (λ x → ren-lemma-T M s t γ θ x))
 
 
-fmap-T-sub-int-lemma : ∀ {Γ Γ′ Θ A} (σ : Γ –[ (Fix₂ Term Θ) ]→ Γ′) θ γ α →
-  T-sub-int Γ Γ′ (Θ , A) (fmap-wkΘᵗ Θ A σ) ⟨ θ , α ⟩ γ ≡ T-sub-int Γ Γ′ Θ σ θ γ
-fmap-T-sub-int-lemma {∅} σ θ γ α = refl
-fmap-T-sub-int-lemma {Γ , B}{Γ′}{Θ} σ θ γ α = cong₂ ⟨_,_⟩ 
-  (fmap-T-sub-int-lemma (sub-skip (Fix₂ Term Θ) σ) θ γ α) 
+fmap-sub-T-int-lemma : ∀ {Γ Γ′ Θ A} (σ : Γ –[ (Fix₂ Term Θ) ]→ Γ′) θ γ α →
+  sub-T-int Γ Γ′ (Θ , A) (fmap-wkΘᵗ Θ A σ) ⟨ θ , α ⟩ γ ≡ sub-T-int Γ Γ′ Θ σ θ γ
+fmap-sub-T-int-lemma {∅} σ θ γ α = refl
+fmap-sub-T-int-lemma {Γ , B}{Γ′}{Θ} σ θ γ α = cong₂ ⟨_,_⟩ 
+  (fmap-sub-T-int-lemma (sub-skip (Fix₂ Term Θ) σ) θ γ α) 
   (ext (λ x → trans (ren-lemma-T (σ `Z) (id-var) (ren-weaken id-var) γ ⟨ θ , α ⟩ x) 
   (cong₂ (λ -₁ -₂ → (σ `Z ᴺᴸ) ⟨ -₁ , -₂ ⟩ x) (trans (weaken-ren-int-cbn-lemma (id-var) θ α) (id-ren Θ θ)) (id-neg-ren Γ′ γ))))
 
-fmap-CV-sub-int-lemma : ∀ {Γ′ Θ Θ′ A} (σ : Θ –[ (Fix₁ CotermValue Γ′) ]→ Θ′) θ γ α →
-  CV-sub-int (Γ′ , A) Θ Θ′ (fmap-wkΓᶜⱽ Γ′ A σ) ⟨ γ , α ⟩ θ ≡ CV-sub-int Γ′ Θ Θ′ σ γ θ
-fmap-CV-sub-int-lemma {Γ′}{∅} σ θ γ α = refl
-fmap-CV-sub-int-lemma {Γ′}{Θ , B}{Θ′} σ θ γ α = cong₂ ⟨_,_⟩ 
-  (fmap-CV-sub-int-lemma (sub-skip (Fix₁ CotermValue Γ′) σ) θ γ α) 
+fmap-sub-CV-int-lemma : ∀ {Γ′ Θ Θ′ A} (σ : Θ –[ (Fix₁ CotermValue Γ′) ]→ Θ′) θ γ α →
+  sub-CV-int (Γ′ , A) Θ Θ′ (fmap-wkΓᶜⱽ Γ′ A σ) ⟨ γ , α ⟩ θ ≡ sub-CV-int Γ′ Θ Θ′ σ γ θ
+fmap-sub-CV-int-lemma {Γ′}{∅} σ θ γ α = refl
+fmap-sub-CV-int-lemma {Γ′}{Θ , B}{Θ′} σ θ γ α = cong₂ ⟨_,_⟩ 
+  (fmap-sub-CV-int-lemma (sub-skip (Fix₁ CotermValue Γ′) σ) θ γ α) 
   (trans (ren-lemma-CV (σ `Z) (ren-weaken id-var) id-var ⟨ γ , α ⟩ θ) 
   (cong₂ (λ -₁ -₂ → (σ `Z ᴺᴿⱽ) ⟨ -₁ , -₂ ⟩) (id-ren Θ′ θ) (trans (weaken-neg-ren-int-cbn-lemma (id-var) γ α) (id-neg-ren Γ′ γ))))
 
-weaken-T-sub-int-lemma : ∀ {Γ Γ′ Θ A} (σ : Γ –[ (Fix₂ Term Θ) ]→ Γ′) θ γ α → 
-  T-sub-int Γ (Γ′ , A) Θ (sub-weaken (TK.kit) σ) θ ⟨ γ , α ⟩ ≡ T-sub-int Γ Γ′ Θ σ θ γ
-weaken-T-sub-int-lemma {∅} σ θ γ α = refl
-weaken-T-sub-int-lemma {Γ , B}{Γ′}{Θ} σ θ γ α = cong₂ ⟨_,_⟩ 
-  (weaken-T-sub-int-lemma (sub-skip (Fix₂ Term Θ) σ) θ γ α) 
+weaken-sub-T-int-lemma : ∀ {Γ Γ′ Θ A} (σ : Γ –[ (Fix₂ Term Θ) ]→ Γ′) θ γ α → 
+  sub-T-int Γ (Γ′ , A) Θ (sub-weaken (TK.kit) σ) θ ⟨ γ , α ⟩ ≡ sub-T-int Γ Γ′ Θ σ θ γ
+weaken-sub-T-int-lemma {∅} σ θ γ α = refl
+weaken-sub-T-int-lemma {Γ , B}{Γ′}{Θ} σ θ γ α = cong₂ ⟨_,_⟩ 
+  (weaken-sub-T-int-lemma (sub-skip (Fix₂ Term Θ) σ) θ γ α) 
   (ext (λ x → trans (ren-lemma-T (σ `Z) (ren-weaken id-var) id-var ⟨ γ , α ⟩ θ x) 
   (cong₂ (λ -₁ -₂ → (σ `Z ᴺᴸ) ⟨ -₁ , -₂ ⟩ x) (id-ren Θ θ) (trans (weaken-neg-ren-int-cbn-lemma id-var γ α) (id-neg-ren Γ′ γ)))))
 
-weaken-CV-sub-int-lemma : ∀ {Γ′ Θ Θ′ A} (σ : Θ –[ (Fix₁ CotermValue Γ′) ]→ Θ′) θ γ α →
-  CV-sub-int Γ′ Θ (Θ′ , A) (sub-weaken (CVK.kit) σ) γ ⟨ θ , α ⟩ ≡ CV-sub-int Γ′ Θ Θ′ σ γ θ
-weaken-CV-sub-int-lemma {Γ′}{∅} σ θ γ α = refl
-weaken-CV-sub-int-lemma {Γ′}{Θ , B}{Θ′} σ θ γ α = cong₂ ⟨_,_⟩ 
-  (weaken-CV-sub-int-lemma (sub-skip (Fix₁ CotermValue Γ′) σ) θ γ α) 
+weaken-sub-CV-int-lemma : ∀ {Γ′ Θ Θ′ A} (σ : Θ –[ (Fix₁ CotermValue Γ′) ]→ Θ′) θ γ α →
+  sub-CV-int Γ′ Θ (Θ′ , A) (sub-weaken (CVK.kit) σ) γ ⟨ θ , α ⟩ ≡ sub-CV-int Γ′ Θ Θ′ σ γ θ
+weaken-sub-CV-int-lemma {Γ′}{∅} σ θ γ α = refl
+weaken-sub-CV-int-lemma {Γ′}{Θ , B}{Θ′} σ θ γ α = cong₂ ⟨_,_⟩ 
+  (weaken-sub-CV-int-lemma (sub-skip (Fix₁ CotermValue Γ′) σ) θ γ α) 
   (trans (ren-lemma-CV (σ `Z) (id-var) (ren-weaken id-var) γ ⟨ θ , α ⟩) 
   (cong₂ (λ -₁ -₂ → (σ `Z ᴺᴿⱽ) ⟨ -₁ , -₂ ⟩) (trans (weaken-ren-int-cbn-lemma (id-var) θ α) (id-ren Θ′ θ)) (id-neg-ren Γ′ γ)))
 
-id-T-sub : ∀ Γ Θ γ θ → T-sub-int Γ Γ Θ id-T θ γ ≡ γ
-id-T-sub ∅ Θ tt θ = refl
-id-T-sub (Γ , A) Θ ⟨ γ , x ⟩ θ = cong (λ - → ⟨ - , x ⟩) (trans (weaken-T-sub-int-lemma id-T θ γ x) (id-T-sub Γ Θ γ θ))
+id-sub-T : ∀ Γ Θ γ θ → sub-T-int Γ Γ Θ id-T θ γ ≡ γ
+id-sub-T ∅ Θ tt θ = refl
+id-sub-T (Γ , A) Θ ⟨ γ , x ⟩ θ = cong (λ - → ⟨ - , x ⟩) (trans (weaken-sub-T-int-lemma id-T θ γ x) (id-sub-T Γ Θ γ θ))
 
-id-CV-sub : ∀ Γ Θ γ θ → CV-sub-int Γ Θ Θ id-CV γ θ ≡ θ
-id-CV-sub Γ ∅ γ tt = refl
-id-CV-sub Γ (Θ , A) γ ⟨ θ , α ⟩ = cong (λ - → ⟨ - , α ⟩) (trans (weaken-CV-sub-int-lemma id-CV θ γ α) (id-CV-sub Γ Θ γ θ))
+id-sub-CV : ∀ Γ Θ γ θ → sub-CV-int Γ Θ Θ id-CV γ θ ≡ θ
+id-sub-CV Γ ∅ γ tt = refl
+id-sub-CV Γ (Θ , A) γ ⟨ θ , α ⟩ = cong (λ - → ⟨ - , α ⟩) (trans (weaken-sub-CV-int-lemma id-CV θ γ α) (id-sub-CV Γ Θ γ θ))
 
 sub-lemma-var : ∀ {Γ Γ′ Θ′ A} (x : Γ ∋ A) (s : Γ –[ (Fix₂ Term Θ′) ]→ Γ′) (γ : (`¬ˣ Γ′) ᴺˣ) (θ : Θ′ ᴺˣ) →
-  (s x ᴺᴸ) ⟨ θ , γ ⟩ ≡ (Γ∋A⇒¬Γ∋¬A x ᴺⱽ) (T-sub-int Γ Γ′ Θ′ s θ γ)
+  (s x ᴺᴸ) ⟨ θ , γ ⟩ ≡ (Γ∋A⇒¬Γ∋¬A x ᴺⱽ) (sub-T-int Γ Γ′ Θ′ s θ γ)
 sub-lemma-var `Z s γ θ = refl
 sub-lemma-var {Γ}{Γ′}{Θ′} (`S x) s γ θ = sub-lemma-var x (sub-skip (Fix₂ Term Θ′) s) γ θ
 
 sub-lemma-covar : ∀ {Γ′ Θ Θ′ A} (α : Θ ∋ A) (t : Θ –[ (Fix₁ CotermValue Γ′) ]→ Θ′) (γ : (`¬ˣ Γ′) ᴺˣ) (θ : Θ′ ᴺˣ) →
-  (proj₁ (t α) ᴺᴿ) ⟨ θ , γ ⟩ ≡ (λ z → z ((α ᴺⱽ) (CV-sub-int Γ′ Θ Θ′ t γ θ)))
+  (proj₁ (t α) ᴺᴿ) ⟨ θ , γ ⟩ ≡ (λ z → z ((α ᴺⱽ) (sub-CV-int Γ′ Θ Θ′ t γ θ)))
 sub-lemma-covar `Z t γ θ = cps-CV (proj₁ (t `Z)) (proj₂ (t `Z)) ⟨ θ , γ ⟩
 sub-lemma-covar {Γ′}(`S α) t γ θ = sub-lemma-covar α (sub-skip (Fix₁ CotermValue Γ′) t) γ θ
 
 sub-lemma-T : ∀ {Γ Γ′ Θ Θ′ A} (M : Γ ⟶ Θ ∣ A) (s : Γ –[ (Fix₂ Term Θ′) ]→ Γ′) (t : Θ –[ (Fix₁ CotermValue Γ′) ]→ Θ′) (γ : (`¬ˣ Γ′) ᴺˣ) (θ : Θ′ ᴺˣ) → 
-  (sub-T TK CVK s t M ᴺᴸ) ⟨ θ , γ ⟩ ≡ (M ᴺᴸ) ⟨ CV-sub-int Γ′ Θ Θ′ t γ θ , T-sub-int Γ Γ′ Θ′ s θ γ ⟩
+  (sub-T TK CVK s t M ᴺᴸ) ⟨ θ , γ ⟩ ≡ (M ᴺᴸ) ⟨ sub-CV-int Γ′ Θ Θ′ t γ θ , sub-T-int Γ Γ′ Θ′ s θ γ ⟩
 sub-lemma-C : ∀ {Γ Γ′ Θ Θ′ A} (K : A ∣ Γ ⟶ Θ) (s : Γ –[ (Fix₂ Term Θ′) ]→ Γ′) (t : Θ –[ (Fix₁ CotermValue Γ′) ]→ Θ′) (γ : (`¬ˣ Γ′) ᴺˣ) (θ : Θ′ ᴺˣ) →
-  (sub-C TK CVK s t K ᴺᴿ) ⟨ θ , γ ⟩ ≡ (K ᴺᴿ) ⟨ CV-sub-int Γ′ Θ Θ′ t γ θ , T-sub-int Γ Γ′ Θ′ s θ γ ⟩
+  (sub-C TK CVK s t K ᴺᴿ) ⟨ θ , γ ⟩ ≡ (K ᴺᴿ) ⟨ sub-CV-int Γ′ Θ Θ′ t γ θ , sub-T-int Γ Γ′ Θ′ s θ γ ⟩
 sub-lemma-S : ∀ {Γ Γ′ Θ Θ′} (S : Γ ↦ Θ) (s : Γ –[ (Fix₂ Term Θ′) ]→ Γ′) (t : Θ –[ (Fix₁ CotermValue Γ′) ]→ Θ′) (γ : (`¬ˣ Γ′) ᴺˣ) (θ : Θ′ ᴺˣ) →
-  (sub-S TK CVK s t S ᴺˢ) ⟨ θ , γ ⟩ ≡ (S ᴺˢ) ⟨ CV-sub-int Γ′ Θ Θ′ t γ θ , T-sub-int Γ Γ′ Θ′ s θ γ ⟩
+  (sub-S TK CVK s t S ᴺˢ) ⟨ θ , γ ⟩ ≡ (S ᴺˢ) ⟨ sub-CV-int Γ′ Θ Θ′ t γ θ , sub-T-int Γ Γ′ Θ′ s θ γ ⟩
 
 sub-lemma-T (` x) s t γ θ = sub-lemma-var x s γ θ
 sub-lemma-T `⟨ M , N ⟩ s t γ θ = ext (λ{(inj₁ α) → cong (λ - → - α) (sub-lemma-T M s t γ θ) ; (inj₂ β) → cong (λ - → - β) (sub-lemma-T N s t γ θ)})
@@ -172,16 +172,16 @@ sub-lemma-T {Γ}{Γ′}{Θ}{Θ′}{A} (μθ S) s t γ θ = ext (λ α →
     S ᴺˢ) ⟨ ⟨ θ , α ⟩ , γ ⟩
   ≡⟨ sub-lemma-S S ((fmap-wkΘᵗ Θ′ A) s) (sub-lift (CVK.kit) t) γ ⟨ θ , α ⟩ ⟩ 
     (S ᴺˢ)
-    ⟨ ⟨ (CV-sub-int Γ′ Θ (Θ′ , A) (sub-weaken (CVK.kit) t) γ ⟨ θ , α ⟩) , α ⟩ ,
-    T-sub-int Γ Γ′ (Θ′ , A) ((fmap-wkΘᵗ Θ′ A) s) ⟨ θ , α ⟩ γ ⟩
-  ≡⟨ cong (λ - → (S ᴺˢ) ⟨ ⟨ - , α ⟩ , T-sub-int Γ Γ′ (Θ′ , A) ((fmap-wkΘᵗ Θ′ A) s) ⟨ θ , α ⟩ γ ⟩) (weaken-CV-sub-int-lemma t θ γ α) ⟩
+    ⟨ ⟨ (sub-CV-int Γ′ Θ (Θ′ , A) (sub-weaken (CVK.kit) t) γ ⟨ θ , α ⟩) , α ⟩ ,
+    sub-T-int Γ Γ′ (Θ′ , A) ((fmap-wkΘᵗ Θ′ A) s) ⟨ θ , α ⟩ γ ⟩
+  ≡⟨ cong (λ - → (S ᴺˢ) ⟨ ⟨ - , α ⟩ , sub-T-int Γ Γ′ (Θ′ , A) ((fmap-wkΘᵗ Θ′ A) s) ⟨ θ , α ⟩ γ ⟩) (weaken-sub-CV-int-lemma t θ γ α) ⟩
     (S ᴺˢ)
-    ⟨ ⟨ CV-sub-int Γ′ Θ Θ′ t γ θ , α ⟩ ,
-    T-sub-int Γ Γ′ (Θ′ , A) ((fmap-wkΘᵗ Θ′ A) s) ⟨ θ , α ⟩ γ ⟩
-  ≡⟨ cong (λ - → (S ᴺˢ) ⟨ ⟨ CV-sub-int Γ′ Θ Θ′ t γ θ , α ⟩ , - ⟩) (fmap-T-sub-int-lemma s θ γ α) ⟩ 
+    ⟨ ⟨ sub-CV-int Γ′ Θ Θ′ t γ θ , α ⟩ ,
+    sub-T-int Γ Γ′ (Θ′ , A) ((fmap-wkΘᵗ Θ′ A) s) ⟨ θ , α ⟩ γ ⟩
+  ≡⟨ cong (λ - → (S ᴺˢ) ⟨ ⟨ sub-CV-int Γ′ Θ Θ′ t γ θ , α ⟩ , - ⟩) (fmap-sub-T-int-lemma s θ γ α) ⟩ 
     (S ᴺˢ) 
-    ⟨ ⟨ CV-sub-int Γ′ Θ Θ′ t γ θ , α ⟩ ,
-    T-sub-int Γ Γ′ Θ′ s θ γ ⟩
+    ⟨ ⟨ sub-CV-int Γ′ Θ Θ′ t γ θ , α ⟩ ,
+    sub-T-int Γ Γ′ Θ′ s θ γ ⟩
   ∎)
 
 sub-lemma-C (` α) s t γ θ = sub-lemma-covar α t γ θ
@@ -197,16 +197,16 @@ sub-lemma-C {Γ}{Γ′}{Θ}{Θ′}{A} (μγ S) s t γ θ = ext (λ x →
     S ᴺˢ) ⟨ θ , ⟨ γ , x ⟩ ⟩
   ≡⟨ sub-lemma-S S (sub-lift (TK.kit) s) (fmap-wkΓᶜⱽ Γ′ A t) ⟨ γ , x ⟩ θ ⟩
     (S ᴺˢ)
-    ⟨ CV-sub-int (Γ′ , A) Θ Θ′ (fmap-wkΓᶜⱽ Γ′ A t) ⟨ γ , x ⟩ θ ,
-    ⟨ T-sub-int Γ (Γ′ , A) Θ′ (sub-weaken (TK.kit) s) θ ⟨ γ , x ⟩ , x ⟩ ⟩
-  ≡⟨ cong (λ - → (S ᴺˢ) ⟨ - , ⟨ T-sub-int Γ (Γ′ , A) Θ′ (sub-weaken (TK.kit) s) θ ⟨ γ , x ⟩ , x ⟩ ⟩) (fmap-CV-sub-int-lemma t θ γ x) ⟩
+    ⟨ sub-CV-int (Γ′ , A) Θ Θ′ (fmap-wkΓᶜⱽ Γ′ A t) ⟨ γ , x ⟩ θ ,
+    ⟨ sub-T-int Γ (Γ′ , A) Θ′ (sub-weaken (TK.kit) s) θ ⟨ γ , x ⟩ , x ⟩ ⟩
+  ≡⟨ cong (λ - → (S ᴺˢ) ⟨ - , ⟨ sub-T-int Γ (Γ′ , A) Θ′ (sub-weaken (TK.kit) s) θ ⟨ γ , x ⟩ , x ⟩ ⟩) (fmap-sub-CV-int-lemma t θ γ x) ⟩
     (S ᴺˢ)
-    ⟨ CV-sub-int Γ′ Θ Θ′ t γ θ , 
-    ⟨ T-sub-int Γ (Γ′ , A) Θ′ (sub-weaken (TK.kit) s) θ ⟨ γ , x ⟩ , x ⟩ ⟩
-  ≡⟨ cong (λ - → (S ᴺˢ) ⟨ CV-sub-int Γ′ Θ Θ′ t γ θ , ⟨ - , x ⟩ ⟩) (weaken-T-sub-int-lemma s θ γ x) ⟩
+    ⟨ sub-CV-int Γ′ Θ Θ′ t γ θ , 
+    ⟨ sub-T-int Γ (Γ′ , A) Θ′ (sub-weaken (TK.kit) s) θ ⟨ γ , x ⟩ , x ⟩ ⟩
+  ≡⟨ cong (λ - → (S ᴺˢ) ⟨ sub-CV-int Γ′ Θ Θ′ t γ θ , ⟨ - , x ⟩ ⟩) (weaken-sub-T-int-lemma s θ γ x) ⟩
     (S ᴺˢ)
-    ⟨ CV-sub-int Γ′ Θ Θ′ t γ θ ,
-    ⟨ T-sub-int Γ Γ′ Θ′ s θ γ , x ⟩ ⟩
+    ⟨ sub-CV-int Γ′ Θ Θ′ t γ θ ,
+    ⟨ sub-T-int Γ Γ′ Θ′ s θ γ , x ⟩ ⟩
   ∎)
 
 sub-lemma-S (M ● K) s t γ θ = cong₂ (λ -₁ -₂ → -₁ -₂) (sub-lemma-C K s t γ θ) (sub-lemma-T M s t γ θ) 
@@ -221,16 +221,16 @@ S⟶ᴺT⇒Sᴺ≡Tᴺ {Γ}{Θ} (M ● μγ {Γ}{Θ}{A} S) .(S ⟨ M /⟩ˢ) γ 
   begin
     (sub-S TK CVK (add (Fix₂ Term Θ) M id-T) id-CV S ᴺˢ) ⟨ θ , γ ⟩
   ≡⟨ sub-lemma-S S (add (Fix₂ Term Θ) M id-T) id-CV γ θ ⟩
-    (S ᴺˢ) ⟨ CV-sub-int Γ Θ Θ id-CV γ θ , ⟨ T-sub-int Γ Γ Θ id-T θ γ , (M ᴺᴸ) ⟨ θ , γ ⟩ ⟩ ⟩
-  ≡⟨ cong₂ (λ -₁ -₂ → (S ᴺˢ) ⟨ -₁ , ⟨ -₂ , (M ᴺᴸ) ⟨ θ , γ ⟩ ⟩ ⟩) (id-CV-sub Γ Θ γ θ) (id-T-sub Γ Θ γ θ) ⟩
+    (S ᴺˢ) ⟨ sub-CV-int Γ Θ Θ id-CV γ θ , ⟨ sub-T-int Γ Γ Θ id-T θ γ , (M ᴺᴸ) ⟨ θ , γ ⟩ ⟩ ⟩
+  ≡⟨ cong₂ (λ -₁ -₂ → (S ᴺˢ) ⟨ -₁ , ⟨ -₂ , (M ᴺᴸ) ⟨ θ , γ ⟩ ⟩ ⟩) (id-sub-CV Γ Θ γ θ) (id-sub-T Γ Θ γ θ) ⟩
     (S ᴺˢ) ⟨ θ , ⟨ γ , (M ᴺᴸ) ⟨ θ , γ ⟩ ⟩ ⟩
   ∎)
 S⟶ᴺT⇒Sᴺ≡Tᴺ {Γ}{Θ} (μθ {Γ}{Θ}{A} S ● P) .(S ⱽ[ ⟨ P , p ⟩ /]ˢ) γ θ (βR p) = sym (
   begin 
     (sub-S TK CVK id-T (add (Fix₁ CotermValue Γ) ⟨ P , p ⟩ id-CV) S ᴺˢ) ⟨ θ , γ ⟩
   ≡⟨ sub-lemma-S S id-T (add (Fix₁ CotermValue Γ) ⟨ P , p ⟩ id-CV) γ θ ⟩
-    (S ᴺˢ) ⟨ ⟨ CV-sub-int Γ Θ Θ id-CV γ θ , (⟨ P , p ⟩ ᴺᴿⱽ) ⟨ θ , γ ⟩ ⟩ , T-sub-int Γ Γ Θ id-T θ γ ⟩ 
-  ≡⟨ cong₂ (λ -₁ -₂ → (S ᴺˢ) ⟨ ⟨ -₁ , (⟨ P , p ⟩ ᴺᴿⱽ) ⟨ θ , γ ⟩ ⟩ , -₂ ⟩) (id-CV-sub Γ Θ γ θ) (id-T-sub Γ Θ γ θ) ⟩
+    (S ᴺˢ) ⟨ ⟨ sub-CV-int Γ Θ Θ id-CV γ θ , (⟨ P , p ⟩ ᴺᴿⱽ) ⟨ θ , γ ⟩ ⟩ , sub-T-int Γ Γ Θ id-T θ γ ⟩ 
+  ≡⟨ cong₂ (λ -₁ -₂ → (S ᴺˢ) ⟨ ⟨ -₁ , (⟨ P , p ⟩ ᴺᴿⱽ) ⟨ θ , γ ⟩ ⟩ , -₂ ⟩) (id-sub-CV Γ Θ γ θ) (id-sub-T Γ Θ γ θ) ⟩
     (S ᴺˢ) ⟨ ⟨ θ , (⟨ P , p ⟩ ᴺᴿⱽ) ⟨ θ , γ ⟩ ⟩ , γ ⟩
   ≡⟨ sym (cong (λ - → - (λ α → (S ᴺˢ) ⟨ ⟨ θ , α ⟩ , γ ⟩)) (cps-CV P p ⟨ θ , γ ⟩)) ⟩ 
     (P ᴺᴿ) ⟨ θ , γ ⟩ (λ α → (S ᴺˢ) ⟨ ⟨ θ , α ⟩ , γ ⟩)
