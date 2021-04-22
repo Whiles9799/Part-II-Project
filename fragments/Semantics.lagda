@@ -25,10 +25,6 @@ infix 2 _ˢ⟶ᴺ_
 infix 2 _ᶜ⟶ᴺ_
 infix 2 _ᵗ⟶ᴺ_
 
-postulate
-  ext  : Extensionality 0ℓ 0ℓ
-  iext : ExtensionalityImplicit 0ℓ 0ℓ
-
 _⟨_/⟩ᵗ : ∀ {Γ Θ A B} 
   → Γ , A ⟶ Θ ∣ B
   → Γ ⟶ Θ ∣ A
@@ -91,35 +87,35 @@ _ⱽ[_/]ˢ : ∀ {Γ Θ A}
     -----------------
   → Γ ↦ Θ
 
-_⟨_/⟩ᵗ {Γ}{Θ} N M = sub-term TermKit CotermValueKit (add (λ Γ A → Γ ⟶ Θ ∣ A) M id-term) id-cotermvalue N
+_⟨_/⟩ᵗ {Γ}{Θ} N M = sub-T TK CVK (add (Fix₂ Term Θ) M id-T) id-CV N
 
-_⟨_/⟩ᶜ {Γ}{Θ} L M = sub-coterm TermKit CotermValueKit (add (λ Γ A → Γ ⟶ Θ ∣ A) M id-term) id-cotermvalue L
+_⟨_/⟩ᶜ {Γ}{Θ} L M = sub-C TK CVK (add (Fix₂ Term Θ) M id-T) id-CV L
 
-_⟨_/⟩ˢ {Γ}{Θ} S M = sub-statement TermKit CotermValueKit (add (λ Γ A → Γ ⟶ Θ ∣ A) M id-term) id-cotermvalue S
+_⟨_/⟩ˢ {Γ}{Θ} S M = sub-S TK CVK (add (Fix₂ Term Θ) M id-T) id-CV S
 \end{code}
 
 %<*tvsub>
 \begin{code}
 _ⱽ⟨_/⟩ˢ {Γ}{Θ} S V = 
-  sub-statement TermValueKit CotermKit (add (λ Γ A → TermValue Γ Θ A) V id-termvalue) id-coterm S
+  sub-S TVK CK (add (Fix₂ TermValue Θ) V id-TV) id-C S
 \end{code}
 %</tvsub>
 
 \begin{code}
-_[_/]ᵗ {Γ}{Θ} N K = sub-term TermValueKit CotermKit id-termvalue (add (λ Θ A → A ∣ Γ ⟶ Θ) K id-coterm) N
+_[_/]ᵗ {Γ}{Θ} N K = sub-T TVK CK id-TV (add (Fix₁ Coterm Γ) K id-C) N
 
-_[_/]ᶜ {Γ}{Θ} L K = sub-coterm TermValueKit CotermKit id-termvalue (add (λ Θ A → A ∣ Γ ⟶ Θ) K id-coterm) L
+_[_/]ᶜ {Γ}{Θ} L K = sub-C TVK CK id-TV (add (Fix₁ Coterm Γ) K id-C) L
 \end{code}
 
 %<*csub>
 \begin{code}
 _[_/]ˢ {Γ}{Θ} S K = 
-  sub-statement TermValueKit CotermKit id-termvalue (add (λ Θ A → A ∣ Γ ⟶ Θ) K id-coterm) S
+  sub-S TVK CK id-TV (add (Fix₁ Coterm Γ) K id-C) S
 \end{code}
 %</csub>
 
 \begin{code}
-_ⱽ[_/]ˢ {Γ}{Θ} S P = sub-statement TermKit CotermValueKit id-term (add (λ Θ A → CotermValue Γ Θ A) P id-cotermvalue) S
+_ⱽ[_/]ˢ {Γ}{Θ} S P = sub-S TK CVK id-T (add (Fix₁ CotermValue Γ) P id-CV) S
 \end{code}
 
 %<*cbvrty>
@@ -383,3 +379,40 @@ beginᵗᴺ_ : ∀ {A Γ Θ} {M M′ : Γ ⟶ Θ ∣ A}
   → M ᵗ—↠ᴺ M′
 beginᵗᴺ M—↠M′ = M—↠M′
 
+%<*lem>
+\begin{code}
+lem-proof : ∀ {A} → ∅ ⟶ ∅ ∣ A `+ `¬ A
+lem-proof = μθ (inr⟨ not[ μγ (inl⟨ γ 0 ⟩ ● (θ 0) ) ] ⟩ ● (θ 0))
+\end{code}
+%</lem>
+\begin{code}
+lem-ref : ∀ {A} → ∅ ⟶ ∅ ∣ A  → A ∣ ∅ ⟶ ∅ → A `+ `¬ A ∣ ∅ ⟶ ∅
+lem-ref M K = `[ K , not⟨ M ⟩ ]
+\end{code}
+
+%<*lem-comp>
+\begin{code}
+lem-comp : ∀ {A} → (M : ∅ ⟶ ∅ ∣ A) → Value M → (K : A ∣ ∅ ⟶ ∅)
+     → (lem-proof ● lem-ref M K) ˢ—↠ⱽ M ● K
+lem-comp M M:V K = beginˢⱽ
+      μθ (inr⟨ not[ μγ (inl⟨ γ 0 ⟩ ● (θ 0) ) ] ⟩ ● (θ 0))
+    ● `[ K , not⟨ M ⟩ ]
+  ˢ⟶ⱽ⟨ βR ⟩
+      inr⟨ not[ μγ (inl⟨ γ 0 ⟩ ● `[ wkΓᶜ K , not⟨ wkΓᵗ M ⟩ ] ) ] ⟩
+    ● `[ K , not⟨ M ⟩ ]
+  ˢ⟶ⱽ⟨ β+₂ V-not ⟩
+      not[ μγ (inl⟨ γ 0 ⟩ ● `[ wkΓᶜ K , not⟨ wkΓᵗ M ⟩ ] ) ]
+    ● not⟨ M ⟩
+  ˢ⟶ⱽ⟨ β¬ ⟩
+      M
+    ● μγ (inl⟨ γ 0 ⟩ ● `[ wkΓᶜ K , not⟨ wkΓᵗ M ⟩ ] )
+  ˢ⟶ⱽ⟨ βL M:V ⟩
+      ((inl⟨ γ 0 ⟩ ● `[ (wkΓᶜ K) , not⟨ (wkΓᵗ M) ⟩ ]) ⱽ⟨ ⟨ M , M:V ⟩ /⟩ˢ)
+  ˢ⟶ⱽ⟨ {!   !} ⟩
+      inl⟨ M ⟩
+    ● `[ K , not⟨ M ⟩ ]
+  ˢ⟶ⱽ⟨ β+₁ M:V ⟩
+    M ● K
+  ∎ˢⱽ
+\end{code}
+%</lem-comp>

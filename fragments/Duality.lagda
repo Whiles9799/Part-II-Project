@@ -1,6 +1,7 @@
+\begin{code}
 {-# OPTIONS --rewriting #-}
 
-module Dual.Duality where
+module fragments.Duality where
 
 open import Dual.Syntax
 open import Dual.Substitution
@@ -28,7 +29,6 @@ dual-ren-lift-lemma : ∀ {A B} Γ Γ′ (ρ : Γ ↝ Γ′) (x : Γ ᵒˣ , B 
 dual-ren-lift-lemma Γ Γ′ ρ `Z = refl
 dual-ren-lift-lemma {A}{B} Γ Γ′ ρ (`S x) = dual-ren-weaken-lemma Γ Γ′ ρ x
   
-
 dual-ren-lemma-var : ∀ {Γ Γ′ A} (x : Γ ∋ A) (ρ : Γ ↝ Γ′) → ρ x ᵒⱽ ≡ dual-ren Γ Γ′ ρ (x ᵒⱽ)
 dual-ren-lemma-var `Z ρ = refl
 dual-ren-lemma-var (`S x) ρ = dual-ren-lemma-var x (λ z → ρ (`S z))
@@ -55,14 +55,8 @@ dual-ren-lemma-C {Γ}{Γ′}{Θ}{Θ′}{A} (μγ S) s t = cong μθ
 
 dual-ren-lemma-S (M ● K) s t = cong₂ _●_ (dual-ren-lemma-C K s t) (dual-ren-lemma-T M s t)
 
--- {-# REWRITE dual-ren-lemma-T #-}
--- {-# REWRITE dual-ren-lemma-C #-}
--- {-# REWRITE dual-ren-lemma-S #-}
--- {-# REWRITE dual-ren-weaken-lemma #-}
--- {-# REWRITE dual-ren-id-lemma #-}
-
-lemma : ∀ {Γ Θ A} {K : Coterm Γ Θ A} {L : Coterm Γ Θ A} (K-V : Covalue K) (L-V : Covalue L) (e : K ≡ L) 
-  → subst Covalue e K-V ≡ L-V
+lemma : ∀ {Γ Θ A} {K L : Coterm Γ Θ A} (K-V : Covalue K) (L-V : Covalue L) 
+  → (e : K ≡ L) → subst Covalue e K-V ≡ L-V
 lemma CV-covar CV-covar refl = refl
 lemma (CV-fst K-V) (CV-fst L-V) refl = cong CV-fst (lemma K-V L-V refl)
 lemma (CV-snd K-V) (CV-snd L-V) refl = cong CV-snd (lemma K-V L-V refl)
@@ -84,13 +78,6 @@ dual-sub-TV-weaken-lemma (Γ , C) Γ′ Θ′ A σ `Z = coval-eq
     (cong₂ (λ -₁ -₂ → ren-C (λ {A} → -₁ {A}) (λ {A} → -₂ {A}) (proj₁ (σ `Z) ᵒᴸ)) 
       (iext (λ {A} → ext (λ x → dual-ren-id-lemma Θ′ A x)))
       (iext (λ {A} → ext (λ x → trans (dual-ren-weaken-lemma Γ′ Γ′ (λ z → z) x) (cong `S (dual-ren-id-lemma Γ′ A x))))))))
-  -- Inverse.f Σ-≡,≡↔≡ 
-  -- ⟨ (trans 
-  --     (dual-ren-lemma-T (proj₁ (σ `Z)) (ren-weaken (λ z → z)) (λ x → x)) 
-  --     (cong₂ (λ -₁ -₂ → ren-C (λ {A} → -₁ {A}) (λ {A} → -₂ {A}) (proj₁ (σ `Z) ᵒᴸ)) 
-  --       (iext (λ {A} → ext (λ x → dual-ren-id-lemma Θ′ A x)))
-  --       (iext (λ {A} → ext (λ x → trans (dual-ren-weaken-lemma Γ′ Γ′ (λ z → z) x) (cong `S (dual-ren-id-lemma Γ′ A x))))))) 
-  -- , {!    !} ⟩
 dual-sub-TV-weaken-lemma (Γ , C) Γ′ Θ′ A σ (`S x) = dual-sub-TV-weaken-lemma Γ Γ′ Θ′ A (sub-skip (Fix₂ TermValue Θ′) σ) x
 
 dual-sub-TV-lift-lemma : ∀ Γ Γ′ Θ′ A {B} (σ : Γ –[ (Fix₂ TermValue Θ′) ]→ Γ′) (x : (Γ , A) ᵒˣ ∋ B)
@@ -110,13 +97,6 @@ dual-sub-TV-fmap-lemma (Γ , C) Γ′ Θ′ A σ `Z = coval-eq
     (cong₂ (λ -₁ -₂ → ren-C (λ {A} → -₁ {A}) (λ {A} → -₂ {A}) (proj₁ (σ `Z) ᵒᴸ))
       (iext (λ {A} → ext (λ x → trans (dual-ren-weaken-lemma Θ′ Θ′ (λ z → z) x) (cong `S (dual-ren-id-lemma Θ′ A x))))) 
       (iext (λ {A} → ext (λ x → dual-ren-id-lemma Γ′ A x))))))
--- Inverse.f Σ-≡,≡↔≡ 
---   ⟨ (trans 
---       (dual-ren-lemma-T (proj₁ (σ `Z)) (λ z → z) (ren-weaken (λ z → z))) 
---       (cong₂ (λ -₁ -₂ → ren-C (λ {A} → -₁ {A}) (λ {A} → -₂ {A}) (proj₁ (σ `Z) ᵒᴸ))
---         (iext (λ {A} → ext (λ x → trans (dual-ren-weaken-lemma Θ′ Θ′ (λ z → z) x) (cong `S (dual-ren-id-lemma Θ′ A x))))) 
---         (iext (λ {A} → ext (λ x → dual-ren-id-lemma Γ′ A x))))) 
---   , {!   !} ⟩
 dual-sub-TV-fmap-lemma (Γ , C) Γ′ Θ′ A σ (`S x) = dual-sub-TV-fmap-lemma Γ Γ′ Θ′ A (sub-skip (Fix₂ TermValue Θ′) σ) x
 
 dual-sub-TV-id-lemma : ∀ Γ Θ A (x : Γ ᵒˣ ∋ A)
@@ -245,15 +225,6 @@ dual-sub-lemma-C {Γ}{Γ′}{Θ}{Θ′}{A} (μγ S) s t = cong μθ (
 
 dual-sub-lemma-S (M ● K) s t = cong₂ _●_ (dual-sub-lemma-C K s t) (dual-sub-lemma-T M s t)
 
-
--- M⟶ⱽN⇒Mᵒ⟶ᴺNᵒ : ∀ {Γ Θ A} (M N : Γ ⟶ Θ ∣ A) → M ᵗ⟶ⱽ N → (M ᵒᴸ) ᶜ⟶ᴺ (N ᵒᴸ)
--- M⟶ⱽN⇒Mᵒ⟶ᴺNᵒ {Γ}{Θ}{A} M .(μθ (ren-T (λ x → x) (λ x → `S x) M ● ` `Z)) ηR = subst (λ - → M ᵒᴸ ᶜ⟶ᴺ μγ (` `Z ● -))
---   (sym (trans (dual-ren-lemma-T M (λ x → x) (ren-weaken (λ z → z))) {!  !})) ηL
-
--- K⟶ⱽL⇒Kᵒ⟶ᴺLᵒ : ∀ {Γ Θ A} (K L : A ∣ Γ ⟶ Θ) → K ᶜ⟶ⱽ L → (K ᵒᴿ) ᵗ⟶ᴺ (L ᵒᴿ)
--- K⟶ⱽL⇒Kᵒ⟶ᴺLᵒ K .(μγ (` `Z ● ren-C (λ x → `S x) (λ x → x) K)) ηL = subst (λ - → K ᵒᴿ ᵗ⟶ᴺ μθ (- ● ` `Z)) 
---   (sym (trans (dual-ren-lemma-C K (ren-weaken (λ z → z)) (λ z → z)) {!   !})) ηR
-
 S⟶ⱽT⇒Sᵒ⟶ᴺTᵒ : ∀ {Γ Θ} (S T : Γ ↦ Θ) → S ˢ⟶ⱽ T → (S ᵒˢ) ˢ⟶ᴺ (T ᵒˢ)
 S⟶ⱽT⇒Sᵒ⟶ᴺTᵒ (`⟨ V , W ⟩ ● fst[ K ]) (V ● K) (β×₁ v w) = β+₁ (Vᵒ≡P V v) (Vᵒ≡P W w)
 S⟶ⱽT⇒Sᵒ⟶ᴺTᵒ (`⟨ V , W ⟩ ● snd[ L ]) (W ● L) (β×₂ v w) = β+₂ (Vᵒ≡P V v) (Vᵒ≡P W w)
@@ -277,23 +248,5 @@ S⟶ⱽT⇒Sᵒ⟶ᴺTᵒ {Γ}{Θ} (μθ {Γ}{Θ}{A} S ● K) .(sub-S TVK CK (λ
         (iext λ {C} → ext (λ x → dual-sub-TV-id-lemma Γ Θ C x))))) 
     βL
 
--- M⟶ᴺN⇒Mᵒ⟶ⱽNᵒ : ∀ {Γ Θ A} (M N : Γ ⟶ Θ ∣ A) → M ᵗ⟶ᴺ N → (M ᵒᴸ) ᶜ⟶ⱽ (N ᵒᴸ)
--- M⟶ᴺN⇒Mᵒ⟶ⱽNᵒ M .(μθ (ren-T (λ x → x) (λ x → `S x) M ● ` `Z)) ηR = 
---   {! subst (λ - → M ᵒᴸ ᶜ⟶)  !}
 
--- K⟶ᴺL⇒Kᵒ⟶ⱽLᵒ : ∀ {Γ Θ A} (K L : A ∣ Γ ⟶ Θ) → K ᶜ⟶ᴺ L → (K ᵒᴿ) ᵗ⟶ᴺ (L ᵒᴿ)
--- K⟶ᴺL⇒Kᵒ⟶ⱽLᵒ K .(μγ (` `Z ● ren-C (λ x → `S x) (λ x → x) K)) ηL = {!   !}
-
--- S⟶ᴺT⇒Sᵒ⟶ⱽTᵒ : ∀ {Γ Θ} (S T : Γ ↦ Θ) → S ˢ⟶ᴺ T → (S ᵒˢ) ˢ⟶ⱽ (T ᵒˢ)
--- S⟶ᴺT⇒Sᵒ⟶ⱽTᵒ (`⟨ M , N ⟩ ● fst[ P ]) (M ● P) (β×₁ p) = β+₁ (Pᵒ≡V P p)
--- S⟶ᴺT⇒Sᵒ⟶ⱽTᵒ (`⟨ M , N ⟩ ● snd[ Q ]) (N ● Q) (β×₂ q) = β+₂ (Pᵒ≡V Q q)
--- S⟶ᴺT⇒Sᵒ⟶ⱽTᵒ (inl⟨ M ⟩ ● `[ P , Q ]) (M ● P) (β+₁ p q) = β×₁ (Pᵒ≡V P p) (Pᵒ≡V Q q)
--- S⟶ᴺT⇒Sᵒ⟶ⱽTᵒ (inr⟨ N ⟩ ● `[ P , Q ]) (N ● Q) (β+₂ p q) = β×₂ (Pᵒ≡V P p) (Pᵒ≡V Q q)
--- S⟶ᴺT⇒Sᵒ⟶ⱽTᵒ (not[ K ] ● not⟨ M ⟩) (M ● K) β¬ = β¬
--- S⟶ᴺT⇒Sᵒ⟶ⱽTᵒ {Γ}{Θ} (M ● μγ S) .(sub-S TK CVK (add (Fix₂ Term Θ) M id-T) id-CV S) βL = 
---   subst (λ - → μθ (S ᵒˢ) ● M ᵒᴸ ˢ⟶ⱽ -) 
---     (sym (trans {!   !} {!   !}))
---     βR
--- S⟶ᴺT⇒Sᵒ⟶ⱽTᵒ {Γ}{Θ} (μθ S ● P) .(sub-S TK CVK id-T (add (Fix₁ CotermValue Γ) ⟨ P , p ⟩ id-CV) S) (βR p) = 
---   {!   !}
-
+\end{code}

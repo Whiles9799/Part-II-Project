@@ -60,14 +60,14 @@ _ᵒᴿ : ∀ {Γ Θ A} → (A ∣ Γ ⟶ Θ) → (Θ ᵒˣ ⟶ Γ ᵒˣ ∣ A �
 
 (M ● K) ᵒˢ = K ᵒᴿ ● M ᵒᴸ
 
-Vᵒ≡P : ∀ {Γ Θ A} (V : Γ ⟶ Θ ∣ A) → Value V → (CoV (V ᵒᴸ))
+Vᵒ≡P : ∀ {Γ Θ A} (V : Γ ⟶ Θ ∣ A) → Value V → (Covalue (V ᵒᴸ))
 Vᵒ≡P (` x) V-var = CV-covar
 Vᵒ≡P (`⟨ V , W ⟩) (V-prod v w) = CV-sum (Vᵒ≡P V v) (Vᵒ≡P W w)
 Vᵒ≡P (inl⟨ V ⟩) (V-inl v) = CV-fst (Vᵒ≡P V v)
 Vᵒ≡P (inr⟨ W ⟩) (V-inr w) = CV-snd (Vᵒ≡P W w)
 Vᵒ≡P (not[ K ]) V-not = CV-not
 
-Pᵒ≡V : ∀ {Γ Θ A} (P : A ∣ Γ ⟶ Θ) → CoV P → (Value (P ᵒᴿ))
+Pᵒ≡V : ∀ {Γ Θ A} (P : A ∣ Γ ⟶ Θ) → Covalue P → (Value (P ᵒᴿ))
 Pᵒ≡V (` α) CV-covar = V-var
 Pᵒ≡V (`[ P , Q ]) (CV-sum p q) = V-prod (Pᵒ≡V P p) (Pᵒ≡V Q q)
 Pᵒ≡V (fst[ P ]) (CV-fst p) = V-inl (Pᵒ≡V P p)
@@ -79,13 +79,13 @@ dual-ren ∅ Γ′ ρ ()
 dual-ren (Γ , A) Γ′ ρ `Z = (ρ `Z) ᵒⱽ
 dual-ren (Γ , A) Γ′ ρ (`S x) = dual-ren Γ Γ′ (ren-skip ρ) x
 
-dual-C-sub : ∀ Γ Θ Θ′ → Θ –[(Fix₁ Coterm Γ)]→ Θ′ → (Θ ᵒˣ) –[ (Fix₂ Term (Γ ᵒˣ) ) ]→ (Θ′ ᵒˣ)
-dual-C-sub Γ (Θ , A) Θ′ σ `Z = (σ `Z) ᵒᴿ
-dual-C-sub Γ (Θ , A) Θ′ σ (`S x) = dual-C-sub Γ Θ Θ′ (sub-skip (Fix₁ Coterm Γ) σ) x
+dual-sub-C : ∀ Γ Θ Θ′ → Θ –[(Fix₁ Coterm Γ)]→ Θ′ → (Θ ᵒˣ) –[ (Fix₂ Term (Γ ᵒˣ) ) ]→ (Θ′ ᵒˣ)
+dual-sub-C Γ (Θ , A) Θ′ σ `Z = (σ `Z) ᵒᴿ
+dual-sub-C Γ (Θ , A) Θ′ σ (`S x) = dual-sub-C Γ Θ Θ′ (sub-skip (Fix₁ Coterm Γ) σ) x
 
-dual-TV-sub : ∀ Γ Γ′ Θ → Γ –[(Fix₂ TermValue Θ)]→ Γ′ → (Γ ᵒˣ) –[(Fix₁ CotermValue (Θ ᵒˣ))]→ (Γ′ ᵒˣ)
-dual-TV-sub (Γ , A) Γ′ Θ σ `Z = ⟨ ((proj₁ (σ `Z )) ᵒᴸ) , Vᵒ≡P (proj₁ (σ `Z)) (proj₂ (σ `Z)) ⟩
-dual-TV-sub (Γ , A) Γ′ Θ σ (`S x) = dual-TV-sub Γ Γ′ Θ (sub-skip (Fix₂ TermValue Θ) σ) x
+dual-sub-TV : ∀ Γ Γ′ Θ → Γ –[(Fix₂ TermValue Θ)]→ Γ′ → (Γ ᵒˣ) –[(Fix₁ CotermValue (Θ ᵒˣ))]→ (Γ′ ᵒˣ)
+dual-sub-TV (Γ , A) Γ′ Θ σ `Z = ⟨ ((proj₁ (σ `Z )) ᵒᴸ) , Vᵒ≡P (proj₁ (σ `Z)) (proj₂ (σ `Z)) ⟩
+dual-sub-TV (Γ , A) Γ′ Θ σ (`S x) = dual-sub-TV Γ Γ′ Θ (sub-skip (Fix₂ TermValue Θ) σ) x
 
 --Properties of the Dual Translation--
 

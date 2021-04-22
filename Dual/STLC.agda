@@ -7,11 +7,11 @@ open import Data.Product using (_×_ ; proj₁ ; proj₂) renaming (_,_ to ⟨_,
 import Dual.ContextandVars as DC
 
 
-record λ-Type (A : Set) : Set where
+record λ-Type (T : Set) : Set where
   infixr 7 _⇒_
   field
-    B : A
-    _⇒_ : A → A → A
+    B : T
+    _⇒_ : T → T → T
 
 
 record λ-Term (T : Set) (TΛ : λ-Type T) (Λ : DC.Context T → T → Set): Set where
@@ -41,7 +41,7 @@ record λ-Term (T : Set) (TΛ : λ-Type T) (Λ : DC.Context T → T → Set): Se
   # n = ` (count n)
 
   id : ∀ {Γ A} → Λ Γ (A ⇒ A)
-  id = ƛ (` `Z)
+  id = ƛ (# 0)
 
   CN : T
   CN = (B ⇒ B) ⇒ (B ⇒ B)
@@ -141,7 +141,7 @@ DC-λ-Type = record { B = `ℕ ; _⇒_ = _⇒ⱽ_ }
 DC-λ-Term : λ-Term Type DC-λ-Type (λ Γ A → Γ ⟶ ∅ ∣ A)
 DC-λ-Term = record { 
   ` = `_ ; 
-  ƛ = λ M → not[ μγ(γ 0 ● fst[ μγ (γ 1 ● snd[ not⟨ ren-T (ren-lift (λ x → `S x)) id-var M ⟩ ]) ]) ] ; 
+  ƛ = ƛⱽ_ ; 
   _·_ = λ M N → μθ (wkΘᵗ M ● wkΘᵗ N ·ⱽ θ 0)
   }
 
@@ -151,7 +151,7 @@ DC-λ+-Type = record { B = `ℕ ; _⇒_ = _⇒ⱽ_ ; ¬ = `¬_ }
 DC-λ+-Term : λ+-Term Type DC-λ+-Type (λ Γ A → Γ ⟶ ∅ ∣ A)
 DC-λ+-Term = record 
   { ` = `_ 
-  ; ƛ = λ M → not[ μγ(γ 0 ● fst[ μγ (γ 1 ● snd[ not⟨ ren-T (ren-lift (λ x → `S x)) id-var M ⟩ ]) ]) ] 
+  ; ƛ = ƛⱽ_
   ; _·_ = λ M N → μθ (wkΘᵗ M ● wkΘᵗ N ·ⱽ θ 0) 
   ; letcont = λ M → μθ (not[ (θ 0) ] ● (μγ ((wkΘᵗ M) ● (θ 0))))
   ; throw[_,_] = λ M N → μθ (wkΘᵗ N ● μγ ((wkΘᵗ (wkΓᵗ M)) ● not⟨ (γ 0) ⟩))
@@ -161,9 +161,9 @@ DC-λ+-Term = record
 DC-λμ-Term : λμ-Term Type DC-λ+-Type _⟶_∣_ _↦_
 DC-λμ-Term = record 
   { ` = `_ 
-  ; ƛ = λ M → not[ μγ(γ 0 ● fst[ μγ (γ 1 ● snd[ not⟨ ren-T (ren-lift (λ x → `S x)) id-var M ⟩ ]) ]) ] 
+  ; ƛ = ƛⱽ_
   ; _·_ = λ M N → μθ (wkΘᵗ M ● wkΘᵗ N ·ⱽ θ 0) 
-  ; μ = λ C → μθ C
+  ; μ = μθ
   }
 
 DC-λμ-Command : λμ-Command Type DC-λ+-Type _⟶_∣_ _↦_
@@ -175,35 +175,35 @@ module STLC-DC where
   open λ-Term DC-λ-Term
   open import Dual.CPSTransformation ℕ
 
-  DC-2 : ∀ {Γ} → Γ ⟶ ∅ ∣ CN
-  DC-2 = s · (s · z)
+  CN-2 : ∀ {Γ} → Γ ⟶ ∅ ∣ CN
+  CN-2 = s · (s · z)
 
-  DC-3 : ∀ {Γ} → Γ ⟶ ∅ ∣ CN
-  DC-3 = s · DC-2
-
-  DC-5 : ∀ {Γ} → Γ ⟶ ∅ ∣ CN
-  DC-5 = s · (s · DC-3)
-
-  DC-2+2 : ∀ {Γ} → (Γ ⱽˣ × (`¬ˣ ∅) ⱽˣ) → ((`¬ `¬ CN) ⱽᵀ)
-  DC-2+2 {Γ} = ((sum {Γ} · DC-2) · DC-2) ⱽᴸ 
+  CN-2+2 : ∀ {Γ} → Γ ⟶ ∅ ∣ CN
+  CN-2+2 = sum · CN-2 · CN-2
 
   2+2 : (∅ , `ℕ , `ℕ ⇒ `ℕ) ⟶ ∅ ∣ `ℕ
-  2+2 = (((sum · DC-2) · DC-2) · (# 0)) · (# 1)
-
+  2+2 = CN-2+2 · (# 0) · (# 1)
+  
   2+2ⱽ : ℕ
-  2+2ⱽ = (2+2 ⱽᴸ) ⟨ ⟨ ⟨ tt , ℕ.zero ⟩ , (λ x → proj₂ x (ℕ.suc (proj₁ x))) ⟩ , tt ⟩ (λ x → x)
+  2+2ⱽ = (2+2 ⱽᴸ) ⟨ ⟨ ⟨ tt , ℕ.zero ⟩ , (λ{ ⟨ n , k ⟩ → k (ℕ.suc n) }) ⟩ , tt ⟩ (λ x → x)
+
+  CN-3 : ∀ {Γ} → Γ ⟶ ∅ ∣ CN
+  CN-3 = s · CN-2
+
+  CN-5 : ∀ {Γ} → Γ ⟶ ∅ ∣ CN
+  CN-5 = s · (s · CN-3)
 
   3*5 : (∅ , `ℕ , `ℕ ⇒ `ℕ) ⟶ ∅ ∣ `ℕ
-  3*5 = (((mult · DC-3) · DC-5) · (# 0)) · (# 1)
+  3*5 = (((mult · CN-3) · CN-5) · (# 0)) · (# 1)
 
   3*5ⱽ : ℕ
-  3*5ⱽ = (3*5 ⱽᴸ) ⟨ ⟨ ⟨ tt , ℕ.zero ⟩ , ((λ x → proj₂ x (ℕ.suc (proj₁ x)))) ⟩ , tt ⟩ (λ x → x)
+  3*5ⱽ = (3*5 ⱽᴸ) ⟨ ⟨ ⟨ tt , ℕ.zero ⟩ , (λ{ ⟨ n , k ⟩ → k (ℕ.suc n) }) ⟩ , tt ⟩ (λ x → x)
 
 module STLC+-DC where
   open λ+-Type DC-λ+-Type
   open λ+-Term DC-λ+-Term
   open import Dual.CPSTransformation ℕ 
-
+  
   DC-DNE : ∀ {Γ A} → Γ ⟶ ∅ ∣ (¬ (¬ A)) ⇒ A
   DC-DNE = ƛ (letcont throw[ # 1 , # 0 ])
 
@@ -235,6 +235,6 @@ module λμ-DC where
   open import Dual.CPSTransformation ℕ
 
   λμ-peirce : ∀ {Γ Δ A B} → Γ ⟶ Δ ∣ ((A ⇒ B) ⇒ A) ⇒ A
-  λμ-peirce = ƛ (μ ([ `Z ] ((# 0) · (ƛ (μ ([ (`S `Z) ] (# 0)))))))
+  λμ-peirce = ƛ (μ ([ `Z ] ((# 0) · (ƛ (μ ([ `S `Z ] (# 0)))))))
 
   

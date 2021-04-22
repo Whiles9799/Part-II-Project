@@ -93,14 +93,14 @@ dual-ren ∅ Γ′ ρ ()
 dual-ren (Γ , A) Γ′ ρ `Z = (ρ `Z) ᵒⱽ
 dual-ren (Γ , A) Γ′ ρ (`S x) = dual-ren Γ Γ′ (ren-skip ρ) x
 
-dual-coterm-sub : ∀ Γ Θ Θ′ → Θ –[(λ Θ A → A ∣ Γ ⟶ Θ)]→ Θ′ → (Θ ᵒˣ) –[ (λ Θ A → Θ ⟶ Γ ᵒˣ ∣ A) ]→ (Θ′ ᵒˣ)
-dual-coterm-sub Γ (Θ , A) Θ′ σ `Z = (σ `Z) ᵒᴿ
-dual-coterm-sub Γ (Θ , A) Θ′ σ (`S x) = dual-coterm-sub Γ Θ Θ′ (sub-skip (λ Θ A → A ∣ Γ ⟶ Θ) σ) x
+dual-sub-C : ∀ Γ Θ Θ′ → Θ –[(Fix₁ Coterm Γ)]→ Θ′ → (Θ ᵒˣ) –[ (Fix₂ Term (Γ ᵒˣ)) ]→ (Θ′ ᵒˣ)
+dual-sub-C Γ (Θ , A) Θ′ σ `Z = (σ `Z) ᵒᴿ
+dual-sub-C Γ (Θ , A) Θ′ σ (`S x) = dual-sub-C Γ Θ Θ′ (sub-skip (Fix₁ Coterm Γ) σ) x
 
-dual-termval-sub : ∀ Γ Γ′ Θ → Γ –[(λ Γ A → TermValue Γ Θ A)]→ Γ′ → (Γ ᵒˣ) –[(λ Γ A → CotermValue (Θ ᵒˣ) Γ A)]→ (Γ′ ᵒˣ)
-dual-termval-sub ∅ Γ′ Θ σ ()
-dual-termval-sub (Γ , A) Γ′ Θ σ `Z = ⟨ ((proj₁ (σ `Z )) ᵒᴸ) , Vᵒ≡P (proj₁ (σ `Z)) (proj₂ (σ `Z)) ⟩
-dual-termval-sub (Γ , A) Γ′ Θ σ (`S x) = dual-termval-sub Γ Γ′ Θ (sub-skip (λ Γ A → TermValue Γ Θ A) σ) x
+dual-sub-TV : ∀ Γ Γ′ Θ → Γ –[(Fix₂ TermValue Θ)]→ Γ′ → (Γ ᵒˣ) –[(Fix₁ CotermValue (Θ ᵒˣ))]→ (Γ′ ᵒˣ)
+dual-sub-TV ∅ Γ′ Θ σ ()
+dual-sub-TV (Γ , A) Γ′ Θ σ `Z = ⟨ ((proj₁ (σ `Z )) ᵒᴸ) , Vᵒ≡P (proj₁ (σ `Z)) (proj₂ (σ `Z)) ⟩
+dual-sub-TV (Γ , A) Γ′ Θ σ (`S x) = dual-sub-TV Γ Γ′ Θ (sub-skip (Fix₂ TermValue Θ) σ) x
 
 --Properties of the Dual Translation--
 
@@ -128,7 +128,7 @@ dual-termval-sub (Γ , A) Γ′ Θ σ (`S x) = dual-termval-sub Γ Γ′ Θ (sub
 [Γᵒˣ]ᵒˣ≡Γ {(Γ , A)} = cong₂ _,_ [Γᵒˣ]ᵒˣ≡Γ [Aᵒᵀ]ᵒᵀ≡A
 \end{code}
 
---we use these rewrite rules to handle equality between a term and a dual translated term
+--we use these rewrite rules to handle equality between a T and a dual translated T
 --as those two terms will be indexed by different contexts and type
 %<*invrewrite>
 \begin{code}
@@ -171,7 +171,7 @@ dual-termval-sub (Γ , A) Γ′ Θ σ (`S x) = dual-termval-sub Γ Γ′ Θ (sub
 [Sᵒˢ]ᵒˢ≡S (M ● K)     = cong₂ _●_   ([Mᵒᴸ]ᵒᴿ≡M M) ([Kᵒᴿ]ᵒᴸ≡K K)
 \end{code}
 
---A Dual Calculus term is derivable iff its dual is derivable--
+--A Dual Calculus T is derivable iff its dual is derivable--
 %<*derivable>
 \begin{code}
 Γ⟶Θ∣A⇒Aᵒ∣Θᵒ⟶Γᵒ : ∀ {Γ Θ A} → (Γ ⟶ Θ ∣ A) → A ᵒᵀ ∣ Θ ᵒˣ ⟶ Γ ᵒˣ

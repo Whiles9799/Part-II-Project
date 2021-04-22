@@ -42,102 +42,102 @@ add T t σ (`S v) = σ v
 %</add>
 \begin{code}
 
---Removing a term from a renaming map--
+--Removing a T from a renaming map--
 ren-skip : ∀ {Γ Γ′ A} → (Γ , A) ↝ Γ′ → Γ ↝ Γ′
 ren-skip ρ x = ρ (`S x)
 
---Removing a term from a context map
+--Removing a T from a context map
 sub-skip : ∀ {Γ Γ′ A} T → ((Γ , A) –[ T ]→ Γ′) → ( Γ –[ T ]→ Γ′)
 sub-skip T σ x = σ (`S x)
 \end{code}
 %<*kits>
 \begin{code}
-record VarSubstKit (T : Context → Type → Set) : Set where
+record VarKit (T : Context → Type → Set) : Set where
   field
     vr : ∀ {Γ A} → Γ ∋ A → T Γ A
     wk : ∀ {Γ A B} → T Γ A → T (Γ , B) A
 
-record TermSubstKit (T : Context → Context → Type → Set) : Set where
+record TermKit (T : Context → Context → Type → Set) : Set where
   field
     tm : ∀ {Γ Θ A}     → T Γ Θ A → Γ ⟶ Θ ∣ A
-    kit : ∀ {Θ}        → VarSubstKit (λ Γ A → T Γ Θ A)
+    kit : ∀ {Θ}        → VarKit (Fix₂ T Θ)
     wkΘ : ∀ {Γ Θ A B}   → T Γ Θ A → T Γ (Θ , B) A
-  open module K {Θ} = VarSubstKit (kit {Θ}) renaming (wk to wkΓ) public
+  open module K {Θ} = VarKit (kit {Θ}) renaming (wk to wkΓ) public
 
-record CotermSubstKit (C : Context → Context → Type → Set) : Set where
+record CotermKit (C : Context → Context → Type → Set) : Set where
   field
     tm : ∀ {Γ Θ A}     → C Γ Θ A → A ∣ Γ ⟶ Θ
     wkΓ : ∀ {Γ Θ A B}   → C Γ Θ A → C (Γ , B) Θ A
-    kit : ∀ {Γ}        → VarSubstKit (λ Θ A → C Γ Θ A)
-  open module K {Γ} = VarSubstKit (kit {Γ}) renaming (wk to wkΘ) public
+    kit : ∀ {Γ}        → VarKit (Fix₁ C Γ)
+  open module K {Γ} = VarKit (kit {Γ}) renaming (wk to wkΘ) public
 \end{code}
 %</kits>
 
 %<*ren-weaken>
 \begin{code}
-rename-weaken : ∀ {Γ Δ A} → Γ ↝ Δ → Γ ↝ (Δ , A)
+ren-weaken : ∀ {Γ Δ A} → Γ ↝ Δ → Γ ↝ (Δ , A)
 \end{code}
 %</ren-weaken>
 \begin{code}
-rename-weaken ρ x = `S (ρ x)
+ren-weaken ρ x = `S (ρ x)
 \end{code}
 
 %<*ren-lift>
 \begin{code}
-rename-lift : ∀ {Γ Δ A} → Γ ↝ Δ → (Γ , A) ↝ (Δ , A)
-rename-lift ρ `Z = `Z
-rename-lift ρ (`S x) = `S (ρ x)
+ren-lift : ∀ {Γ Δ A} → Γ ↝ Δ → (Γ , A) ↝ (Δ , A)
+ren-lift ρ `Z = `Z
+ren-lift ρ (`S x) = `S (ρ x)
 \end{code}
 %</ren-lift>
 
 %<*renty>
 \begin{code}
-rename-term : ∀ {Γ Γ′ Θ Θ′ A} → Γ ↝ Γ′ → Θ ↝ Θ′ → Γ ⟶ Θ ∣ A → Γ′ ⟶ Θ′ ∣ A
-rename-coterm : ∀ {Γ Γ′ Θ Θ′ A} → Γ ↝ Γ′ → Θ ↝ Θ′ → A ∣ Γ ⟶ Θ → A ∣ Γ′ ⟶ Θ′
-rename-statement : ∀ {Γ Γ′ Θ Θ′} → Γ ↝ Γ′ → Θ ↝ Θ′ → Γ ↦ Θ → Γ′ ↦ Θ′
+ren-T : ∀ {Γ Γ′ Θ Θ′ A} → Γ ↝ Γ′ → Θ ↝ Θ′ → Γ ⟶ Θ ∣ A → Γ′ ⟶ Θ′ ∣ A
+ren-C : ∀ {Γ Γ′ Θ Θ′ A} → Γ ↝ Γ′ → Θ ↝ Θ′ → A ∣ Γ ⟶ Θ → A ∣ Γ′ ⟶ Θ′
+ren-S : ∀ {Γ Γ′ Θ Θ′} → Γ ↝ Γ′ → Θ ↝ Θ′ → Γ ↦ Θ → Γ′ ↦ Θ′
 \end{code}
 %</renty>
 
 %<*renvar>
 \begin{code}
-rename-term ρ ϱ (` x) = ` (ρ x)
+ren-T ρ ϱ (` x) = ` (ρ x)
 \end{code}
 %</renvar>
 \begin{code}
-rename-term ρ ϱ `⟨ M , N ⟩ = `⟨ (rename-term ρ ϱ M) , rename-term ρ ϱ N ⟩
-rename-term ρ ϱ inr⟨ M ⟩ = inr⟨ rename-term ρ ϱ M ⟩
-rename-term ρ ϱ inl⟨ M ⟩ = inl⟨ rename-term ρ ϱ M ⟩
-rename-term ρ ϱ not[ K ] = not[ rename-coterm ρ ϱ K ]
+ren-T ρ ϱ `⟨ M , N ⟩ = `⟨ (ren-T ρ ϱ M) , ren-T ρ ϱ N ⟩
+ren-T ρ ϱ inr⟨ M ⟩ = inr⟨ ren-T ρ ϱ M ⟩
+ren-T ρ ϱ inl⟨ M ⟩ = inl⟨ ren-T ρ ϱ M ⟩
+ren-T ρ ϱ not[ K ] = not[ ren-C ρ ϱ K ]
 \end{code}
 %<*rencovarabs>
 \begin{code}
-rename-term ρ ϱ (μθ S) = μθ (rename-statement ρ (rename-lift ϱ) S)
+ren-T ρ ϱ (μθ S) = μθ (ren-S ρ (ren-lift ϱ) S)
 \end{code}
 %</rencovarabs>
 
 %<*rencovar>
 \begin{code}
-rename-coterm ρ ϱ (` α) = ` (ϱ α)
+ren-C ρ ϱ (` α) = ` (ϱ α)
 \end{code}
 %</rencovar>
 \begin{code}
-rename-coterm ρ ϱ fst[ K ] = fst[ rename-coterm ρ ϱ K ]
-rename-coterm ρ ϱ snd[ K ] = snd[ rename-coterm ρ ϱ K ]
-rename-coterm ρ ϱ `[ K , L ] = `[ rename-coterm ρ ϱ K , rename-coterm ρ ϱ L ]
-rename-coterm ρ ϱ not⟨ M ⟩ = not⟨ (rename-term ρ ϱ M) ⟩
+ren-C ρ ϱ fst[ K ] = fst[ ren-C ρ ϱ K ]
+ren-C ρ ϱ snd[ K ] = snd[ ren-C ρ ϱ K ]
+ren-C ρ ϱ `[ K , L ] = `[ ren-C ρ ϱ K , ren-C ρ ϱ L ]
+ren-C ρ ϱ not⟨ M ⟩ = not⟨ (ren-T ρ ϱ M) ⟩
 \end{code}
 %<*renvarabs>
 \begin{code}
-rename-coterm ρ ϱ (μγ S) = μγ (rename-statement (rename-lift ρ) ϱ S)
+ren-C ρ ϱ (μγ S) = μγ (ren-S (ren-lift ρ) ϱ S)
 \end{code}
 %</renvarabs>
 
 \begin{code}
-rename-statement ρ ϱ (M ● K) = (rename-term ρ ϱ M) ● (rename-coterm ρ ϱ K) 
+ren-S ρ ϱ (M ● K) = (ren-T ρ ϱ M) ● (ren-C ρ ϱ K) 
 
 
-VarKit : VarSubstKit _∋_ 
-VarKit = record 
+VK : VarKit _∋_ 
+VK = record 
   {  vr = λ a → a
   ;  wk = `S
   } 
@@ -145,14 +145,14 @@ VarKit = record
 \end{code}
 %<*subweaken>
 \begin{code}
-sub-weaken : ∀ {Γ Δ A T} → VarSubstKit T → Γ –[ T ]→ Δ → Γ –[ T ]→ (Δ , A)
-sub-weaken k σ x = VarSubstKit.wk k (σ x)
+sub-weaken : ∀ {Γ Δ A T} → VarKit T → Γ –[ T ]→ Δ → Γ –[ T ]→ (Δ , A)
+sub-weaken k σ x = VarKit.wk k (σ x)
 \end{code}
 %</subweaken>
 %<*sublift>
 \begin{code}
-sub-lift : ∀ {Γ Δ A T} → VarSubstKit T → Γ –[ T ]→ Δ → (Γ , A) –[ T ]→ (Δ , A)
-sub-lift k σ `Z = VarSubstKit.vr k `Z
+sub-lift : ∀ {Γ Δ A T} → VarKit T → Γ –[ T ]→ Δ → (Γ , A) –[ T ]→ (Δ , A)
+sub-lift k σ `Z = VarKit.vr k `Z
 sub-lift k σ (`S x) = sub-weaken k σ x
 \end{code}
 %</sublift>
@@ -160,17 +160,17 @@ sub-lift k σ (`S x) = sub-weaken k σ x
 id-var : ∀ {Γ} → Γ ↝ Γ
 id-var = λ x → x
 
-id-term : ∀ {Γ Θ} → Γ –[ (λ - → _⟶_∣_ - Θ) ]→  Γ
-id-term x = ` x
+id-T : ∀ {Γ Θ} → Γ –[ (λ - → _⟶_∣_ - Θ) ]→  Γ
+id-T x = ` x
 
-id-termvalue : ∀ {Γ Θ} → Γ –[ (λ Γ A → TermValue Γ Θ A) ]→ Γ
-id-termvalue x = ⟨ (` x) , V-var ⟩
+id-TV : ∀ {Γ Θ} → Γ –[ (Fix₂ TermValue Θ) ]→ Γ
+id-TV x = ⟨ (` x) , V-var ⟩
 
-id-coterm : ∀ {Γ Θ} →  Θ –[ (λ - A → A ∣ Γ ⟶ -) ]→ Θ
-id-coterm x = ` x
+id-C : ∀ {Γ Θ} →  Θ –[ (λ - A → A ∣ Γ ⟶ -) ]→ Θ
+id-C x = ` x
 
-id-cotermvalue : ∀ {Γ Θ} → Θ –[ (λ Θ A → CotermValue Γ Θ A) ]→ Θ
-id-cotermvalue x = ⟨ (` x) , CV-covar ⟩
+id-CV : ∀ {Γ Θ} → Θ –[ (Fix₁ CotermValue Γ) ]→ Θ
+id-CV x = ⟨ (` x) , CV-covar ⟩
 \end{code}
 
 %<*fmap>
@@ -182,154 +182,154 @@ fmap f σ `x = f (σ `x)
 
 %<*subty>
 \begin{code}
-sub-term : ∀ {T A C Γ Θ Γ′ Θ′} → TermSubstKit T → CotermSubstKit C 
-  → Γ –[ (λ Γ A → T Γ Θ′ A) ]→ Γ′ → Θ –[ (λ Θ A → C Γ′ Θ A) ]→ Θ′ 
+sub-T : ∀ {T A C Γ Θ Γ′ Θ′} → TermKit T → CotermKit C 
+  → Γ –[ (Fix₂ T Θ′) ]→ Γ′ → Θ –[ (Fix₁ C Γ′) ]→ Θ′ 
   → Γ ⟶ Θ ∣ A → Γ′ ⟶ Θ′ ∣ A
-sub-coterm : ∀ {T A C Γ Θ Γ′ Θ′} → TermSubstKit T → CotermSubstKit C 
-  → Γ –[ (λ Γ A → T Γ Θ′ A) ]→ Γ′ → Θ –[ (λ Θ A → C Γ′ Θ A) ]→ Θ′ 
+sub-C : ∀ {T A C Γ Θ Γ′ Θ′} → TermKit T → CotermKit C 
+  → Γ –[ (Fix₂ T Θ′) ]→ Γ′ → Θ –[ (Fix₁ C Γ′) ]→ Θ′ 
   → A ∣ Γ ⟶ Θ → A ∣ Γ′ ⟶ Θ′
-sub-statement : ∀ {T C Γ Θ Γ′ Θ′} → TermSubstKit T → CotermSubstKit C 
-  → Γ –[ (λ Γ A → T Γ Θ′ A) ]→ Γ′ → Θ –[ (λ Θ A → C Γ′ Θ A) ]→ Θ′ 
+sub-S : ∀ {T C Γ Θ Γ′ Θ′} → TermKit T → CotermKit C 
+  → Γ –[ (Fix₂ T Θ′) ]→ Γ′ → Θ –[ (Fix₁ C Γ′) ]→ Θ′ 
   → Γ ↦ Θ → Γ′ ↦ Θ′
 \end{code}
 %</subty>
 %<*subvar>
 \begin{code}
-sub-term k₁ k₂ s t (` x) = TermSubstKit.tm k₁ (s x)
+sub-T k₁ k₂ s t (` x) = TermKit.tm k₁ (s x)
 \end{code}
 %</subvar>
 \begin{code}
-sub-term k₁ k₂ s t `⟨ M , N ⟩ = `⟨ sub-term k₁ k₂ s t M , sub-term k₁ k₂ s t N ⟩
-sub-term k₁ k₂ s t inl⟨ M ⟩ = inl⟨ sub-term k₁ k₂ s t M ⟩
-sub-term k₁ k₂ s t inr⟨ M ⟩ = inr⟨ sub-term k₁ k₂ s t M ⟩
-sub-term k₁ k₂ s t not[ K ] = not[ sub-coterm k₁ k₂ s t K ]
+sub-T k₁ k₂ s t `⟨ M , N ⟩ = `⟨ sub-T k₁ k₂ s t M , sub-T k₁ k₂ s t N ⟩
+sub-T k₁ k₂ s t inl⟨ M ⟩ = inl⟨ sub-T k₁ k₂ s t M ⟩
+sub-T k₁ k₂ s t inr⟨ M ⟩ = inr⟨ sub-T k₁ k₂ s t M ⟩
+sub-T k₁ k₂ s t not[ K ] = not[ sub-C k₁ k₂ s t K ]
 \end{code}
 %<*subcovarabs>
 \begin{code}
-sub-term {T}{A}{C}{Γ}{Θ}{Γ′}{Θ′} k₁ k₂ s t (μθ S) = μθ (sub-statement k₁ k₂ 
-  (fmap {λ - → T - Θ′} {λ - → T - (Θ′ , A)} (λ x → TermSubstKit.wkΘ k₁ x) s) 
-  (sub-lift (CotermSubstKit.kit k₂) t) S)
+sub-T {T}{A}{C}{Γ}{Θ}{Γ′}{Θ′} k₁ k₂ s t (μθ S) = μθ (sub-S k₁ k₂ 
+  (fmap {λ - → T - Θ′} {λ - → T - (Θ′ , A)} (λ x → TermKit.wkΘ k₁ x) s) 
+  (sub-lift (CotermKit.kit k₂) t) S)
 \end{code}
 %</subcovarabs>
 
 %<*subcovar>
 \begin{code}
-sub-coterm k₁ k₂ s t (` α) = CotermSubstKit.tm k₂ (t α)
+sub-C k₁ k₂ s t (` α) = CotermKit.tm k₂ (t α)
 \end{code}
 %</subcovar>
 \begin{code}
-sub-coterm k₁ k₂ s t fst[ K ] = fst[ sub-coterm k₁ k₂ s t K ]
-sub-coterm k₁ k₂ s t snd[ K ] = snd[ sub-coterm k₁ k₂ s t K ]
-sub-coterm k₁ k₂ s t `[ K , L ] = `[ sub-coterm k₁ k₂ s t K , sub-coterm k₁ k₂ s t L ]
-sub-coterm k₁ k₂ s t not⟨ M ⟩ = not⟨ (sub-term k₁ k₂ s t M) ⟩
+sub-C k₁ k₂ s t fst[ K ] = fst[ sub-C k₁ k₂ s t K ]
+sub-C k₁ k₂ s t snd[ K ] = snd[ sub-C k₁ k₂ s t K ]
+sub-C k₁ k₂ s t `[ K , L ] = `[ sub-C k₁ k₂ s t K , sub-C k₁ k₂ s t L ]
+sub-C k₁ k₂ s t not⟨ M ⟩ = not⟨ (sub-T k₁ k₂ s t M) ⟩
 \end{code}
 %<*subvarabs>
 \begin{code}
-sub-coterm {T}{A}{C}{Γ}{Θ}{Γ′}{Θ′} k₁ k₂ s t (μγ S) = μγ (sub-statement k₁ k₂ 
-  (sub-lift (TermSubstKit.kit k₁) s) 
-  (fmap {C Γ′} {C (Γ′ , A)} (λ x → CotermSubstKit.wkΓ k₂ x) t) S)
+sub-C {T}{A}{C}{Γ}{Θ}{Γ′}{Θ′} k₁ k₂ s t (μγ S) = μγ (sub-S k₁ k₂ 
+  (sub-lift (TermKit.kit k₁) s) 
+  (fmap {C Γ′} {C (Γ′ , A)} (λ x → CotermKit.wkΓ k₂ x) t) S)
 \end{code}
 %</subvarabs>
 
 \begin{code}
-sub-statement k₁ k₂ s t (M ● K) = (sub-term k₁ k₂ s t M) ● (sub-coterm k₁ k₂ s t K)
+sub-S k₁ k₂ s t (M ● K) = (sub-T k₁ k₂ s t M) ● (sub-C k₁ k₂ s t K)
 
 
-TK : TermSubstKit _⟶_∣_ 
+TK : TermKit _⟶_∣_ 
 TK = record 
   {  tm = λ a → a
-  ;  wkΘ = rename-term id-var (rename-weaken id-var)
-  ;  kit = record { vr = `_ ; wk = rename-term (rename-weaken id-var) id-var }
+  ;  wkΘ = ren-T id-var (ren-weaken id-var)
+  ;  kit = record { vr = `_ ; wk = ren-T (ren-weaken id-var) id-var }
   }
 \end{code}
 
 %<*cotermkit>
 \begin{code}
-CK : CotermSubstKit λ Γ Θ A → A ∣ Γ ⟶ Θ
+CK : CotermKit λ Γ Θ A → A ∣ Γ ⟶ Θ
 CK = record
   {  tm = λ a → a 
-  ;  wkΓ = rename-coterm (rename-weaken id-var) id-var
-  ;  kit = record { vr = `_ ; wk = rename-coterm id-var (rename-weaken id-var) }
+  ;  wkΓ = ren-C (ren-weaken id-var) id-var
+  ;  kit = record { vr = `_ ; wk = ren-C id-var (ren-weaken id-var) }
   }
 \end{code}
 %</cotermkit>
 
 %<*valren>
 \begin{code}
-value-rename : ∀ {Γ Γ′ Θ Θ′ A} {V : Γ ⟶ Θ ∣ A} {ρ : Γ ↝ Γ′} {ϱ : Θ ↝ Θ′} →
-  Value V → Value (rename-term ρ ϱ V)
+V-ren : ∀ {Γ Γ′ Θ Θ′ A} {V : Γ ⟶ Θ ∣ A} {ρ : Γ ↝ Γ′} {ϱ : Θ ↝ Θ′} →
+  Value V → Value (ren-T ρ ϱ V)
 \end{code}
 %</valren>
 \begin{code}
-value-rename V-var = V-var
-value-rename (V-prod v w) = V-prod (value-rename v) (value-rename w)
-value-rename (V-inl v) = V-inl (value-rename v)
-value-rename (V-inr v) = V-inr (value-rename v)
-value-rename V-not = V-not  
+V-ren V-var = V-var
+V-ren (V-prod v w) = V-prod (V-ren v) (V-ren w)
+V-ren (V-inl v) = V-inl (V-ren v)
+V-ren (V-inr v) = V-inr (V-ren v)
+V-ren V-not = V-not  
 \end{code}
 
 %<*covalren>
 \begin{code}
-covalue-rename : ∀ {Γ Γ′ Θ Θ′ A} {P : A ∣ Γ ⟶ Θ} (ρ : Γ ↝ Γ′) (ϱ : Θ ↝ Θ′) →
-  Covalue P → Covalue (rename-coterm ρ ϱ P)
+covalue-ren : ∀ {Γ Γ′ Θ Θ′ A} {P : A ∣ Γ ⟶ Θ} (ρ : Γ ↝ Γ′) (ϱ : Θ ↝ Θ′) →
+  Covalue P → Covalue (ren-C ρ ϱ P)
 \end{code}
 %</covalren>
 \begin{code}
-covalue-rename ρ ϱ CV-covar = CV-covar
-covalue-rename ρ ϱ (CV-sum p q) = CV-sum (covalue-rename ρ ϱ p) (covalue-rename ρ ϱ q)
-covalue-rename ρ ϱ (CV-fst p) = CV-fst (covalue-rename ρ ϱ p)
-covalue-rename ρ ϱ (CV-snd p) = CV-snd (covalue-rename ρ ϱ p)
-covalue-rename ρ ϱ CV-not = CV-not
+covalue-ren ρ ϱ CV-covar = CV-covar
+covalue-ren ρ ϱ (CV-sum p q) = CV-sum (covalue-ren ρ ϱ p) (covalue-ren ρ ϱ q)
+covalue-ren ρ ϱ (CV-fst p) = CV-fst (covalue-ren ρ ϱ p)
+covalue-ren ρ ϱ (CV-snd p) = CV-snd (covalue-ren ρ ϱ p)
+covalue-ren ρ ϱ CV-not = CV-not
 \end{code}
 
 %<*termvalkit>
 \begin{code}
-TVK : TermSubstKit TermValue
+TVK : TermKit TermValue
 TVK = record
   { tm = λ x → proj₁ x
-  ; wkΘ = λ x → ⟨ (TermSubstKit.wkΘ TK (proj₁ x)) 
-                , value-rename (proj₂ x) ⟩
+  ; wkΘ = λ x → ⟨ (TermKit.wkΘ TK (proj₁ x)) 
+                , V-ren (proj₂ x) ⟩
   ; kit = record 
     { vr = λ x → ⟨ ` x , V-var ⟩ 
-    ; wk = λ x → ⟨ (VarSubstKit.wk (TermSubstKit.kit TK) (proj₁ x)) 
-                 , value-rename (proj₂ x) ⟩ }
+    ; wk = λ x → ⟨ (VarKit.wk (TermKit.kit TK) (proj₁ x)) 
+                 , V-ren (proj₂ x) ⟩ }
   }
 \end{code}
 %</termvalkit>
 \begin{code}
-CVK : CotermSubstKit CotermValue
+CVK : CotermKit CotermValue
 CVK = record 
   { tm = λ x → proj₁ x 
-  ; wkΓ = λ x → ⟨ (CotermSubstKit.wkΓ CK (proj₁ x)) 
-                , covalue-rename (rename-weaken id-var) id-var (proj₂ x) ⟩ 
+  ; wkΓ = λ x → ⟨ (CotermKit.wkΓ CK (proj₁ x)) 
+                , covalue-ren (ren-weaken id-var) id-var (proj₂ x) ⟩ 
   ; kit = record 
     { vr = λ x → ⟨ (` x) , CV-covar ⟩ 
-    ; wk = λ x → ⟨ (VarSubstKit.wk (CotermSubstKit.kit CK) (proj₁ x)) 
-                , (covalue-rename id-var (rename-weaken id-var) (proj₂ x)) ⟩ } 
+    ; wk = λ x → ⟨ (VarKit.wk (CotermKit.kit CK) (proj₁ x)) 
+                , (covalue-ren id-var (ren-weaken id-var) (proj₂ x)) ⟩ } 
   }
 \end{code}
 
 \begin{code}
 wkΓᵗ : ∀ {Γ Θ A B} → Γ ⟶ Θ ∣ A → Γ , B ⟶ Θ ∣ A
-wkΓᵗ = TermSubstKit.wkΓ TK
+wkΓᵗ = TermKit.wkΓ TK
 
 wkΘᵗ : ∀ {Γ Θ A B} → Γ ⟶ Θ ∣ A → Γ ⟶ Θ , B ∣ A
-wkΘᵗ = TermSubstKit.wkΘ TK
+wkΘᵗ = TermKit.wkΘ TK
 
 wkΓᶜ : ∀ {Γ Θ A B} → A ∣ Γ ⟶ Θ → A ∣ Γ , B ⟶ Θ
-wkΓᶜ = CotermSubstKit.wkΓ CK
+wkΓᶜ = CotermKit.wkΓ CK
 
 wkΘᶜ : ∀ {Γ Θ A B} → A ∣ Γ ⟶ Θ → A ∣ Γ ⟶ Θ , B
-wkΘᶜ = CotermSubstKit.wkΘ CK
+wkΘᶜ = CotermKit.wkΘ CK
 
 wkΓᶜⱽ : ∀ {Γ Θ A B} → CotermValue Γ Θ A → CotermValue (Γ , B) Θ A
-wkΓᶜⱽ = CotermSubstKit.wkΓ CVK
+wkΓᶜⱽ = CotermKit.wkΓ CVK
 
 wkΘᶜⱽ : ∀ {Γ Θ A B} → CotermValue Γ Θ A → CotermValue Γ (Θ , B) A
-wkΘᶜⱽ = CotermSubstKit.wkΘ CVK
+wkΘᶜⱽ = CotermKit.wkΘ CVK
 
 intΓᵗ : ∀ {Γ Θ A B C} → Γ , A , B ⟶ Θ ∣ C → Γ , B , A ⟶ Θ ∣ C
-intΓᵗ M = rename-term (add _∋_ (`S `Z) (rename-lift (rename-weaken id-var))) id-var M
+intΓᵗ M = ren-T (add _∋_ (`S `Z) (ren-lift (ren-weaken id-var))) id-var M
 \end{code}
 
 %<*fundef>
@@ -354,87 +354,87 @@ _++_ : ∀ {T Γ Γ′ Γ″} → Γ ↝ Γ′ → Γ′ –[ T ]→ Γ″ → �
 (s ++ t) x = t (s x)
 
 -- sub-fmap : ∀ {Γ Θ Θ′ A} (s : Subst (λ -₁ -₂ → -₂ ∣ Γ ⟶ -₁) Θ Θ′) (x : Θ′ ∋ A) 
---   → sub-var (fmap (rename-coterm VarKit ((weaken) VarKit id-var) id-var) s) x ≡ rename-coterm VarKit (weaken VarKit id-var) id-var (sub-var s x)
+--   → sub-var (fmap (ren-C VK ((weaken) VK id-var) id-var) s) x ≡ ren-C VK (weaken VK id-var) id-var (sub-var s x)
 -- sub-fmap (s , s′) `Z = refl
 -- sub-fmap (s , s′) (`S x) = sub-fmap s x
 
 -- fmap++ : ∀ {Γ Θ Θ′ Θ″} (s : Subst (λ -₁ -₂ → -₂ ∣ Γ ⟶ -₁) Θ Θ′) (t : Subst _∋_ Θ′ Θ″) 
---   → (fmap (rename-coterm VarKit ((weaken) VarKit id-var) id-var) s ++ t) ≡ fmap (rename-coterm VarKit (weaken VarKit id-var) id-var) (s ++ t)
+--   → (fmap (ren-C VK ((weaken) VK id-var) id-var) s ++ t) ≡ fmap (ren-C VK (weaken VK id-var) id-var) (s ++ t)
 -- fmap++ s ⨀ = refl
 -- fmap++ s (_,_ t t′) = cong₂ _,_ (fmap++ s t) (sub-fmap s t′)
 
 -- lemma : ∀ {Γ Γ′ Γ″ Θ} (s : Subst (λ -₁ -₂ → -₁ ⟶ Θ ∣ -₂) Γ Γ′) (t : Subst _∋_ Γ′ Γ″)
---   → ((exts (TermSubstKit.kit TK) s ++ weaken VarKit t) , (` `Z)) ≡ exts (TermSubstKit.kit TK) (s ++ t)
+--   → ((exts (TermKit.kit TK) s ++ weaken VK t) , (` `Z)) ≡ exts (TermKit.kit TK) (s ++ t)
 
 -- lemma s ⨀ = refl
 -- lemma s (t , x) = cong₂ _,_ ({!   !}) refl
 
 -- lemma : ∀ {Γ Γ′ Γ″ Θ Θ′ Θ″ A} (s : Subst (λ -₁ → _⟶_∣_ -₁ Θ) Γ Γ′) (t : Subst (λ -₁ -₂ → -₂ ∣ Γ ⟶ -₁) Θ Θ′) (u : Subst _∋_ Γ′ Γ″) (v : Subst _∋_ Θ′ Θ″) (S : Γ″ ↦ Θ″ , A)
---     → sub-statement TK CK
---       ((exts (CotermSubstKit.kit CK) s ++ weaken VarKit u) , (` `Z))
---       (fmap (rename-coterm VarKit (weaken VarKit id-var) id-var) t ++ v)
+--     → sub-S TK CK
+--       ((exts (CotermKit.kit CK) s ++ weaken VK u) , (` `Z))
+--       (fmap (ren-C VK (weaken VK id-var) id-var) t ++ v)
 --       S
 --       ≡
---       sub-statement TK CK
---       (fmap (rename-term VarKit id-var (weaken VarKit id-var)) (s ++ u))
---       (exts (CotermSubstKit.kit CK) (t ++ v))
+--       sub-S TK CK
+--       (fmap (ren-T VK id-var (weaken VK id-var)) (s ++ u))
+--       (exts (CotermKit.kit CK) (t ++ v))
 --       S
--- lemma s t u v S = trans {! sub-ren-statement  !} {!   !}
+-- lemma s t u v S = trans {! sub-ren-S  !} {!   !}
     
 
--- sub-ren-term : ∀ {Γ Γ′ Γ″ Θ Θ′ Θ″ A} (M : Γ ⟶ Θ ∣ A) (s : Γ′ –[ (λ -₁ -₂ → -₁ ⟶ Θ″ ∣ -₂) ]→ Γ″) (t : Θ′ –[ (λ -₁ -₂ → -₂ ∣ Γ″ ⟶ -₁) ]→ Θ″) (u : Γ ↝ Γ′) (v : Θ ↝ Θ′)
---   → sub-term TK CK s t (rename-term u v M) ≡ sub-term TK CK (u ++ s) (v ++ t) M
+-- sub-ren-T : ∀ {Γ Γ′ Γ″ Θ Θ′ Θ″ A} (M : Γ ⟶ Θ ∣ A) (s : Γ′ –[ (λ -₁ -₂ → -₁ ⟶ Θ″ ∣ -₂) ]→ Γ″) (t : Θ′ –[ (λ -₁ -₂ → -₂ ∣ Γ″ ⟶ -₁) ]→ Θ″) (u : Γ ↝ Γ′) (v : Θ ↝ Θ′)
+--   → sub-T TK CK s t (ren-T u v M) ≡ sub-T TK CK (u ++ s) (v ++ t) M
 
--- sub-ren-coterm : ∀ {Γ Γ′ Γ″ Θ Θ′ Θ″ A} (K : A ∣ Γ ⟶ Θ) (s : Γ′ –[ (λ -₁ -₂ → -₁ ⟶ Θ″ ∣ -₂) ]→ Γ″) (t : Θ′ –[ (λ -₁ -₂ → -₂ ∣ Γ″ ⟶ -₁) ]→ Θ″) (u : Γ ↝ Γ′) (v : Θ ↝ Θ′)
---   → sub-coterm TK CK s t (rename-coterm u v K) ≡ sub-coterm TK CK (u ++ s) (v ++ t) K
+-- sub-ren-C : ∀ {Γ Γ′ Γ″ Θ Θ′ Θ″ A} (K : A ∣ Γ ⟶ Θ) (s : Γ′ –[ (λ -₁ -₂ → -₁ ⟶ Θ″ ∣ -₂) ]→ Γ″) (t : Θ′ –[ (λ -₁ -₂ → -₂ ∣ Γ″ ⟶ -₁) ]→ Θ″) (u : Γ ↝ Γ′) (v : Θ ↝ Θ′)
+--   → sub-C TK CK s t (ren-C u v K) ≡ sub-C TK CK (u ++ s) (v ++ t) K
 
--- sub-ren-statement : ∀ {Γ Γ′ Γ″ Θ Θ′ Θ″} (S : Γ ↦ Θ) (s : Γ′ –[ (λ -₁ -₂ → -₁ ⟶ Θ″ ∣ -₂) ]→ Γ″) (t : Θ′ –[ (λ -₁ -₂ → -₂ ∣ Γ″ ⟶ -₁) ]→ Θ″) (u : Γ ↝ Γ′) (v : Θ ↝ Θ′)
---   → sub-statement TK CK s t (rename-statement u v S) ≡ sub-statement TK CK (u ++ s) (v ++ t) S
+-- sub-ren-S : ∀ {Γ Γ′ Γ″ Θ Θ′ Θ″} (S : Γ ↦ Θ) (s : Γ′ –[ (λ -₁ -₂ → -₁ ⟶ Θ″ ∣ -₂) ]→ Γ″) (t : Θ′ –[ (λ -₁ -₂ → -₂ ∣ Γ″ ⟶ -₁) ]→ Θ″) (u : Γ ↝ Γ′) (v : Θ ↝ Θ′)
+--   → sub-S TK CK s t (ren-S u v S) ≡ sub-S TK CK (u ++ s) (v ++ t) S
 
--- sub-ren-term (` x) s t u v = refl
--- sub-ren-term `⟨ M , N ⟩ s t u v = cong₂ `⟨_,_⟩ (sub-ren-term M s t u v) (sub-ren-term N s t u v)
--- sub-ren-term inl⟨ M ⟩ s t u v = cong inl⟨_⟩ (sub-ren-term M s t u v)
--- sub-ren-term inr⟨ M ⟩ s t u v = cong inr⟨_⟩ (sub-ren-term M s t u v)
--- sub-ren-term not[ K ] s t u v = cong not[_](sub-ren-coterm K s t u v)
--- sub-ren-term (μθ S) s t u v = cong μθ 
+-- sub-ren-T (` x) s t u v = refl
+-- sub-ren-T `⟨ M , N ⟩ s t u v = cong₂ `⟨_,_⟩ (sub-ren-T M s t u v) (sub-ren-T N s t u v)
+-- sub-ren-T inl⟨ M ⟩ s t u v = cong inl⟨_⟩ (sub-ren-T M s t u v)
+-- sub-ren-T inr⟨ M ⟩ s t u v = cong inr⟨_⟩ (sub-ren-T M s t u v)
+-- sub-ren-T not[ K ] s t u v = cong not[_](sub-ren-C K s t u v)
+-- sub-ren-T (μθ S) s t u v = cong μθ 
 --   (begin 
---     sub-statement TK CK
---       (fmap (rename-term (id-var) (rename-weaken id-var)) s)
---       (sub-lift (CotermSubstKit.kit CK) t)
---       (rename-statement u (rename-lift v) S)
---   ≡⟨ sub-ren-statement S (fmap (rename-term id-var (rename-weaken id-var)) s) (sub-lift (CotermSubstKit.kit CK) t) u (rename-lift v) ⟩
---     sub-statement TK CK
---       (u ++ fmap (TermSubstKit.wkΘ TK) s)
---       (rename-lift v ++ sub-lift (CotermSubstKit.kit CK) t) S
---   ≡⟨ cong (λ x → sub-statement TK CK (u ++ fmap (TermSubstKit.wkΘ TK) s) x S) {!   !} ⟩
+--     sub-S TK CK
+--       (fmap (ren-T (id-var) (ren-weaken id-var)) s)
+--       (sub-lift (CotermKit.kit CK) t)
+--       (ren-S u (ren-lift v) S)
+--   ≡⟨ sub-ren-S S (fmap (ren-T id-var (ren-weaken id-var)) s) (sub-lift (CotermKit.kit CK) t) u (ren-lift v) ⟩
+--     sub-S TK CK
+--       (u ++ fmap (TermKit.wkΘ TK) s)
+--       (ren-lift v ++ sub-lift (CotermKit.kit CK) t) S
+--   ≡⟨ cong (λ x → sub-S TK CK (u ++ fmap (TermKit.wkΘ TK) s) x S) {!   !} ⟩
 --     {!  !})
 
--- sub-ren-coterm (` α) s t u v = refl
--- sub-ren-coterm fst[ K ] s t u v = cong fst[_] (sub-ren-coterm K s t u v)
--- sub-ren-coterm snd[ K ] s t u v = cong snd[_] (sub-ren-coterm K s t u v)
--- sub-ren-coterm `[ K , L ] s t u v = cong₂ `[_,_] (sub-ren-coterm K s t u v) (sub-ren-coterm L s t u v)
--- sub-ren-coterm not⟨ M ⟩ s t u v = cong not⟨_⟩ (sub-ren-term M s t u v)
--- sub-ren-coterm (μγ S) s t u v = cong μγ ({!   !})
+-- sub-ren-C (` α) s t u v = refl
+-- sub-ren-C fst[ K ] s t u v = cong fst[_] (sub-ren-C K s t u v)
+-- sub-ren-C snd[ K ] s t u v = cong snd[_] (sub-ren-C K s t u v)
+-- sub-ren-C `[ K , L ] s t u v = cong₂ `[_,_] (sub-ren-C K s t u v) (sub-ren-C L s t u v)
+-- sub-ren-C not⟨ M ⟩ s t u v = cong not⟨_⟩ (sub-ren-T M s t u v)
+-- sub-ren-C (μγ S) s t u v = cong μγ ({!   !})
 -- --   (begin
--- --     sub-statement TK CK
--- --       (exts (TermSubstKit.kit TK) s)
--- --       (fmap (rename-coterm VarKit (weaken VarKit id-var) id-var) t)
--- --       (rename-statement VarKit (exts VarKit u) v S)
--- --   ≡⟨ sub-ren-statement S (exts (TermSubstKit.kit TK) s) (fmap (rename-coterm VarKit (weaken VarKit id-var) id-var) t) (exts VarKit u) v ⟩
--- --     sub-statement TK CK
--- --       ((exts (TermSubstKit.kit TK) s ++ weaken VarKit u) , (` `Z))
--- --       (fmap (rename-coterm VarKit (weaken VarKit id-var) id-var) t ++ v)
+-- --     sub-S TK CK
+-- --       (exts (TermKit.kit TK) s)
+-- --       (fmap (ren-C VK (weaken VK id-var) id-var) t)
+-- --       (ren-S VK (exts VK u) v S)
+-- --   ≡⟨ sub-ren-S S (exts (TermKit.kit TK) s) (fmap (ren-C VK (weaken VK id-var) id-var) t) (exts VK u) v ⟩
+-- --     sub-S TK CK
+-- --       ((exts (TermKit.kit TK) s ++ weaken VK u) , (` `Z))
+-- --       (fmap (ren-C VK (weaken VK id-var) id-var) t ++ v)
 -- --       S
--- --   ≡⟨ cong (λ x → sub-statement TK CK ((exts (TermSubstKit.kit TK) s ++ weaken VarKit u) , ` `Z) x S)  (fmap++ t v) ⟩ 
--- --     sub-statement TK CK
--- --       ((exts (TermSubstKit.kit TK) s ++ weaken VarKit u) , (` `Z))
--- --       (fmap (rename-coterm VarKit (weaken VarKit id-var) id-var) (t ++ v))
+-- --   ≡⟨ cong (λ x → sub-S TK CK ((exts (TermKit.kit TK) s ++ weaken VK u) , ` `Z) x S)  (fmap++ t v) ⟩ 
+-- --     sub-S TK CK
+-- --       ((exts (TermKit.kit TK) s ++ weaken VK u) , (` `Z))
+-- --       (fmap (ren-C VK (weaken VK id-var) id-var) (t ++ v))
 -- --       S
--- --   ≡⟨ cong (λ x → sub-statement TK CK x (fmap (rename-coterm VarKit (weaken VarKit id-var) id-var) (t ++ v)) S) {!    !} ⟩
--- --     sub-statement TK CK
--- --       (exts (TermSubstKit.kit TK) (s ++ u))
--- --       (fmap (rename-coterm VarKit (weaken VarKit id-var) id-var) (t ++ v))
+-- --   ≡⟨ cong (λ x → sub-S TK CK x (fmap (ren-C VK (weaken VK id-var) id-var) (t ++ v)) S) {!    !} ⟩
+-- --     sub-S TK CK
+-- --       (exts (TermKit.kit TK) (s ++ u))
+-- --       (fmap (ren-C VK (weaken VK id-var) id-var) (t ++ v))
 -- --       S
 -- --   ∎)
 
--- sub-ren-statement (M ● K) s t u v = cong₂ _●_ (sub-ren-term M s t u v) (sub-ren-coterm K s t u v)
+-- sub-ren-S (M ● K) s t u v = cong₂ _●_ (sub-ren-T M s t u v) (sub-ren-C K s t u v)

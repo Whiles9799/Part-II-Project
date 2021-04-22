@@ -171,7 +171,7 @@ V-ren ρ ϱ (V-inr v) = V-inr (V-ren ρ ϱ v)
 V-ren ρ ϱ V-not = V-not  
 
 CV-ren : ∀ {Γ Γ′ Θ Θ′ A} {P : A ∣ Γ ⟶ Θ} (ρ : Γ ↝ Γ′) (ϱ : Θ ↝ Θ′) →
-  CoV P → CoV (ren-C ρ ϱ P)
+  Covalue P → Covalue (ren-C ρ ϱ P)
 CV-ren ρ ϱ CV-covar = CV-covar
 CV-ren ρ ϱ (CV-sum p q) = CV-sum (CV-ren ρ ϱ p) (CV-ren ρ ϱ q)
 CV-ren ρ ϱ (CV-fst p) = CV-fst (CV-ren ρ ϱ p)
@@ -283,8 +283,8 @@ M ·ⱽ N = not⟨ `⟨ M , not[ N ] ⟩ ⟩
 
 M ·ᴺ N = `[ not⟨ M ⟩ , N ]
 
--- _∘_ : ∀ {A B C : Set} → (B → C) → (A → B) → (A → C)
--- (g ∘ f) x  = g (f x)
+_∘_ : ∀ {A B C : Set} → (B → C) → (A → B) → (A → C)
+(g ∘ f) x  = g (f x)
 
 -- RCS-T : ∀ {Γ Γ′ Γ″ Θ} → (σ : Γ –[ Fix₂ Term Θ ]→ Γ′) (ρ : Γ′ ↝ Γ″) → Γ –[ Fix₂ Term Θ ]→ Γ″
 -- RCS-T σ ρ x = ren-T ρ id-var (σ x)
@@ -292,14 +292,15 @@ M ·ᴺ N = `[ not⟨ M ⟩ , N ]
 -- RCS-C : ∀ {Θ Θ′ Θ″ Γ} → (σ : Θ –[ Fix₁ Coterm Γ ]→ Θ′) (ρ : Θ′ ↝ Θ″) → Θ –[ Fix₁ Coterm Γ ]→ Θ″
 -- RCS-C σ ρ x = ren-C id-var ρ (σ x)
 
--- sub-ren-T : ∀ {T C Γ Γ′ Γ″ Θ Θ′ Θ″ A} (tk : TermKit T) (ck : CotermKit C) (M : Γ ⟶ Θ ∣ A) (s : Γ′ –[ Fix₂ T Θ″ ]→ Γ″) (t : Θ′ –[ Fix₁ C Γ″ ]→ Θ″) (u : Γ ↝ Γ′) (v : Θ ↝ Θ′)
---   → sub-T tk ck s t (ren-T u v M) ≡ sub-T tk ck (s ∘ u) (t ∘ v) M
+postulate
+  sub-ren-T : ∀ {T C Γ Γ′ Γ″ Θ Θ′ Θ″ A} (tk : TermKit T) (ck : CotermKit C) (M : Γ ⟶ Θ ∣ A) (s : Γ′ –[ Fix₂ T Θ″ ]→ Γ″) (t : Θ′ –[ Fix₁ C Γ″ ]→ Θ″) (u : Γ ↝ Γ′) (v : Θ ↝ Θ′)
+    → sub-T tk ck s t (ren-T u v M) ≡ sub-T tk ck (s ∘ u) (t ∘ v) M
 
--- sub-ren-C : ∀ {T C Γ Γ′ Γ″ Θ Θ′ Θ″ A} (tk : TermKit T) (ck : CotermKit C) (K : A ∣ Γ ⟶ Θ) (s : Γ′ –[ Fix₂ T Θ″ ]→ Γ″) (t : Θ′ –[ Fix₁ C Γ″ ]→ Θ″) (u : Γ ↝ Γ′) (v : Θ ↝ Θ′)
---   → sub-C tk ck s t (ren-C u v K) ≡ sub-C tk ck (s ∘ u) (t ∘ v) K
+  sub-ren-C : ∀ {T C Γ Γ′ Γ″ Θ Θ′ Θ″ A} (tk : TermKit T) (ck : CotermKit C) (K : A ∣ Γ ⟶ Θ) (s : Γ′ –[ Fix₂ T Θ″ ]→ Γ″) (t : Θ′ –[ Fix₁ C Γ″ ]→ Θ″) (u : Γ ↝ Γ′) (v : Θ ↝ Θ′)
+    → sub-C tk ck s t (ren-C u v K) ≡ sub-C tk ck (s ∘ u) (t ∘ v) K
 
--- sub-ren-S : ∀ {T C Γ Γ′ Γ″ Θ Θ′ Θ″} (tk : TermKit T) (ck : CotermKit C) (S : Γ ↦ Θ) (s : Γ′ –[ Fix₂ T Θ″ ]→ Γ″) (t : Θ′ –[ Fix₁ C Γ″ ]→ Θ″) (u : Γ ↝ Γ′) (v : Θ ↝ Θ′)
---   → sub-S tk ck s t (ren-S u v S) ≡ sub-S tk ck (s ∘ u) (t ∘ v) S
+  sub-ren-S : ∀ {T C Γ Γ′ Γ″ Θ Θ′ Θ″} (tk : TermKit T) (ck : CotermKit C) (S : Γ ↦ Θ) (s : Γ′ –[ Fix₂ T Θ″ ]→ Γ″) (t : Θ′ –[ Fix₁ C Γ″ ]→ Θ″) (u : Γ ↝ Γ′) (v : Θ ↝ Θ′)
+    → sub-S tk ck s t (ren-S u v S) ≡ sub-S tk ck (s ∘ u) (t ∘ v) S
 
 -- sub-ren-T tk ck (` x) s t u v = refl
 -- sub-ren-T tk ck `⟨ M , N ⟩ s t u v = cong₂ `⟨_,_⟩ (sub-ren-T tk ck M s t u v) (sub-ren-T tk ck N s t u v)

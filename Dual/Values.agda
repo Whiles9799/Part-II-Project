@@ -4,7 +4,7 @@ open import Dual.Syntax
 open import Data.Product using (Σ ; proj₁ ; proj₂)
 
 data Value : ∀ {Γ Θ A} → Γ ⟶ Θ ∣ A → Set 
-data CoV : ∀ {Γ Θ A} → A ∣ Γ ⟶ Θ → Set
+data Covalue : ∀ {Γ Θ A} → A ∣ Γ ⟶ Θ → Set
 
 data Value where
 
@@ -33,34 +33,34 @@ data Value where
     → Value not[ K ]
 
 
-data CoV where
+data Covalue where
   
   CV-covar : ∀ {Γ Θ A} {α : Θ ∋ A}
       -------
-    → CoV {Γ = Γ} (` α)
+    → Covalue {Γ = Γ} (` α)
 
   CV-sum : ∀ {Γ Θ A B} {K : A ∣ Γ ⟶ Θ} {L : B ∣ Γ ⟶ Θ}
-    → CoV K
-    → CoV L
+    → Covalue K
+    → Covalue L
       ------------------
-    → CoV `[ K , L ]
+    → Covalue `[ K , L ]
 
   CV-fst : ∀ {Γ Θ A B} {K : A ∣ Γ ⟶ Θ}
-    → CoV K
+    → Covalue K
       ----------------
-    → CoV (fst[_] {B = B} K)
+    → Covalue (fst[_] {B = B} K)
 
   CV-snd : ∀ {Γ Θ A B} {K : B ∣ Γ ⟶ Θ}
-    → CoV K
+    → Covalue K
       ----------------
-    → CoV (snd[_] {A = A} K)
+    → Covalue (snd[_] {A = A} K)
 
   CV-not : ∀ {Γ Θ A} {M : Γ ⟶ Θ ∣ A}
       --------------
-    → CoV not⟨ M ⟩
+    → Covalue not⟨ M ⟩
 
 TermValue : Context → Context → Type → Set
 TermValue Γ Θ A = Σ (Γ ⟶ Θ ∣ A) Value
 
 CotermValue : Context → Context → Type → Set
-CotermValue Γ Θ A = Σ (A ∣ Γ ⟶ Θ) CoV
+CotermValue Γ Θ A = Σ (A ∣ Γ ⟶ Θ) Covalue

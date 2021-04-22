@@ -154,26 +154,26 @@ neg-ren-int-cbv (Θ , A) Θ′ ρ θ =
 
 %<*v-tvsub>
 \begin{code}
-termvalue-sub-int : ∀ Γ Γ′ Θ → Γ –[ (λ Γ A → TermValue Γ Θ A) ]→ Γ′ 
+sub-TV-int : ∀ Γ Γ′ Θ → Γ –[ (Fix₂ TermValue Θ) ]→ Γ′ 
   → ((`¬ˣ Θ) ⱽˣ) → (Γ′ ⱽˣ) → (Γ ⱽˣ)
 \end{code}
 %</v-tvsub>
 \begin{code}
-termvalue-sub-int ∅ Γ′ Θ σ θ γ = tt
-termvalue-sub-int (Γ , A) Γ′ Θ σ θ γ = 
-  ⟨ (termvalue-sub-int Γ Γ′ Θ (λ x → σ (`S x)) θ γ) , ((σ `Z ⱽᴸⱽ) ⟨ γ , θ ⟩) ⟩
+sub-TV-int ∅ Γ′ Θ σ θ γ = tt
+sub-TV-int (Γ , A) Γ′ Θ σ θ γ = 
+  ⟨ (sub-TV-int Γ Γ′ Θ (λ x → σ (`S x)) θ γ) , ((σ `Z ⱽᴸⱽ) ⟨ γ , θ ⟩) ⟩
 \end{code}
 
 %<*v-csub>
 \begin{code}
-coterm-sub-int : ∀ Γ Θ Θ′ → Θ –[ (λ Θ A → A ∣ Γ ⟶ Θ) ]→ Θ′ 
+sub-C-int : ∀ Γ Θ Θ′ → Θ –[ (Fix₁ Coterm Γ) ]→ Θ′ 
   → Γ ⱽˣ → ((`¬ˣ Θ′) ⱽˣ) → ((`¬ˣ Θ) ⱽˣ)
 \end{code}
 %</v-csub>
 \begin{code}
-coterm-sub-int Γ ∅ Θ′ σ γ _ = tt
-coterm-sub-int Γ (Θ , A) Θ′ σ γ θ = 
-  ⟨ (coterm-sub-int Γ Θ Θ′ (λ z → σ (`S z)) γ θ) , (((σ `Z) ⱽᴿ) ⟨ γ , θ ⟩) ⟩
+sub-C-int Γ ∅ Θ′ σ γ _ = tt
+sub-C-int Γ (Θ , A) Θ′ σ γ θ = 
+  ⟨ (sub-C-int Γ Θ Θ′ (λ z → σ (`S z)) γ θ) , (((σ `Z) ⱽᴿ) ⟨ γ , θ ⟩) ⟩
 \end{code}
 
 --Call-by-Name CPS Transformation--
@@ -254,18 +254,18 @@ neg-ren-int-cbn (Θ , A) Θ′ ρ θ =
   ⟨ (neg-ren-int-cbn Θ Θ′ (λ x → ρ (`S x)) θ) , 
   (((Γ∋A⇒¬Γ∋¬A (ρ `Z)) ᴺⱽ) θ) ⟩
  
-term-sub-int : ∀ Γ Γ′ Θ → Γ –[ (λ Γ A → Γ ⟶ Θ ∣ A) ]→ Γ′ 
+sub-T-int : ∀ Γ Γ′ Θ → Γ –[ (Fix₂ Term Θ) ]→ Γ′ 
   → (Θ ᴺˣ) → ((`¬ˣ Γ′) ᴺˣ) → ((`¬ˣ Γ) ᴺˣ)
-term-sub-int ∅ Γ′ Θ σ θ γ = tt
-term-sub-int (Γ , A) Γ′ Θ σ θ γ = 
-  ⟨ (term-sub-int Γ Γ′ Θ (λ x → σ (`S x)) θ γ) , 
+sub-T-int ∅ Γ′ Θ σ θ γ = tt
+sub-T-int (Γ , A) Γ′ Θ σ θ γ = 
+  ⟨ (sub-T-int Γ Γ′ Θ (λ x → σ (`S x)) θ γ) , 
   ((σ `Z) ᴺᴸ) ⟨ θ , γ ⟩ ⟩
 
-cotermvalue-sub-int : ∀ Γ Θ Θ′ → Θ –[ (λ Θ A → CotermValue Γ Θ A) ]→ Θ′ 
+sub-CV-int : ∀ Γ Θ Θ′ → Θ –[ (Fix₁ CotermValue Γ) ]→ Θ′ 
   → ((`¬ˣ Γ) ᴺˣ) → (Θ′ ᴺˣ) → (Θ ᴺˣ)
-cotermvalue-sub-int Γ ∅ Θ′ σ γ θ = tt
-cotermvalue-sub-int Γ (Θ , A) Θ′ σ γ θ = 
-  ⟨ (cotermvalue-sub-int Γ Θ Θ′ (λ x → σ (`S x)) γ θ) ,
+sub-CV-int Γ ∅ Θ′ σ γ θ = tt
+sub-CV-int Γ (Θ , A) Θ′ σ γ θ = 
+  ⟨ (sub-CV-int Γ Θ Θ′ (λ x → σ (`S x)) γ θ) ,
   ((σ `Z) ᴺᴿⱽ) ⟨ θ , γ ⟩ ⟩
 %<‌/n-ren+sub>
 --Proofs of Duality--
@@ -381,23 +381,23 @@ Sⱽ≡Sᵒᴺ (M ● K) c             = (cong₂ (λ -₁ -₂ → -₁ -₂))
 --CPS Transformation of Values--
 %<*valty>
 \begin{code}
-cps-value : ∀ {Γ Θ A} (V : Γ ⟶ Θ ∣ A) (v : Value V) (c : Γ ⱽˣ × (`¬ˣ Θ) ⱽˣ)
+cps-V : ∀ {Γ Θ A} (V : Γ ⟶ Θ ∣ A) (v : Value V) (c : Γ ⱽˣ × (`¬ˣ Θ) ⱽˣ)
   → (V ⱽᴸ) c ≡ λ x → x ((⟨ V , v ⟩ ⱽᴸⱽ) c)
 \end{code}
 %</valty>
 \begin{code}
-cps-value (` x) V-var c = refl
-cps-value `⟨ V , W ⟩ (V-prod v w) c = ext (λ k → 
-  cong₂ (λ -₁ -₂ → -₁ (λ x → -₂ (λ y → k ⟨ x , y ⟩))) (cps-value V v c) (cps-value W w c))
+cps-V (` x) V-var c = refl
+cps-V `⟨ V , W ⟩ (V-prod v w) c = ext (λ k → 
+  cong₂ (λ -₁ -₂ → -₁ (λ x → -₂ (λ y → k ⟨ x , y ⟩))) (cps-V V v c) (cps-V W w c))
 \end{code}
 %<*valeg>
 \begin{code}
-cps-value inl⟨ V ⟩ (V-inl v) c = ext (λ k → cong (λ - → - (λ x → k (inj₁ x))) (cps-value V v c))
+cps-V inl⟨ V ⟩ (V-inl v) c = ext (λ k → cong (λ - → - (λ x → k (inj₁ x))) (cps-V V v c))
 \end{code}
 %</valeg>
 \begin{code}
-cps-value inr⟨ V ⟩ (V-inr v) c = ext (λ k → cong (λ - → - (λ y → k (inj₂ y))) (cps-value V v c))
-cps-value not[ K ] V-not c = refl
+cps-V inr⟨ V ⟩ (V-inr v) c = ext (λ k → cong (λ - → - (λ y → k (inj₂ y))) (cps-V V v c))
+cps-V not[ K ] V-not c = refl
 \end{code}
 
 %<*covalty>

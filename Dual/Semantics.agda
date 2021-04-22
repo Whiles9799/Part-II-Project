@@ -139,22 +139,22 @@ data _ᵗ⟶ⱽ_ : ∀ {Γ Θ A} → (Γ ⟶ Θ ∣ A) → (Γ ⟶ Θ ∣ A) →
 data _ˢ⟶ᴺ_ : ∀ {Γ Θ} → (Γ ↦ Θ) → (Γ ↦ Θ) → Set where
   
   β×₁ : ∀ {Γ Θ A B} {M : Γ ⟶ Θ ∣ A} {N : Γ ⟶ Θ ∣ B} {P : A ∣ Γ ⟶ Θ}
-    → CoV P
+    → Covalue P
       -------------------------------
     → `⟨ M , N ⟩ ● fst[ P ] ˢ⟶ᴺ M ● P
 
   β×₂ : ∀ {Γ Θ A B} {M : Γ ⟶ Θ ∣ A} {N : Γ ⟶ Θ ∣ B} {Q : B ∣ Γ ⟶ Θ}
-    → CoV Q
+    → Covalue Q
       --------------------------------
     → `⟨ M , N ⟩ ● snd[ Q ] ˢ⟶ᴺ N ● Q
 
   β+₁ : ∀ {Γ Θ A B} {M : Γ ⟶ Θ ∣ A} {P : A ∣ Γ ⟶ Θ} {Q : B ∣ Γ ⟶ Θ}
-    → CoV P → CoV Q
+    → Covalue P → Covalue Q
       --------------------------------
     → inl⟨ M ⟩ ● `[ P , Q ] ˢ⟶ᴺ M ● P
 
   β+₂ : ∀ {Γ Θ A B} {N : Γ ⟶ Θ ∣ B} {P : A ∣ Γ ⟶ Θ} {Q : B ∣ Γ ⟶ Θ}
-    → CoV P → CoV Q
+    → Covalue P → Covalue Q
       --------------------------------
     → inr⟨ N ⟩ ● `[ P , Q ] ˢ⟶ᴺ N ● Q
 
@@ -166,7 +166,7 @@ data _ˢ⟶ᴺ_ : ∀ {Γ Θ} → (Γ ↦ Θ) → (Γ ↦ Θ) → Set where
       ------------------------
     → M ● (μγ S) ˢ⟶ᴺ S ⟨ M /⟩ˢ 
 
-  βR : ∀ {Γ Θ A} {S : Γ ↦ Θ , A} {P : A ∣ Γ ⟶ Θ} (p : CoV P)
+  βR : ∀ {Γ Θ A} {S : Γ ↦ Θ , A} {P : A ∣ Γ ⟶ Θ} (p : Covalue P)
       -------------------------
     → (μθ S) ● P ˢ⟶ᴺ S ⱽ[ ⟨ P , p ⟩ /]ˢ
 
@@ -392,7 +392,7 @@ lem-ref M K = `[ K , not⟨ M ⟩ ]
 
 -- lem-comp : ∀ {A} → (M : ∅ ⟶ ∅ ∣ A) → Value M → (K : A ∣ ∅ ⟶ ∅)
 --      → (lem ● lem-ref M K) ˢ—↠ⱽ M ● K
--- lem-comp M M:V K = beginⱽ
+-- lem-comp M M:V K = beginˢⱽ
 --       μθ (inr⟨ not[ μγ (inl⟨ γ 0 ⟩ ● (θ 0) ) ] ⟩ ● (θ 0))
 --     ● `[ K , not⟨ M ⟩ ]
 --   ˢ⟶ⱽ⟨ βR ⟩
@@ -405,11 +405,10 @@ lem-ref M K = `[ K , not⟨ M ⟩ ]
 --       M
 --     ● μγ (inl⟨ γ 0 ⟩ ● `[ wkΓᶜ K , not⟨ wkΓᵗ M ⟩ ] )
 --   ˢ⟶ⱽ⟨ βL M:V ⟩
---       inl⟨ M ⟩
---     ● `[ (wkΓᶜ K) ⟨ M /⟩ᶜ , not⟨ (wkΓᵗ M) ⟨ M /⟩ᵗ ⟩ ]
+--       ((inl⟨ γ 0 ⟩ ● `[ (wkΓᶜ K) , not⟨ (wkΓᵗ M) ⟩ ]) ⱽ⟨ ⟨ M , M:V ⟩ /⟩ˢ)
 --   ˢ⟶ⱽ⟨ {!   !} ⟩
 --       inl⟨ M ⟩
 --     ● `[ K , not⟨ M ⟩ ]
 --   ˢ⟶ⱽ⟨ β+₁ M:V ⟩
 --     M ● K
---   ∎ⱽ
+--   ∎ˢⱽ
