@@ -1,14 +1,14 @@
 {-# OPTIONS --rewriting #-}
 
-module Dual.DualTranslation where
+module Dual.Syntax.Duality where
 
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl; cong; cong₂; sym; trans)
 open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; step-≡; _∎)
 open import Agda.Builtin.Equality.Rewrite
-open import Dual.Syntax
-open import Dual.Substitution
-open import Dual.Values
+open import Dual.Syntax.Core
+open import Dual.Syntax.Substitution
+open import Dual.Syntax.Values
 open import Data.Product using (Σ; _×_; proj₁; proj₂) renaming (_,_ to ⟨_,_⟩)
 
 

@@ -1,25 +1,18 @@
 {-# OPTIONS --rewriting #-}
 
-module Dual.Soundness (R : Set) where
+module Dual.DenotationalSemantics.CBVSoundness (R : Set) where
 
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl; cong; cong₂; sym; trans)
 open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; step-≡; _∎)
-open import Data.Empty using (⊥; ⊥-elim)
-open import Data.Unit using (⊤; tt)
-open import Data.Nat using (ℕ; zero; suc; _<_; _≤?_ ; z≤n; s≤s)
-open import Data.Product using (_×_; proj₁; proj₂) renaming (_,_ to ⟨_,_⟩)
-open import Data.Sum using (_⊎_; inj₁; inj₂) renaming ([_,_] to case-⊎)
-open import Relation.Nullary using (¬_)
-open import Agda.Builtin.Equality.Rewrite
-open import Axiom.Extensionality.Propositional using (Extensionality; ExtensionalityImplicit)
-open import Level as L hiding (lift) public
-open import Dual.Syntax
-open import Dual.DualTranslation
-open import Dual.Semantics
-open import Dual.Substitution
-open import Dual.Values
-open import Dual.CPSTransformation R
+open import Dual.Syntax.Core
+open import Dual.Syntax.Duality
+open import Dual.Syntax.Substitution
+open import Dual.Syntax.Values
+open import Dual.OperationalSemantics.CBVReduction
+open import Dual.DenotationalSemantics.CPSTransformation R
+open import Dual.DenotationalSemantics.Duality R
+
 
 --Lemmas for proving the Renaming Lemma--
 
@@ -157,7 +150,7 @@ lift-sub-TV-int-lemma {Γ , x} {_} {Θ} σ γ θ k = cong₂ (λ -₁ -₂ → �
 fmap-sub-TV-int-lemma : ∀ {Γ Γ′ Θ A} (σ : Γ –[(Fix₂ TermValue Θ)]→ Γ′) γ θ k
   → sub-TV-int Γ Γ′ (Θ , A) (fmap-wkΘᵗⱽ Θ A σ) ⟨ θ , k ⟩ γ ≡ sub-TV-int Γ Γ′ Θ σ θ γ
 fmap-sub-TV-int-lemma {∅} σ γ θ k = refl
-fmap-sub-TV-int-lemma {Γ , A}{Γ′}{Θ} σ γ θ k = cong₂ (λ -₁ -₂ → ⟨ -₁ , -₂ ⟩) (fmap-sub-TV-int-lemma (sub-skip (Fix₂ TermValue Θ) σ) γ θ k) (sub-TV-fmap-lemma σ `Z γ θ k)
+fmap-sub-TV-int-lemma {Γ , x}{Γ′}{Θ} σ γ θ k = cong₂ (λ -₁ -₂ → ⟨ -₁ , -₂ ⟩) (fmap-sub-TV-int-lemma (sub-skip (Fix₂ TermValue Θ) σ) γ θ k) (sub-TV-fmap-lemma σ `Z γ θ k)
 
 id-sub-TV-int : ∀ Γ Θ γ θ → sub-TV-int Γ Γ Θ id-TV θ γ ≡ γ
 id-sub-TV-int ∅ Θ γ θ = refl

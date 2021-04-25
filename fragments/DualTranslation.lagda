@@ -73,8 +73,12 @@ _ᵒᴿ : ∀ {Γ Θ A} → (A ∣ Γ ⟶ Θ) → (Θ ᵒˣ ⟶ Γ ᵒˣ ∣ A �
 \end{code}
 %</seq>
 
+%<*Vo=P>
 \begin{code}
 Vᵒ≡P : ∀ {Γ Θ A} (V : Γ ⟶ Θ ∣ A) → Value V → (Covalue (V ᵒᴸ))
+\end{code}
+%</Vo=P>
+\begin{code}
 Vᵒ≡P (` x) V-var = CV-covar
 Vᵒ≡P (`⟨ V , W ⟩) (V-prod v w) = CV-sum (Vᵒ≡P V v) (Vᵒ≡P W w)
 Vᵒ≡P (inl⟨ V ⟩) (V-inl v) = CV-fst (Vᵒ≡P V v)
@@ -87,17 +91,35 @@ Pᵒ≡V (`[ P , Q ]) (CV-sum p q) = V-prod (Pᵒ≡V P p) (Pᵒ≡V Q q)
 Pᵒ≡V (fst[ P ]) (CV-fst p) = V-inl (Pᵒ≡V P p)
 Pᵒ≡V (snd[ Q ]) (CV-snd q) = V-inr (Pᵒ≡V Q q)
 Pᵒ≡V (not⟨ M ⟩) CV-not = V-not
+\end{code}
 
+%<*dual-ren>
+\begin{code}
 dual-ren : ∀ Γ Γ′ → Γ ↝ Γ′ → (Γ ᵒˣ) ↝ (Γ′ ᵒˣ)
+\end{code}
+%</dual-ren>
+\begin{code}
 dual-ren ∅ Γ′ ρ ()
 dual-ren (Γ , A) Γ′ ρ `Z = (ρ `Z) ᵒⱽ
 dual-ren (Γ , A) Γ′ ρ (`S x) = dual-ren Γ Γ′ (ren-skip ρ) x
+\end{code}
 
+%<*dual-sub-C>
+\begin{code}
 dual-sub-C : ∀ Γ Θ Θ′ → Θ –[(Fix₁ Coterm Γ)]→ Θ′ → (Θ ᵒˣ) –[ (Fix₂ Term (Γ ᵒˣ)) ]→ (Θ′ ᵒˣ)
+\end{code}
+%</dual-sub-C>
+\begin{code}
 dual-sub-C Γ (Θ , A) Θ′ σ `Z = (σ `Z) ᵒᴿ
 dual-sub-C Γ (Θ , A) Θ′ σ (`S x) = dual-sub-C Γ Θ Θ′ (sub-skip (Fix₁ Coterm Γ) σ) x
+\end{code}
 
+%<*dual-sub-TV>
+\begin{code}
 dual-sub-TV : ∀ Γ Γ′ Θ → Γ –[(Fix₂ TermValue Θ)]→ Γ′ → (Γ ᵒˣ) –[(Fix₁ CotermValue (Θ ᵒˣ))]→ (Γ′ ᵒˣ)
+\end{code}
+%</dual-sub-TV>
+\begin{code}
 dual-sub-TV ∅ Γ′ Θ σ ()
 dual-sub-TV (Γ , A) Γ′ Θ σ `Z = ⟨ ((proj₁ (σ `Z )) ᵒᴸ) , Vᵒ≡P (proj₁ (σ `Z)) (proj₂ (σ `Z)) ⟩
 dual-sub-TV (Γ , A) Γ′ Θ σ (`S x) = dual-sub-TV Γ Γ′ Θ (sub-skip (Fix₂ TermValue Θ) σ) x

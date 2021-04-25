@@ -1,6 +1,6 @@
-module Dual.Values where
+module Dual.Syntax.Values where
 
-open import Dual.Syntax
+open import Dual.Syntax.Core
 open import Data.Product using (Σ ; proj₁ ; proj₂)
 
 data Value : ∀ {Γ Θ A} → Γ ⟶ Θ ∣ A → Set 

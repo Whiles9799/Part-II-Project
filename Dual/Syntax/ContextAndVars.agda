@@ -1,4 +1,4 @@
-module Dual.ContextandVars (T : Set) where
+module Dual.Syntax.ContextandVars (T : Set) where
 
 infix  4 _∋_
 infixl 5 _,_

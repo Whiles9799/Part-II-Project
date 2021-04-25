@@ -1,16 +1,11 @@
-module Dual.Substitution where
+module Dual.Syntax.Substitution where
 
-open import Dual.Syntax
-open import Dual.Values
+open import Dual.Syntax.Core
+open import Dual.Syntax.Values
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl; cong; cong₂; sym; trans)
 open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; step-≡; _∎)
 open import Data.Product using (Σ ; proj₁ ; proj₂) renaming ( _,_ to ⟨_,_⟩ )
-
-infix  5 ƛⱽ_
-infix  5 ƛᴺ_
-infixl 7 _·ⱽ_
-infixl 7 _·ᴺ_
 
 --Families: context-indexed sets--
 Family : Set₁
@@ -88,10 +83,6 @@ ren-C ρ ϱ not⟨ M ⟩ = not⟨ (ren-T ρ ϱ M) ⟩
 ren-C ρ ϱ (μγ S) = μγ (ren-S (ren-lift ρ) ϱ S)
 
 ren-S ρ ϱ (M ● K) = (ren-T ρ ϱ M) ● (ren-C ρ ϱ K) 
-
--- ren : ∀ {Γ Γ′ Θ Θ′ A} T → Γ ↝ Γ′ → Θ ↝ Θ′ → (T Γ Θ A) → (T Γ Θ A)
--- ren Term ρ ϱ M = ?
--- ren 
 
 VK : VarKit _∋_ 
 VK = record 
@@ -253,35 +244,72 @@ fmap-wkΘᵗⱽ Θ A = fmap {Fix₂ TermValue Θ} {Fix₂ TermValue (Θ , A)} wk
 fmap-wkΓᶜⱽ : ∀ {Θ Θ′} Γ A → Θ –[ Fix₁ CotermValue Γ ]→ Θ′ → Θ –[ Fix₁ CotermValue (Γ , A) ]→ Θ′
 fmap-wkΓᶜⱽ Γ A = fmap {Fix₁ CotermValue Γ}{Fix₁ CotermValue (Γ , A)} wkΓᶜⱽ
 
-ƛⱽ_ : ∀ {Γ Θ A B}
+
+_⟨_/⟩ᵗ : ∀ {Γ Θ A B} 
   → Γ , A ⟶ Θ ∣ B
-    --------------------------
-  → Γ ⟶ Θ ∣ A ⇒ⱽ B 
+  → Γ ⟶ Θ ∣ A
+    --------------
+  → Γ ⟶ Θ ∣ B   
 
-ƛᴺ_ : ∀ {Γ Θ A B}
-  → Γ , A ⟶ Θ ∣ B
-    --------------------------
-  → Γ ⟶ Θ ∣ A ⇒ᴺ B
+_⟨_/⟩ᶜ : ∀ {Γ Θ A B}
+  → B ∣ Γ , A ⟶ Θ
+  → Γ ⟶ Θ ∣ A
+    --------------
+  → B ∣ Γ ⟶ Θ
 
-_·ⱽ_ : ∀ {Γ Θ A B}
-    → Γ ⟶ Θ ∣ A
-    → B ∣ Γ ⟶ Θ
-      ---------------
-    → A ⇒ⱽ B ∣ Γ ⟶ Θ 
+_⟨_/⟩ˢ : ∀ {Γ Θ A}
+  → Γ , A ↦ Θ
+  → Γ ⟶ Θ ∣ A
+    ----------
+  → Γ ↦ Θ
 
-_·ᴺ_ : ∀ {Γ Θ A B}
-    → Γ ⟶ Θ ∣ A
-    → B ∣ Γ ⟶ Θ
-      ---------------
-    → A ⇒ᴺ B ∣ Γ ⟶ Θ 
+_ⱽ⟨_/⟩ˢ : ∀ {Γ Θ A}
+  → Γ , A ↦ Θ
+  → TermValue Γ Θ A
+    ---------------
+  → Γ ↦ Θ
 
-ƛⱽ N = not[ μγ(γ 0 ● fst[ μγ (γ 1 ● snd[ not⟨ intΓᵗ (wkΓᵗ N) ⟩ ]) ]) ]
 
-ƛᴺ N = μθ (inl⟨ not[ μγ(inr⟨ wkΘᵗ N ⟩ ● θ 0) ] ⟩ ● θ 0) 
+_[_/]ᵗ : ∀ {Γ Θ A B}
+  → Γ ⟶ Θ , A ∣ B
+  → A ∣ Γ ⟶ Θ
+    --------------
+  → Γ ⟶ Θ ∣ B
 
-M ·ⱽ N = not⟨ `⟨ M , not[ N ] ⟩ ⟩
+_[_/]ᶜ : ∀ {Γ Θ A B}
+  → B ∣ Γ ⟶ Θ , A
+  → A ∣ Γ ⟶ Θ
+    --------------
+  → B ∣ Γ ⟶ Θ
 
-M ·ᴺ N = `[ not⟨ M ⟩ , N ]
+_[_/]ˢ : ∀ {Γ Θ A}
+  → Γ ↦ Θ , A
+  → A ∣ Γ ⟶ Θ
+    ----------
+  → Γ ↦ Θ
+
+_ⱽ[_/]ˢ : ∀ {Γ Θ A}
+  → Γ ↦ Θ , A
+  → CotermValue Γ Θ A
+    -----------------
+  → Γ ↦ Θ
+
+_⟨_/⟩ᵗ {Γ}{Θ} N M = sub-T TK CVK (add (Fix₂ Term Θ) M id-T) id-CV N
+
+_⟨_/⟩ᶜ {Γ}{Θ} L M = sub-C TK CVK (add (Fix₂ Term Θ) M id-T) id-CV L
+
+_⟨_/⟩ˢ {Γ}{Θ} S M = sub-S TK CVK (add (Fix₂ Term Θ) M id-T) id-CV S
+
+_ⱽ⟨_/⟩ˢ {Γ}{Θ} S V = sub-S TVK CK (add (Fix₂ TermValue Θ) V id-TV) id-C S
+
+_[_/]ᵗ {Γ}{Θ} N K = sub-T TVK CK id-TV (add (Fix₁ Coterm Γ) K id-C) N
+
+_[_/]ᶜ {Γ}{Θ} L K = sub-C TVK CK id-TV (add (Fix₁ Coterm Γ) K id-C) L
+
+_[_/]ˢ {Γ}{Θ} S K = sub-S TVK CK id-TV (add (Fix₁ Coterm Γ) K id-C) S
+
+_ⱽ[_/]ˢ {Γ}{Θ} S P = sub-S TK CVK id-T (add (Fix₁ CotermValue Γ) P id-CV) S
+
 
 _∘_ : ∀ {A B C : Set} → (B → C) → (A → B) → (A → C)
 (g ∘ f) x  = g (f x)

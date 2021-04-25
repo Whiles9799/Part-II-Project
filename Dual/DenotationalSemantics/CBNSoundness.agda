@@ -1,25 +1,14 @@
-{-# OPTIONS --rewriting #-}
-
-module Dual.CBNSoundness (R : Set) where
+module Dual.DenotationalSemantics.CBNSoundness (R : Set) where
 
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl; cong; cong₂; sym; trans)
 open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; step-≡; _∎)
-open import Data.Empty using (⊥; ⊥-elim)
-open import Data.Unit using (⊤; tt)
-open import Data.Nat using (ℕ; zero; suc; _<_; _≤?_ ; z≤n; s≤s)
-open import Data.Product using (_×_; proj₁; proj₂) renaming (_,_ to ⟨_,_⟩)
-open import Data.Sum using (_⊎_; inj₁; inj₂) renaming ([_,_] to case-⊎)
-open import Relation.Nullary using (¬_)
-open import Agda.Builtin.Equality.Rewrite
-open import Axiom.Extensionality.Propositional using (Extensionality; ExtensionalityImplicit)
-open import Level as L hiding (lift) public
-open import Dual.Syntax
-open import Dual.DualTranslation
-open import Dual.Semantics
-open import Dual.Substitution
-open import Dual.Values
-open import Dual.CPSTransformation R
+open import Dual.Syntax.Core
+open import Dual.Syntax.Duality
+open import Dual.Syntax.Substitution
+open import Dual.Syntax.Values
+open import Dual.OperationalSemantics.CBNReduction
+open import Dual.DenotationalSemantics.CPSTransformation R
 
 weaken-ren-int-cbn-lemma : ∀ {Θ Θ′ A} (ρ : Θ ↝ Θ′) θ k → ren-int-cbn Θ (Θ′ , A) (ren-weaken ρ) ⟨ θ , k ⟩ ≡ ren-int-cbn Θ Θ′ ρ θ
 weaken-ren-int-cbn-lemma {∅} ρ θ k = refl

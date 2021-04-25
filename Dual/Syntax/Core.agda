@@ -1,4 +1,4 @@
-module Dual.Syntax where
+module Dual.Syntax.Core where
 
 open import Data.Empty using (⊥; ⊥-elim)
 open import Data.Nat using (ℕ; zero; suc; _<_; _≤?_; z≤n; s≤s)
@@ -9,9 +9,6 @@ infix  4 _⟶_∣_
 infix  4 _↦_ 
 infix  4 _∣_⟶_
 
-
-infixr 7 _⇒ⱽ_
-infixr 7 _⇒ᴺ_
 infix 8 _`+_
 infix 9 _`×_
 infix 10 `¬_
@@ -37,17 +34,8 @@ data Type : Set where
   _`×_ : Type → Type → Type
   _`+_ : Type → Type → Type
   `¬_ : Type → Type
-  
---implication is defined in Ts of other connectives
---it is defined differently for CBN and CBV
 
-_⇒ⱽ_ : Type → Type → Type
-A ⇒ⱽ B = `¬ (A `× `¬ B)
-
-_⇒ᴺ_ : Type → Type → Type
-A ⇒ᴺ B = `¬ A `+ B
-
-open import Dual.ContextandVars Type public
+open import Dual.Syntax.ContextandVars Type public
 
 
 `¬ˣ : Context → Context

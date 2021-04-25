@@ -19,14 +19,14 @@ lem = μθ (inr⟨ not[ μγ (inl⟨ γ 0 ⟩ ● (θ 0) ) ] ⟩ ● (θ 0))
 lemⱽ : ∀ {A} → ((A ⱽᵀ ⊎ (A ⱽᵀ → ⊥)) → ⊥) → ⊥
 lemⱽ {A} = (lem {A} ⱽᴸ) ⟨ tt , tt ⟩ 
 
--- lemⱽ-norm : ∀ {A} → ((A ⊎ (A → ⊥)) → ⊥) → ⊥
--- lemⱽ-norm {A} = λ α → α (inj₂ (λ x → α (inj₁ x)))
+lemⱽ-norm : ∀ {A} → ((A ⊎ (A → ⊥)) → ⊥) → ⊥
+lemⱽ-norm {A} = λ α → α (inj₂ (λ x → α (inj₁ x)))
 
 lemᴺ : ∀ {A} → ((A ᴺᵀ × (A ᴺᵀ → ⊥)) → ⊥)
 lemᴺ = (lem ᴺᴸ) ⟨ tt , tt ⟩ 
 
--- lemᴺ-norm : ∀ {A} → (A × (A → ⊥)) → ⊥
--- lemᴺ-norm = λ α → proj₂ α (proj₁ α)
+lemᴺ-norm : ∀ {A} → (A × (A → ⊥)) → ⊥
+lemᴺ-norm = λ α → proj₂ α (proj₁ α)
 
 dnl : ∀ {A} → ∅ ⟶ ∅ ∣ (`¬ (`¬ A)) ⇒ⱽ A
 dnl = ƛⱽ (μθ (ƛⱽ γ 0 ● ( γ 0 ·ⱽ μγ (γ 0 ● not⟨ not[ θ 0 ] ⟩))))
@@ -40,8 +40,3 @@ coc = `⟨ ƛⱽ `⟨ (μθ ((γ 0) ● snd[ (θ 0) ])) , (μθ ((γ 0) ● fst[
 pierce : ∀ {A B} → ∅ ⟶ ∅ ∣ (((A ⇒ⱽ B) ⇒ⱽ A) ⇒ⱽ A)
 pierce = ƛⱽ (μθ (γ 0 ● ((ƛⱽ (μθ (γ 0 ● (θ 1)))) ·ⱽ θ 0)))
 
--- demorgan : ∀ {P Q} → (∅ , (`¬ P) `+ (`¬ Q)) ⟶ ∅ ∣ `¬ (P `× Q)
--- demorgan = {!   !}
-
-main : Agda.Builtin.IO.IO ((x : (x₁ : ⊤ ⊎ ((x₂ : ⊤) → ⊥)) → ⊥) → ⊥) 
-main = run (IO.return (_ⱽᴸ {∅}{∅}{`⊤ `+ `¬ `⊤} lem ⟨ tt , tt ⟩))

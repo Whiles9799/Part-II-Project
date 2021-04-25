@@ -232,7 +232,7 @@ weaken-sub-TV-int-lemma {Γ , A} {Γ′} {Θ} σ γ θ k = cong₂ ⟨_,_⟩
 \begin{code}
 fmap-sub-TV-int-lemma : ∀ {Γ Γ′ Θ A} (σ : Γ –[(Fix₂ TermValue Θ)]→ Γ′) γ θ k
   → sub-TV-int Γ Γ′ (Θ , A) 
-    (fmap {λ Γ B → TermValue Γ Θ B} {λ Γ B → TermValue Γ (Θ , A) B} wkΘⱽ σ) 
+    (fmap-wkΘᵗⱽ Θ A σ) 
     ⟨ θ , k ⟩ γ 
     ≡ sub-TV-int Γ Γ′ Θ σ θ γ
 \end{code}
@@ -277,7 +277,7 @@ weaken-sub-C-int-lemma {Γ}{Θ , A}{Θ′} σ γ θ k = cong₂ ⟨_,_⟩
 \begin{code}
 fmap-sub-C-int-lemma : ∀ {Γ Θ Θ′ A} (σ : Θ –[ (Fix₁ Coterm Γ) ]→ Θ′) γ θ k
   → sub-C-int (Γ , A) Θ Θ′ 
-    (fmap {λ Θ B → B ∣ Γ ⟶ Θ} {λ Θ B → B ∣ (Γ , A) ⟶ Θ} wkΓᶜ σ) 
+    (fmap-wkΓᶜ Γ A σ) 
     ⟨ γ , k ⟩ θ 
     ≡ sub-C-int Γ Θ Θ′ σ γ θ
 \end{code}
@@ -364,30 +364,30 @@ sub-lemma-T s t not[ K ] γ θ = ext (λ k → cong k (sub-lemma-C s t K γ θ))
 sub-lemma-T {Γ}{Γ′}{Θ}{Θ′}{A} s t (μθ S) γ θ = ext (λ k → 
   begin
     (sub-S TVK CK 
-      (fmap {λ Γ B → TermValue Γ Θ′ B} {λ Γ B → TermValue Γ (Θ′ , A) B} wkΘⱽ s)
-      (sub-lift (CotermKit.kit CK) t)
+      (fmap-wkΘᵗⱽ Θ′ A s)
+      (sub-lift (CK.kit) t)
       S ⱽˢ) ⟨ γ , ⟨ θ , k ⟩ ⟩
   ≡⟨ 
     sub-lemma-S 
-      (fmap {λ Γ B → TermValue Γ Θ′ B} {λ Γ B → TermValue Γ (Θ′ , A) B} wkΘⱽ s) 
+      (fmap-wkΘᵗⱽ Θ′ A s) 
       (sub-lift (CotermKit.kit CK) t) 
       S γ ⟨ θ , k ⟩ 
     ⟩
     (S ⱽˢ) 
       ⟨ sub-TV-int Γ Γ′ (Θ′ , A) 
-      (fmap {λ Γ B → TermValue Γ Θ′ B} {λ Γ B → TermValue Γ (Θ′ , A) B} wkΘⱽ s) 
+      (fmap-wkΘᵗⱽ Θ′ A s) 
       ⟨ θ , k ⟩ γ , 
       ⟨ sub-C-int Γ′ Θ (Θ′ , A) (sub-weaken (CotermKit.kit CK) t) γ ⟨ θ , k ⟩ , k ⟩ ⟩
   ≡⟨ 
     cong (λ - → (S ⱽˢ) 
     ⟨ sub-TV-int Γ Γ′ (Θ′ , A) 
-    (fmap {λ Γ B → TermValue Γ Θ′ B} {λ Γ B → TermValue Γ (Θ′ , A) B} wkΘⱽ s) 
+    (fmap-wkΘᵗⱽ Θ′ A s) 
     ⟨ θ , k ⟩ γ , ⟨ - , k ⟩ ⟩) 
       (weaken-sub-C-int-lemma t γ θ k) 
     ⟩
     (S ⱽˢ) 
     ⟨ sub-TV-int Γ Γ′ (Θ′ , A) 
-      (fmap {λ Γ B → TermValue Γ Θ′ B} {λ Γ B → TermValue Γ (Θ′ , A) B} wkΘⱽ s)
+      (fmap-wkΘᵗⱽ Θ′ A s)
       ⟨ θ , k ⟩ γ 
     , ⟨ sub-C-int Γ′ Θ Θ′ t γ θ , k ⟩ ⟩ 
   ≡⟨ 
@@ -410,35 +410,20 @@ sub-lemma-C s t not⟨ M ⟩ γ θ = sub-lemma-T s t M γ θ
 \begin{code}
 sub-lemma-C {Γ}{Γ′}{Θ}{Θ′}{A} s t (μγ S) γ θ = ext (λ x → 
   begin 
-    (sub-S TVK CK
-      (sub-lift (TermKit.kit TVK) s)
-      (fmap {λ Θ B → B ∣ Γ′ ⟶ Θ} {λ Θ B → B ∣ Γ′ , A ⟶ Θ} wkΓᶜ t)
-      S ⱽˢ) ⟨ ⟨ γ , x ⟩ , θ ⟩
-  ≡⟨ 
-    sub-lemma-S 
-      (sub-lift (TermKit.kit TVK) s) 
-      (fmap {λ Θ B → B ∣ Γ′ ⟶ Θ} {λ Θ B → B ∣ Γ′ , A ⟶ Θ} wkΓᶜ t) 
-      S ⟨ γ , x ⟩ θ 
-    ⟩
+    (sub-S TVK CK (sub-lift (TVK.kit) s) (fmap-wkΓᶜ Γ′ A t) S ⱽˢ)
+      ⟨ ⟨ γ , x ⟩ , θ ⟩
+  ≡⟨ sub-lemma-S (sub-lift (TVK.kit) s) (fmap-wkΓᶜ Γ′ A t) S ⟨ γ , x ⟩ θ ⟩
     (S ⱽˢ)
-      ⟨ ⟨ sub-TV-int Γ (Γ′ , A) Θ′ (sub-weaken (TermKit.kit TVK) s) θ ⟨ γ , x ⟩ , x ⟩ 
-      , sub-C-int (Γ′ , A) Θ Θ′ 
-        (fmap {λ Θ B → B ∣ Γ′ ⟶ Θ} {λ Θ B → B ∣ Γ′ , A ⟶ Θ} wkΓᶜ t) ⟨ γ , x ⟩ θ ⟩
-  ≡⟨ 
-    cong (λ - → (S ⱽˢ) ⟨ ⟨ - , x ⟩ , sub-C-int (Γ′ , A) Θ Θ′
-    (fmap {λ Θ B → B ∣ Γ′ ⟶ Θ} {λ Θ B → B ∣ Γ′ , A ⟶ Θ} wkΓᶜ t) ⟨ γ , x ⟩ θ ⟩) 
-      (weaken-sub-TV-int-lemma s γ θ x) 
-    ⟩
+      ⟨ ⟨ sub-TV-int Γ (Γ′ , A) Θ′ (sub-weaken (TVK.kit) s) θ ⟨ γ , x ⟩ , x ⟩ 
+      , sub-C-int (Γ′ , A) Θ Θ′ (fmap-wkΓᶜ Γ′ A t) ⟨ γ , x ⟩ θ ⟩
+  ≡⟨ cong (λ - → (S ⱽˢ) ⟨ ⟨ - , x ⟩ , sub-C-int (Γ′ , A) Θ Θ′ (fmap-wkΓᶜ Γ′ A t) ⟨ γ , x ⟩ θ ⟩) 
+      (weaken-sub-TV-int-lemma s γ θ x) ⟩
     (S ⱽˢ)
       ⟨ ⟨ sub-TV-int Γ Γ′ Θ′ s θ γ , x ⟩ 
-      , sub-C-int (Γ′ , A) Θ Θ′ 
-        (fmap {λ Θ B → B ∣ Γ′ ⟶ Θ} {λ Θ B → B ∣ Γ′ , A ⟶ Θ} wkΓᶜ t) 
-        ⟨ γ , x ⟩ θ ⟩
-  ≡⟨ 
-    cong (λ - → (S ⱽˢ) ⟨ ⟨ sub-TV-int Γ Γ′ Θ′ s θ γ , x ⟩ , - ⟩) 
-      (fmap-sub-C-int-lemma t γ θ x) 
-    ⟩
-   (S ⱽˢ) ⟨ ⟨ sub-TV-int Γ Γ′ Θ′ s θ γ , x ⟩ , sub-C-int Γ′ Θ Θ′ t γ θ ⟩
+      , sub-C-int (Γ′ , A) Θ Θ′ (fmap-wkΓᶜ Γ′ A t) ⟨ γ , x ⟩ θ ⟩
+  ≡⟨ cong (λ - → (S ⱽˢ) ⟨ ⟨ sub-TV-int Γ Γ′ Θ′ s θ γ , x ⟩ , - ⟩) 
+      (fmap-sub-C-int-lemma t γ θ x) ⟩
+    (S ⱽˢ) ⟨ ⟨ sub-TV-int Γ Γ′ Θ′ s θ γ , x ⟩ , sub-C-int Γ′ Θ Θ′ t γ θ ⟩
   ∎)
 \end{code}
 %</sub-lemma-varabs>
@@ -448,16 +433,12 @@ sub-lemma-S {Γ} {Γ′} {Θ} {Θ′} s t (M ● K) γ θ =
   begin
     (sub-T TVK CK s t M ⱽᴸ) ⟨ γ , θ ⟩ 
     ((sub-C TVK CK s t K ⱽᴿ) ⟨ γ , θ ⟩)
-  ≡⟨ 
-    cong (λ - → - ((sub-C TVK CK s t K ⱽᴿ) ⟨ γ , θ ⟩)) 
-      (sub-lemma-T s t M γ θ) 
-    ⟩
+  ≡⟨ cong (λ - → - ((sub-C TVK CK s t K ⱽᴿ) ⟨ γ , θ ⟩)) 
+      (sub-lemma-T s t M γ θ) ⟩
     (M ⱽᴸ) ⟨ sub-TV-int Γ Γ′ Θ′ s θ γ , sub-C-int Γ′ Θ Θ′ t γ θ ⟩ 
     ((sub-C TVK CK s t K ⱽᴿ) ⟨ γ , θ ⟩)
-  ≡⟨ 
-    cong (λ - → (M ⱽᴸ) ⟨ sub-TV-int Γ Γ′ Θ′ s θ γ , sub-C-int Γ′ Θ Θ′ t γ θ ⟩ -) 
-      (sub-lemma-C s t K γ θ)
-    ⟩
+  ≡⟨ cong (λ - → (M ⱽᴸ) ⟨ sub-TV-int Γ Γ′ Θ′ s θ γ , sub-C-int Γ′ Θ Θ′ t γ θ ⟩ -) 
+      (sub-lemma-C s t K γ θ) ⟩
     (M ⱽᴸ) ⟨ sub-TV-int Γ Γ′ Θ′ s θ γ , sub-C-int Γ′ Θ Θ′ t γ θ ⟩ 
     ((K ⱽᴿ) ⟨ sub-TV-int Γ Γ′ Θ′ s θ γ , sub-C-int Γ′ Θ Θ′ t γ θ ⟩)
   ∎
@@ -500,11 +481,8 @@ S⟶ⱽT⇒Sⱽ≡Tⱽ {Γ} {Θ} (V ● μγ {Γ}{Θ}{A} S) .(S ⱽ⟨ ⟨ V , v
     (S ⱽˢ)
       ⟨ ⟨ sub-TV-int Γ Γ Θ id-TV θ γ , (⟨ V , v ⟩ ⱽᴸⱽ) ⟨ γ , θ ⟩ ⟩
       , sub-C-int Γ Θ Θ id-C γ θ ⟩
-  ≡⟨ 
-    cong (λ - → (S ⱽˢ) 
-    ⟨ ⟨ sub-TV-int Γ Γ Θ id-TV θ γ , (⟨ V , v ⟩ ⱽᴸⱽ) ⟨ γ , θ ⟩ ⟩ , - ⟩) 
-    (id-sub-C Γ Θ γ θ) 
-    ⟩
+  ≡⟨ cong (λ - → (S ⱽˢ) ⟨ ⟨ sub-TV-int Γ Γ Θ id-TV θ γ , (⟨ V , v ⟩ ⱽᴸⱽ) ⟨ γ , θ ⟩ ⟩ , - ⟩) 
+    (id-sub-C Γ Θ γ θ) ⟩
     (S ⱽˢ) ⟨ ⟨ sub-TV-int Γ Γ Θ id-TV θ γ , (⟨ V , v ⟩ ⱽᴸⱽ) ⟨ γ , θ ⟩ ⟩ , θ ⟩
   ≡⟨ cong (λ - → (S ⱽˢ) ⟨ ⟨ - , (⟨ V , v ⟩ ⱽᴸⱽ) ⟨ γ , θ ⟩ ⟩ , θ ⟩) (id-sub-TV Γ Θ γ θ) ⟩
     (S ⱽˢ) ⟨ ⟨ γ , (⟨ V , v ⟩ ⱽᴸⱽ) ⟨ γ , θ ⟩ ⟩ , θ ⟩
@@ -526,8 +504,7 @@ S⟶ⱽT⇒Sⱽ≡Tⱽ {Γ}{Θ}(μθ {Γ}{Θ}{A} S ● K) .(S [ K /]ˢ) ⟨ γ ,
       ⟨ (sub-TV-int Γ Γ Θ id-TV θ γ) 
       , (sub-C-int Γ (Θ , A) Θ (add (Fix₁ Coterm Γ) K id-C) γ θ) ⟩
   ≡⟨ 
-    cong (λ - → (S ⱽˢ) 
-    ⟨ - , sub-C-int Γ (Θ , A) Θ (add (Fix₁ Coterm Γ) K id-C) γ θ ⟩) 
+    cong (λ - → (S ⱽˢ) ⟨ - , sub-C-int Γ (Θ , A) Θ (add (Fix₁ Coterm Γ) K id-C) γ θ ⟩) 
       (id-sub-TV Γ Θ γ θ) 
     ⟩
     (S ⱽˢ) ⟨ γ , (sub-C-int Γ (Θ , A) Θ (add (Fix₁ Coterm Γ) K id-C) γ θ) ⟩

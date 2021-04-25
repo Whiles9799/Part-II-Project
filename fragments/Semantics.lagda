@@ -1,5 +1,6 @@
 \begin{code}
 {-# OPTIONS --rewriting #-}
+{-# OPTIONS --allow-unsolved-metas #-}
 
 module fragments.Semantics where
 

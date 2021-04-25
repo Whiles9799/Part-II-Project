@@ -402,21 +402,63 @@ cps-V not[ K ] V-not c = refl
 
 %<*covalty>
 \begin{code}
-cps-covalue : ∀ {Γ Θ A} (P : A ∣ Γ ⟶ Θ) (p : Covalue P) (c : Θ ᴺˣ × (`¬ˣ Γ) ᴺˣ) 
+cps-CV : ∀ {Γ Θ A} (P : A ∣ Γ ⟶ Θ) (p : Covalue P) (c : Θ ᴺˣ × (`¬ˣ Γ) ᴺˣ) 
   → (P ᴺᴿ) c ≡ λ z → z ((⟨ P , p ⟩ ᴺᴿⱽ) c)
 \end{code}
 %</covalty>
 \begin{code}
-cps-covalue (` α) CV-covar c = refl
-cps-covalue fst[ P ] (CV-fst p) c = ext (λ z → cong (λ - → - (λ α → z (inj₁ α))) (cps-covalue P p c))
-cps-covalue snd[ P ] (CV-snd p) c = ext (λ z → cong (λ - → - (λ β → z (inj₂ β))) (cps-covalue P p c))
+cps-CV (` α) CV-covar c = refl
+cps-CV fst[ P ] (CV-fst p) c = ext (λ z → cong (λ - → - (λ α → z (inj₁ α))) (cps-CV P p c))
+cps-CV snd[ P ] (CV-snd p) c = ext (λ z → cong (λ - → - (λ β → z (inj₂ β))) (cps-CV P p c))
 \end{code}
 %<*covaleg>
 \begin{code}
-cps-covalue `[ P , Q ] (CV-sum p q) c = ext (λ z → 
-  cong₂ (λ -₁ -₂ → -₁ (λ α → -₂ (λ β → z ⟨ α , β ⟩))) (cps-covalue P p c) (cps-covalue Q q c))
+cps-CV `[ P , Q ] (CV-sum p q) c = ext (λ z → 
+  cong₂ (λ -₁ -₂ → -₁ (λ α → -₂ (λ β → z ⟨ α , β ⟩))) (cps-CV P p c) (cps-CV Q q c))
 \end{code}
 %</covaleg>
 \begin{code}
-cps-covalue not⟨ K ⟩ CV-not c = refl
+cps-CV not⟨ K ⟩ CV-not c = refl
+\end{code}
+
+\begin{code}
+ex1 : ∀ {A B} → ∅ , A , B ⟶ ∅ ∣ A `× B
+ex1 = `⟨ γ 1 , γ 0 ⟩
+
+ex1ⱽ : ∀ {A B} x y → (((A `× B) ⱽᵀ → R) → R)
+ex1ⱽ {A} {B} x y = (ex1 {A}{B} ⱽᴸ) ⟨ ⟨ ⟨ tt , x ⟩ , y ⟩ , tt ⟩
+\end{code}
+
+%<*ex2>
+\begin{code}
+ex2 : ∀ {A B} → ∅ , (A `× B) ⟶ ∅ ∣ A
+ex2 = μθ (γ 0 ● fst[ θ 0 ])
+
+ex2ⱽ : ∀ {A B} z → ((A ⱽᵀ → R) → R)
+ex2ⱽ {A}{B} z = (ex2 {A}{B} ⱽᴸ) ⟨ ⟨ tt , z ⟩ , tt ⟩
+
+_ : ∀ {A B} z → (ex2ⱽ {A}{B} z) ≡ λ α → α (proj₁ z)
+_ = λ z → refl
+\end{code}
+%</ex2>
+
+\begin{code}
+
+ex3 : ∀ {A B} → (∅ , A `× B) ⟶ ∅ ∣ A `× B
+ex3 = `⟨ μθ ( γ 0 ● fst[ θ 0 ] ) , μθ ( γ 0 ● snd[ θ 0 ] ) ⟩
+
+ex3ⱽ : ∀ {A B} x → (((A `× B) ⱽᵀ → R) → R)
+ex3ⱽ {A}{B} x = ((ex3 {A}{B}) ⱽᴸ) ⟨ ⟨ tt , x ⟩ , tt ⟩
+
+ex4 : ∀ {A} → (∅ , A) ↦ (∅ , A)
+ex4 = (γ 0) ● (θ 0)
+
+ex4ⱽ : ∀ {A} x α → R
+ex4ⱽ {A} x α = (ex4 {A} ⱽˢ) ⟨ ⟨ tt , x ⟩ , ⟨ tt , α ⟩ ⟩
+
+ex5 : ∀ {A} → (∅ , A) ↦ (∅ , A)
+ex5 = not[ (θ 0) ] ● not⟨ (γ 0) ⟩ 
+
+ex5ⱽ : ∀ {A} x α → R
+ex5ⱽ {A} x α = (ex5 {A} ⱽˢ) ⟨ ⟨ tt , x ⟩ , ⟨ tt , α ⟩ ⟩
 \end{code}
