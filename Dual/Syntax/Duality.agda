@@ -28,7 +28,7 @@ _ᵒˣ : Context → Context
 (A `+ B)ᵒᵀ  = (A ᵒᵀ `× B ᵒᵀ)
 (A `× B)ᵒᵀ  = (A ᵒᵀ `+ B ᵒᵀ)
 (`¬ A)ᵒᵀ    = (`¬ (A)ᵒᵀ) 
-(`ℕ)ᵒᵀ      = `ℕ
+(X)ᵒᵀ      = X
 
 (∅ ᵒˣ)     = ∅
 (Γ , A) ᵒˣ = ((Γ ᵒˣ) , (A ᵒᵀ))
@@ -92,7 +92,7 @@ dual-sub-TV (Γ , A) Γ′ Θ σ (`S x) = dual-sub-TV Γ Γ′ Θ (sub-skip (Fix
 --The Dual Translation is an Involution--
 
 [Aᵒᵀ]ᵒᵀ≡A : ∀ {A} → (A ᵒᵀ) ᵒᵀ ≡ A
-[Aᵒᵀ]ᵒᵀ≡A {`ℕ}     = refl
+[Aᵒᵀ]ᵒᵀ≡A {X}     = refl
 [Aᵒᵀ]ᵒᵀ≡A {`¬ A}   = cong `¬_   [Aᵒᵀ]ᵒᵀ≡A 
 [Aᵒᵀ]ᵒᵀ≡A {A `+ B} = cong₂ _`+_ ([Aᵒᵀ]ᵒᵀ≡A {A}) ([Aᵒᵀ]ᵒᵀ≡A {B})
 [Aᵒᵀ]ᵒᵀ≡A {A `× B} = cong₂ _`×_ ([Aᵒᵀ]ᵒᵀ≡A {A}) ([Aᵒᵀ]ᵒᵀ≡A {B})

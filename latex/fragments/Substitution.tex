@@ -7,11 +7,11 @@
 \\[\AgdaEmptyExtraSkip]%
 \>[0]\AgdaKeyword{open}\AgdaSpace{}%
 \AgdaKeyword{import}\AgdaSpace{}%
-\AgdaModule{Dual.Syntax}\<%
+\AgdaModule{Dual.Syntax.Core}\<%
 \\
 \>[0]\AgdaKeyword{open}\AgdaSpace{}%
 \AgdaKeyword{import}\AgdaSpace{}%
-\AgdaModule{Dual.Values}\<%
+\AgdaModule{Dual.Syntax.Values}\<%
 \\
 \>[0]\AgdaKeyword{import}\AgdaSpace{}%
 \AgdaModule{Relation.Binary.PropositionalEquality}\AgdaSpace{}%
@@ -54,6 +54,14 @@
 \\
 %
 \\[\AgdaEmptyExtraSkip]%
+\>[0]\AgdaKeyword{infixr}\AgdaSpace{}%
+\AgdaNumber{7}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}⇒ⱽ\AgdaUnderscore{}}}\<%
+\\
+\>[0]\AgdaKeyword{infixr}\AgdaSpace{}%
+\AgdaNumber{7}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}⇒ᴺ\AgdaUnderscore{}}}\<%
+\\
 \>[0]\AgdaKeyword{infix}%
 \>[7]\AgdaNumber{5}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{ƛⱽ\AgdaUnderscore{}}}\<%
@@ -117,7 +125,7 @@
 \\
 \>[0]\AgdaBound{Γ}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{–[}}\AgdaSpace{}%
-\AgdaBound{X}\AgdaSpace{}%
+\AgdaBound{T}\AgdaSpace{}%
 \AgdaOperator{\AgdaFunction{]→}}\AgdaSpace{}%
 \AgdaBound{Δ}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
@@ -129,7 +137,7 @@
 \AgdaOperator{\AgdaDatatype{∋}}\AgdaSpace{}%
 \AgdaBound{A}\AgdaSpace{}%
 \AgdaSymbol{→}\AgdaSpace{}%
-\AgdaBound{X}\AgdaSpace{}%
+\AgdaBound{T}\AgdaSpace{}%
 \AgdaBound{Δ}\AgdaSpace{}%
 \AgdaBound{A}\<%
 \\
@@ -1920,13 +1928,13 @@
 \AgdaSymbol{λ}\AgdaSpace{}%
 \AgdaBound{x}\AgdaSpace{}%
 \AgdaSymbol{→}%
-\>[1446I]\AgdaOperator{\AgdaInductiveConstructor{⟨}}\AgdaSpace{}%
+\>[1450I]\AgdaOperator{\AgdaInductiveConstructor{⟨}}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaField{TermKit.wkΘ}\AgdaSpace{}%
 \AgdaFunction{TK}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaField{proj₁}\AgdaSpace{}%
 \AgdaBound{x}\AgdaSymbol{))}\<%
 \\
-\>[.][@{}l@{}]\<[1446I]%
+\>[.][@{}l@{}]\<[1450I]%
 \>[16]\AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
 \AgdaFunction{V-ren}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaField{proj₂}\AgdaSpace{}%
@@ -1935,11 +1943,11 @@
 \\
 %
 \>[2]\AgdaSymbol{;}%
-\>[1455I]\AgdaField{kit}\AgdaSpace{}%
+\>[1459I]\AgdaField{kit}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaKeyword{record}\<%
 \\
-\>[.][@{}l@{}]\<[1455I]%
+\>[.][@{}l@{}]\<[1459I]%
 \>[4]\AgdaSymbol{\{}\AgdaSpace{}%
 \AgdaField{vr}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
@@ -1960,14 +1968,14 @@
 \AgdaSymbol{λ}\AgdaSpace{}%
 \AgdaBound{x}\AgdaSpace{}%
 \AgdaSymbol{→}%
-\>[1474I]\AgdaOperator{\AgdaInductiveConstructor{⟨}}\AgdaSpace{}%
+\>[1478I]\AgdaOperator{\AgdaInductiveConstructor{⟨}}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaField{VarKit.wk}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaField{TermKit.kit}\AgdaSpace{}%
 \AgdaFunction{TK}\AgdaSymbol{)}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaField{proj₁}\AgdaSpace{}%
 \AgdaBound{x}\AgdaSymbol{))}\<%
 \\
-\>[.][@{}l@{}]\<[1474I]%
+\>[.][@{}l@{}]\<[1478I]%
 \>[17]\AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
 \AgdaFunction{V-ren}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaField{proj₂}\AgdaSpace{}%
@@ -2006,13 +2014,13 @@
 \AgdaSymbol{λ}\AgdaSpace{}%
 \AgdaBound{x}\AgdaSpace{}%
 \AgdaSymbol{→}%
-\>[1502I]\AgdaOperator{\AgdaInductiveConstructor{⟨}}\AgdaSpace{}%
+\>[1506I]\AgdaOperator{\AgdaInductiveConstructor{⟨}}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaField{CotermKit.wkΓ}\AgdaSpace{}%
 \AgdaFunction{CK}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaField{proj₁}\AgdaSpace{}%
 \AgdaBound{x}\AgdaSymbol{))}\<%
 \\
-\>[.][@{}l@{}]\<[1502I]%
+\>[.][@{}l@{}]\<[1506I]%
 \>[16]\AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
 \AgdaFunction{covalue-ren}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{ren-weaken}\AgdaSpace{}%
@@ -2024,11 +2032,11 @@
 \\
 %
 \>[2]\AgdaSymbol{;}%
-\>[1514I]\AgdaField{kit}\AgdaSpace{}%
+\>[1518I]\AgdaField{kit}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaKeyword{record}\<%
 \\
-\>[.][@{}l@{}]\<[1514I]%
+\>[.][@{}l@{}]\<[1518I]%
 \>[4]\AgdaSymbol{\{}\AgdaSpace{}%
 \AgdaField{vr}\AgdaSpace{}%
 \AgdaSymbol{=}\AgdaSpace{}%
@@ -2048,7 +2056,7 @@
 \AgdaSymbol{=}\AgdaSpace{}%
 \AgdaSymbol{λ}\AgdaSpace{}%
 \AgdaBound{x}%
-\>[1532I]\AgdaSymbol{→}\AgdaSpace{}%
+\>[1536I]\AgdaSymbol{→}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{⟨}}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaField{VarKit.wk}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaField{CotermKit.kit}\AgdaSpace{}%
@@ -2056,7 +2064,7 @@
 \AgdaSymbol{(}\AgdaField{proj₁}\AgdaSpace{}%
 \AgdaBound{x}\AgdaSymbol{))}\<%
 \\
-\>[1532I][@{}l@{\AgdaIndent{0}}]%
+\>[1536I][@{}l@{\AgdaIndent{0}}]%
 \>[16]\AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
 \AgdaSymbol{(}\AgdaFunction{covalue-ren}\AgdaSpace{}%
 \AgdaFunction{id-var}\AgdaSpace{}%
@@ -2286,6 +2294,47 @@
 \AgdaBound{M}\<%
 \end{code}
 
+%<*funtype>
+\begin{code}%
+\>[0]\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}⇒ⱽ\AgdaUnderscore{}}}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaDatatype{Type}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{Type}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{Type}\<%
+\\
+\>[0]\AgdaBound{A}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{⇒ⱽ}}\AgdaSpace{}%
+\AgdaBound{B}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{`¬}}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaBound{A}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{`×}}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{`¬}}\AgdaSpace{}%
+\AgdaBound{B}\AgdaSymbol{)}\<%
+\\
+%
+\\[\AgdaEmptyExtraSkip]%
+\>[0]\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}⇒ᴺ\AgdaUnderscore{}}}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaDatatype{Type}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{Type}\AgdaSpace{}%
+\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaDatatype{Type}\<%
+\\
+\>[0]\AgdaBound{A}\AgdaSpace{}%
+\AgdaOperator{\AgdaFunction{⇒ᴺ}}\AgdaSpace{}%
+\AgdaBound{B}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{`¬}}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{`+}}\AgdaSpace{}%
+\AgdaBound{B}\<%
+\end{code}
+%</funtype>
+
 %<*fundef>
 \begin{code}%
 \>[0]\AgdaOperator{\AgdaFunction{ƛⱽ\AgdaUnderscore{}}}\AgdaSpace{}%
@@ -2464,92 +2513,463 @@
 \AgdaOperator{\AgdaInductiveConstructor{]}}\<%
 \end{code}
 %</fun>
+\begin{code}%
+\>[0]\<%
+\\
+\>[0]\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}⟨\AgdaUnderscore{}/⟩ᵗ}}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{∀}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaBound{Θ}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSpace{}%
+\AgdaBound{B}\AgdaSymbol{\}}\<%
+\\
+\>[0][@{}l@{\AgdaIndent{0}}]%
+\>[2]\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{⟶}}\AgdaSpace{}%
+\AgdaBound{Θ}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{∣}}\AgdaSpace{}%
+\AgdaBound{B}\<%
+\\
+%
+\>[2]\AgdaSymbol{→}%
+\>[1913I]\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{⟶}}\AgdaSpace{}%
+\AgdaBound{Θ}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{∣}}\AgdaSpace{}%
+\AgdaBound{A}\<%
+\\
+\>[.][@{}l@{}]\<[1913I]%
+\>[4]\AgdaComment{--------------}\<%
+\\
+%
+\>[2]\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{⟶}}\AgdaSpace{}%
+\AgdaBound{Θ}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{∣}}\AgdaSpace{}%
+\AgdaBound{B}\<%
+\\
+%
+\\[\AgdaEmptyExtraSkip]%
+\>[0]\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}⟨\AgdaUnderscore{}/⟩ᶜ}}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{∀}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaBound{Θ}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSpace{}%
+\AgdaBound{B}\AgdaSymbol{\}}\<%
+\\
+\>[0][@{}l@{\AgdaIndent{0}}]%
+\>[2]\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{B}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{∣}}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{⟶}}\AgdaSpace{}%
+\AgdaBound{Θ}\<%
+\\
+%
+\>[2]\AgdaSymbol{→}%
+\>[1936I]\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{⟶}}\AgdaSpace{}%
+\AgdaBound{Θ}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{∣}}\AgdaSpace{}%
+\AgdaBound{A}\<%
+\\
+\>[.][@{}l@{}]\<[1936I]%
+\>[4]\AgdaComment{--------------}\<%
+\\
+%
+\>[2]\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{B}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{∣}}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{⟶}}\AgdaSpace{}%
+\AgdaBound{Θ}\<%
+\\
+%
+\\[\AgdaEmptyExtraSkip]%
+\>[0]\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}⟨\AgdaUnderscore{}/⟩ˢ}}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{∀}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaBound{Θ}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSymbol{\}}\<%
+\\
+\>[0][@{}l@{\AgdaIndent{0}}]%
+\>[2]\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{↦}}\AgdaSpace{}%
+\AgdaBound{Θ}\<%
+\\
+%
+\>[2]\AgdaSymbol{→}%
+\>[1956I]\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{⟶}}\AgdaSpace{}%
+\AgdaBound{Θ}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{∣}}\AgdaSpace{}%
+\AgdaBound{A}\<%
+\\
+\>[.][@{}l@{}]\<[1956I]%
+\>[4]\AgdaComment{----------}\<%
+\\
+%
+\>[2]\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{↦}}\AgdaSpace{}%
+\AgdaBound{Θ}\<%
+\end{code}
 
-_++_ : ∀ {T Γ Γ′ Γ″} → Γ ↝ Γ′ → Γ′ –[ T ]→ Γ″ → Γ –[ T ]→ Γ″
-(s ++ t) x = t (s x)
+%<*tvsubty>
+\begin{code}%
+\>[0]\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}ⱽ⟨\AgdaUnderscore{}/⟩ˢ}}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{∀}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaBound{Θ}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSymbol{\}}\<%
+\\
+\>[0][@{}l@{\AgdaIndent{0}}]%
+\>[2]\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{↦}}\AgdaSpace{}%
+\AgdaBound{Θ}\<%
+\\
+%
+\>[2]\AgdaSymbol{→}%
+\>[1974I]\AgdaFunction{TermValue}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaBound{Θ}\AgdaSpace{}%
+\AgdaBound{A}\<%
+\\
+\>[.][@{}l@{}]\<[1974I]%
+\>[4]\AgdaComment{---------------}\<%
+\\
+%
+\>[2]\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{↦}}\AgdaSpace{}%
+\AgdaBound{Θ}\<%
+\end{code}
+%</tvsubty>
 
--- sub-fmap : ∀ {Γ Θ Θ′ A} (s : Subst (λ -₁ -₂ → -₂ ∣ Γ ⟶ -₁) Θ Θ′) (x : Θ′ ∋ A) 
---   → sub-var (fmap (ren-C VK ((weaken) VK id-var) id-var) s) x ≡ ren-C VK (weaken VK id-var) id-var (sub-var s x)
--- sub-fmap (s , s′) `Z = refl
--- sub-fmap (s , s′) (`S x) = sub-fmap s x
+\begin{code}%
+\>[0]\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}[\AgdaUnderscore{}/]ᵗ}}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{∀}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaBound{Θ}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSpace{}%
+\AgdaBound{B}\AgdaSymbol{\}}\<%
+\\
+\>[0][@{}l@{\AgdaIndent{0}}]%
+\>[2]\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{⟶}}\AgdaSpace{}%
+\AgdaBound{Θ}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{∣}}\AgdaSpace{}%
+\AgdaBound{B}\<%
+\\
+%
+\>[2]\AgdaSymbol{→}%
+\>[1994I]\AgdaBound{A}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{∣}}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{⟶}}\AgdaSpace{}%
+\AgdaBound{Θ}\<%
+\\
+\>[.][@{}l@{}]\<[1994I]%
+\>[4]\AgdaComment{--------------}\<%
+\\
+%
+\>[2]\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{⟶}}\AgdaSpace{}%
+\AgdaBound{Θ}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{∣}}\AgdaSpace{}%
+\AgdaBound{B}\<%
+\\
+%
+\\[\AgdaEmptyExtraSkip]%
+%
+\\[\AgdaEmptyExtraSkip]%
+\>[0]\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}[\AgdaUnderscore{}/]ᶜ}}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{∀}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaBound{Θ}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSpace{}%
+\AgdaBound{B}\AgdaSymbol{\}}\<%
+\\
+\>[0][@{}l@{\AgdaIndent{0}}]%
+\>[2]\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{B}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{∣}}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{⟶}}\AgdaSpace{}%
+\AgdaBound{Θ}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
+\AgdaBound{A}\<%
+\\
+%
+\>[2]\AgdaSymbol{→}%
+\>[2017I]\AgdaBound{A}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{∣}}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{⟶}}\AgdaSpace{}%
+\AgdaBound{Θ}\<%
+\\
+\>[.][@{}l@{}]\<[2017I]%
+\>[4]\AgdaComment{--------------}\<%
+\\
+%
+\>[2]\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{B}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{∣}}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{⟶}}\AgdaSpace{}%
+\AgdaBound{Θ}\<%
+\\
+\>[0]\<%
+\end{code}
 
--- fmap++ : ∀ {Γ Θ Θ′ Θ″} (s : Subst (λ -₁ -₂ → -₂ ∣ Γ ⟶ -₁) Θ Θ′) (t : Subst _∋_ Θ′ Θ″) 
---   → (fmap (ren-C VK ((weaken) VK id-var) id-var) s ++ t) ≡ fmap (ren-C VK (weaken VK id-var) id-var) (s ++ t)
--- fmap++ s ⨀ = refl
--- fmap++ s (_,_ t t′) = cong₂ _,_ (fmap++ s t) (sub-fmap s t′)
+%<*csubty>
+\begin{code}%
+\>[0]\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}[\AgdaUnderscore{}/]ˢ}}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{∀}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaBound{Θ}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSymbol{\}}\<%
+\\
+\>[0][@{}l@{\AgdaIndent{0}}]%
+\>[2]\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{↦}}\AgdaSpace{}%
+\AgdaBound{Θ}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
+\AgdaBound{A}\<%
+\\
+%
+\>[2]\AgdaSymbol{→}%
+\>[2037I]\AgdaBound{A}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{∣}}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{⟶}}\AgdaSpace{}%
+\AgdaBound{Θ}\<%
+\\
+\>[.][@{}l@{}]\<[2037I]%
+\>[4]\AgdaComment{----------}\<%
+\\
+%
+\>[2]\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{↦}}\AgdaSpace{}%
+\AgdaBound{Θ}\<%
+\end{code}
+%</csubty>
 
--- lemma : ∀ {Γ Γ′ Γ″ Θ} (s : Subst (λ -₁ -₂ → -₁ ⟶ Θ ∣ -₂) Γ Γ′) (t : Subst _∋_ Γ′ Γ″)
---   → ((exts (TermKit.kit TK) s ++ weaken VK t) , (` `Z)) ≡ exts (TermKit.kit TK) (s ++ t)
+\begin{code}%
+\>[0]\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}ⱽ[\AgdaUnderscore{}/]ˢ}}\AgdaSpace{}%
+\AgdaSymbol{:}\AgdaSpace{}%
+\AgdaSymbol{∀}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaBound{Θ}\AgdaSpace{}%
+\AgdaBound{A}\AgdaSymbol{\}}\<%
+\\
+\>[0][@{}l@{\AgdaIndent{0}}]%
+\>[2]\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{↦}}\AgdaSpace{}%
+\AgdaBound{Θ}\AgdaSpace{}%
+\AgdaOperator{\AgdaInductiveConstructor{,}}\AgdaSpace{}%
+\AgdaBound{A}\<%
+\\
+%
+\>[2]\AgdaSymbol{→}%
+\>[2055I]\AgdaFunction{CotermValue}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaBound{Θ}\AgdaSpace{}%
+\AgdaBound{A}\<%
+\\
+\>[.][@{}l@{}]\<[2055I]%
+\>[4]\AgdaComment{-----------------}\<%
+\\
+%
+\>[2]\AgdaSymbol{→}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSpace{}%
+\AgdaOperator{\AgdaDatatype{↦}}\AgdaSpace{}%
+\AgdaBound{Θ}\<%
+\\
+%
+\\[\AgdaEmptyExtraSkip]%
+\>[0]\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}⟨\AgdaUnderscore{}/⟩ᵗ}}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaBound{Γ}\AgdaSymbol{\}\{}\AgdaBound{Θ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaBound{N}\AgdaSpace{}%
+\AgdaBound{M}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaFunction{sub-T}\AgdaSpace{}%
+\AgdaFunction{TK}\AgdaSpace{}%
+\AgdaFunction{CVK}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{add}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{Fix₂}\AgdaSpace{}%
+\AgdaFunction{Term}\AgdaSpace{}%
+\AgdaBound{Θ}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaBound{M}\AgdaSpace{}%
+\AgdaFunction{id-T}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaFunction{id-CV}\AgdaSpace{}%
+\AgdaBound{N}\<%
+\\
+%
+\\[\AgdaEmptyExtraSkip]%
+\>[0]\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}⟨\AgdaUnderscore{}/⟩ᶜ}}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaBound{Γ}\AgdaSymbol{\}\{}\AgdaBound{Θ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaBound{L}\AgdaSpace{}%
+\AgdaBound{M}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaFunction{sub-C}\AgdaSpace{}%
+\AgdaFunction{TK}\AgdaSpace{}%
+\AgdaFunction{CVK}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{add}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{Fix₂}\AgdaSpace{}%
+\AgdaFunction{Term}\AgdaSpace{}%
+\AgdaBound{Θ}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaBound{M}\AgdaSpace{}%
+\AgdaFunction{id-T}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaFunction{id-CV}\AgdaSpace{}%
+\AgdaBound{L}\<%
+\\
+%
+\\[\AgdaEmptyExtraSkip]%
+\>[0]\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}⟨\AgdaUnderscore{}/⟩ˢ}}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaBound{Γ}\AgdaSymbol{\}\{}\AgdaBound{Θ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaBound{S}\AgdaSpace{}%
+\AgdaBound{M}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaFunction{sub-S}\AgdaSpace{}%
+\AgdaFunction{TK}\AgdaSpace{}%
+\AgdaFunction{CVK}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{add}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{Fix₂}\AgdaSpace{}%
+\AgdaFunction{Term}\AgdaSpace{}%
+\AgdaBound{Θ}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaBound{M}\AgdaSpace{}%
+\AgdaFunction{id-T}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaFunction{id-CV}\AgdaSpace{}%
+\AgdaBound{S}\<%
+\end{code}
 
--- lemma s ⨀ = refl
--- lemma s (t , x) = cong₂ _,_ ({!   !}) refl
+%<*tvsub>
+\begin{code}%
+\>[0]\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}ⱽ⟨\AgdaUnderscore{}/⟩ˢ}}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaBound{Γ}\AgdaSymbol{\}\{}\AgdaBound{Θ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaBound{S}\AgdaSpace{}%
+\AgdaBound{V}\AgdaSpace{}%
+\AgdaSymbol{=}\<%
+\\
+\>[0][@{}l@{\AgdaIndent{0}}]%
+\>[2]\AgdaFunction{sub-S}\AgdaSpace{}%
+\AgdaFunction{TVK}\AgdaSpace{}%
+\AgdaFunction{CK}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{add}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{Fix₂}\AgdaSpace{}%
+\AgdaFunction{TermValue}\AgdaSpace{}%
+\AgdaBound{Θ}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaBound{V}\AgdaSpace{}%
+\AgdaFunction{id-TV}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaFunction{id-C}\AgdaSpace{}%
+\AgdaBound{S}\<%
+\end{code}
+%</tvsub>
 
--- lemma : ∀ {Γ Γ′ Γ″ Θ Θ′ Θ″ A} (s : Subst (λ -₁ → _⟶_∣_ -₁ Θ) Γ Γ′) (t : Subst (λ -₁ -₂ → -₂ ∣ Γ ⟶ -₁) Θ Θ′) (u : Subst _∋_ Γ′ Γ″) (v : Subst _∋_ Θ′ Θ″) (S : Γ″ ↦ Θ″ , A)
---     → sub-S TK CK
---       ((exts (CotermKit.kit CK) s ++ weaken VK u) , (` `Z))
---       (fmap (ren-C VK (weaken VK id-var) id-var) t ++ v)
---       S
---       ≡
---       sub-S TK CK
---       (fmap (ren-T VK id-var (weaken VK id-var)) (s ++ u))
---       (exts (CotermKit.kit CK) (t ++ v))
---       S
--- lemma s t u v S = trans {! sub-ren-S  !} {!   !}
-    
+\begin{code}%
+\>[0]\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}[\AgdaUnderscore{}/]ᵗ}}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaBound{Γ}\AgdaSymbol{\}\{}\AgdaBound{Θ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaBound{N}\AgdaSpace{}%
+\AgdaBound{K}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaFunction{sub-T}\AgdaSpace{}%
+\AgdaFunction{TVK}\AgdaSpace{}%
+\AgdaFunction{CK}\AgdaSpace{}%
+\AgdaFunction{id-TV}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{add}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{Fix₁}\AgdaSpace{}%
+\AgdaFunction{Coterm}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaBound{K}\AgdaSpace{}%
+\AgdaFunction{id-C}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaBound{N}\<%
+\\
+%
+\\[\AgdaEmptyExtraSkip]%
+\>[0]\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}[\AgdaUnderscore{}/]ᶜ}}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaBound{Γ}\AgdaSymbol{\}\{}\AgdaBound{Θ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaBound{L}\AgdaSpace{}%
+\AgdaBound{K}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaFunction{sub-C}\AgdaSpace{}%
+\AgdaFunction{TVK}\AgdaSpace{}%
+\AgdaFunction{CK}\AgdaSpace{}%
+\AgdaFunction{id-TV}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{add}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{Fix₁}\AgdaSpace{}%
+\AgdaFunction{Coterm}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaBound{K}\AgdaSpace{}%
+\AgdaFunction{id-C}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaBound{L}\<%
+\end{code}
 
--- sub-ren-T : ∀ {Γ Γ′ Γ″ Θ Θ′ Θ″ A} (M : Γ ⟶ Θ ∣ A) (s : Γ′ –[ (λ -₁ -₂ → -₁ ⟶ Θ″ ∣ -₂) ]→ Γ″) (t : Θ′ –[ (λ -₁ -₂ → -₂ ∣ Γ″ ⟶ -₁) ]→ Θ″) (u : Γ ↝ Γ′) (v : Θ ↝ Θ′)
---   → sub-T TK CK s t (ren-T u v M) ≡ sub-T TK CK (u ++ s) (v ++ t) M
+%<*csub>
+\begin{code}%
+\>[0]\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}[\AgdaUnderscore{}/]ˢ}}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaBound{Γ}\AgdaSymbol{\}\{}\AgdaBound{Θ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaBound{S}\AgdaSpace{}%
+\AgdaBound{K}\AgdaSpace{}%
+\AgdaSymbol{=}\<%
+\\
+\>[0][@{}l@{\AgdaIndent{0}}]%
+\>[2]\AgdaFunction{sub-S}\AgdaSpace{}%
+\AgdaFunction{TVK}\AgdaSpace{}%
+\AgdaFunction{CK}\AgdaSpace{}%
+\AgdaFunction{id-TV}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{add}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{Fix₁}\AgdaSpace{}%
+\AgdaFunction{Coterm}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaBound{K}\AgdaSpace{}%
+\AgdaFunction{id-C}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaBound{S}\<%
+\end{code}
+%</csub>
 
--- sub-ren-C : ∀ {Γ Γ′ Γ″ Θ Θ′ Θ″ A} (K : A ∣ Γ ⟶ Θ) (s : Γ′ –[ (λ -₁ -₂ → -₁ ⟶ Θ″ ∣ -₂) ]→ Γ″) (t : Θ′ –[ (λ -₁ -₂ → -₂ ∣ Γ″ ⟶ -₁) ]→ Θ″) (u : Γ ↝ Γ′) (v : Θ ↝ Θ′)
---   → sub-C TK CK s t (ren-C u v K) ≡ sub-C TK CK (u ++ s) (v ++ t) K
+\begin{code}%
+\>[0]\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}ⱽ[\AgdaUnderscore{}/]ˢ}}\AgdaSpace{}%
+\AgdaSymbol{\{}\AgdaBound{Γ}\AgdaSymbol{\}\{}\AgdaBound{Θ}\AgdaSymbol{\}}\AgdaSpace{}%
+\AgdaBound{S}\AgdaSpace{}%
+\AgdaBound{P}\AgdaSpace{}%
+\AgdaSymbol{=}\AgdaSpace{}%
+\AgdaFunction{sub-S}\AgdaSpace{}%
+\AgdaFunction{TK}\AgdaSpace{}%
+\AgdaFunction{CVK}\AgdaSpace{}%
+\AgdaFunction{id-T}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{add}\AgdaSpace{}%
+\AgdaSymbol{(}\AgdaFunction{Fix₁}\AgdaSpace{}%
+\AgdaFunction{CotermValue}\AgdaSpace{}%
+\AgdaBound{Γ}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaBound{P}\AgdaSpace{}%
+\AgdaFunction{id-CV}\AgdaSymbol{)}\AgdaSpace{}%
+\AgdaBound{S}\<%
+\end{code}
 
--- sub-ren-S : ∀ {Γ Γ′ Γ″ Θ Θ′ Θ″} (S : Γ ↦ Θ) (s : Γ′ –[ (λ -₁ -₂ → -₁ ⟶ Θ″ ∣ -₂) ]→ Γ″) (t : Θ′ –[ (λ -₁ -₂ → -₂ ∣ Γ″ ⟶ -₁) ]→ Θ″) (u : Γ ↝ Γ′) (v : Θ ↝ Θ′)
---   → sub-S TK CK s t (ren-S u v S) ≡ sub-S TK CK (u ++ s) (v ++ t) S
-
--- sub-ren-T (` x) s t u v = refl
--- sub-ren-T `⟨ M , N ⟩ s t u v = cong₂ `⟨_,_⟩ (sub-ren-T M s t u v) (sub-ren-T N s t u v)
--- sub-ren-T inl⟨ M ⟩ s t u v = cong inl⟨_⟩ (sub-ren-T M s t u v)
--- sub-ren-T inr⟨ M ⟩ s t u v = cong inr⟨_⟩ (sub-ren-T M s t u v)
--- sub-ren-T not[ K ] s t u v = cong not[_](sub-ren-C K s t u v)
--- sub-ren-T (μθ S) s t u v = cong μθ 
---   (begin 
---     sub-S TK CK
---       (fmap (ren-T (id-var) (ren-weaken id-var)) s)
---       (sub-lift (CotermKit.kit CK) t)
---       (ren-S u (ren-lift v) S)
---   ≡⟨ sub-ren-S S (fmap (ren-T id-var (ren-weaken id-var)) s) (sub-lift (CotermKit.kit CK) t) u (ren-lift v) ⟩
---     sub-S TK CK
---       (u ++ fmap (TermKit.wkΘ TK) s)
---       (ren-lift v ++ sub-lift (CotermKit.kit CK) t) S
---   ≡⟨ cong (λ x → sub-S TK CK (u ++ fmap (TermKit.wkΘ TK) s) x S) {!   !} ⟩
---     {!  !})
-
--- sub-ren-C (` α) s t u v = refl
--- sub-ren-C fst[ K ] s t u v = cong fst[_] (sub-ren-C K s t u v)
--- sub-ren-C snd[ K ] s t u v = cong snd[_] (sub-ren-C K s t u v)
--- sub-ren-C `[ K , L ] s t u v = cong₂ `[_,_] (sub-ren-C K s t u v) (sub-ren-C L s t u v)
--- sub-ren-C not⟨ M ⟩ s t u v = cong not⟨_⟩ (sub-ren-T M s t u v)
--- sub-ren-C (μγ S) s t u v = cong μγ ({!   !})
--- --   (begin
--- --     sub-S TK CK
--- --       (exts (TermKit.kit TK) s)
--- --       (fmap (ren-C VK (weaken VK id-var) id-var) t)
--- --       (ren-S VK (exts VK u) v S)
--- --   ≡⟨ sub-ren-S S (exts (TermKit.kit TK) s) (fmap (ren-C VK (weaken VK id-var) id-var) t) (exts VK u) v ⟩
--- --     sub-S TK CK
--- --       ((exts (TermKit.kit TK) s ++ weaken VK u) , (` `Z))
--- --       (fmap (ren-C VK (weaken VK id-var) id-var) t ++ v)
--- --       S
--- --   ≡⟨ cong (λ x → sub-S TK CK ((exts (TermKit.kit TK) s ++ weaken VK u) , ` `Z) x S)  (fmap++ t v) ⟩ 
--- --     sub-S TK CK
--- --       ((exts (TermKit.kit TK) s ++ weaken VK u) , (` `Z))
--- --       (fmap (ren-C VK (weaken VK id-var) id-var) (t ++ v))
--- --       S
--- --   ≡⟨ cong (λ x → sub-S TK CK x (fmap (ren-C VK (weaken VK id-var) id-var) (t ++ v)) S) {!    !} ⟩
--- --     sub-S TK CK
--- --       (exts (TermKit.kit TK) (s ++ u))
--- --       (fmap (ren-C VK (weaken VK id-var) id-var) (t ++ v))
--- --       S
--- --   ∎)
-
--- sub-ren-S (M ● K) s t u v = cong₂ _●_ (sub-ren-T M s t u v) (sub-ren-C K s t u v)

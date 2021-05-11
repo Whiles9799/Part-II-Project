@@ -1,7 +1,7 @@
 \begin{code}
 module fragments.Values where
 
-open import Dual.Syntax
+open import Dual.Syntax.Core
 open import Data.Product using (Σ ; proj₁ ; proj₂)
 \end{code}
 
@@ -12,19 +12,18 @@ data Covalue : ∀ {Γ Θ A} → A ∣ Γ ⟶ Θ → Set
 \end{code}
 %</vc-def>
 
+%<*v-eg>
 \begin{code}
 data Value where
-
   V-var : ∀ {Γ Θ A} {x : Γ ∋ A}
-      ---------
     → Value {Θ = Θ} (` x)
 
   V-prod : ∀ {Γ Θ A B} {M : Γ ⟶ Θ ∣ A} {N : Γ ⟶ Θ ∣ B}
-    → Value M
-    → Value N
-      ---------------
+    → Value M → Value N
     → Value `⟨ M , N ⟩
-
+\end{code}
+%</v-eg>
+\begin{code}
   V-inl : ∀ {Γ Θ A B} {M : Γ ⟶ Θ ∣ A}
     → Value M
       -------------

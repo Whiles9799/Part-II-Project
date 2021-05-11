@@ -4,17 +4,16 @@
 
 module fragments.Semantics where
 
-open import Dual.Syntax
-open import Dual.Substitution
-open import Dual.DualTranslation
+open import Dual.Syntax.Core
+open import Dual.Syntax.Substitution
+open import Dual.Syntax.Duality
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl; cong; cong₂; sym; trans)
 open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; step-≡; _∎)
 open import Data.Product using (Σ; _×_; proj₁; proj₂) renaming (_,_ to ⟨_,_⟩)
-open import Dual.Values
+open import Dual.Syntax.Values
 open import Axiom.Extensionality.Propositional using (Extensionality; ExtensionalityImplicit)
 open import Level as L hiding (lift) public
-
 
 
 
@@ -25,145 +24,38 @@ infix 2 _ᵗ⟶ⱽ_
 infix 2 _ˢ⟶ᴺ_
 infix 2 _ᶜ⟶ᴺ_
 infix 2 _ᵗ⟶ᴺ_
-
-_⟨_/⟩ᵗ : ∀ {Γ Θ A B} 
-  → Γ , A ⟶ Θ ∣ B
-  → Γ ⟶ Θ ∣ A
-    --------------
-  → Γ ⟶ Θ ∣ B   
-
-_⟨_/⟩ᶜ : ∀ {Γ Θ A B}
-  → B ∣ Γ , A ⟶ Θ
-  → Γ ⟶ Θ ∣ A
-    --------------
-  → B ∣ Γ ⟶ Θ
-
-_⟨_/⟩ˢ : ∀ {Γ Θ A}
-  → Γ , A ↦ Θ
-  → Γ ⟶ Θ ∣ A
-    ----------
-  → Γ ↦ Θ
 \end{code}
-
-%<*tvsubty>
-\begin{code}
-_ⱽ⟨_/⟩ˢ : ∀ {Γ Θ A}
-  → Γ , A ↦ Θ
-  → TermValue Γ Θ A
-    ---------------
-  → Γ ↦ Θ
-\end{code}
-%</tvsubty>
-
-\begin{code}
-_[_/]ᵗ : ∀ {Γ Θ A B}
-  → Γ ⟶ Θ , A ∣ B
-  → A ∣ Γ ⟶ Θ
-    --------------
-  → Γ ⟶ Θ ∣ B
-
-
-_[_/]ᶜ : ∀ {Γ Θ A B}
-  → B ∣ Γ ⟶ Θ , A
-  → A ∣ Γ ⟶ Θ
-    --------------
-  → B ∣ Γ ⟶ Θ
-
-\end{code}
-
-%<*csubty>
-\begin{code}
-_[_/]ˢ : ∀ {Γ Θ A}
-  → Γ ↦ Θ , A
-  → A ∣ Γ ⟶ Θ
-    ----------
-  → Γ ↦ Θ
-\end{code}
-%</csubty>
-
-\begin{code}
-_ⱽ[_/]ˢ : ∀ {Γ Θ A}
-  → Γ ↦ Θ , A
-  → CotermValue Γ Θ A
-    -----------------
-  → Γ ↦ Θ
-
-_⟨_/⟩ᵗ {Γ}{Θ} N M = sub-T TK CVK (add (Fix₂ Term Θ) M id-T) id-CV N
-
-_⟨_/⟩ᶜ {Γ}{Θ} L M = sub-C TK CVK (add (Fix₂ Term Θ) M id-T) id-CV L
-
-_⟨_/⟩ˢ {Γ}{Θ} S M = sub-S TK CVK (add (Fix₂ Term Θ) M id-T) id-CV S
-\end{code}
-
-%<*tvsub>
-\begin{code}
-_ⱽ⟨_/⟩ˢ {Γ}{Θ} S V = 
-  sub-S TVK CK (add (Fix₂ TermValue Θ) V id-TV) id-C S
-\end{code}
-%</tvsub>
-
-\begin{code}
-_[_/]ᵗ {Γ}{Θ} N K = sub-T TVK CK id-TV (add (Fix₁ Coterm Γ) K id-C) N
-
-_[_/]ᶜ {Γ}{Θ} L K = sub-C TVK CK id-TV (add (Fix₁ Coterm Γ) K id-C) L
-\end{code}
-
-%<*csub>
-\begin{code}
-_[_/]ˢ {Γ}{Θ} S K = 
-  sub-S TVK CK id-TV (add (Fix₁ Coterm Γ) K id-C) S
-\end{code}
-%</csub>
-
-\begin{code}
-_ⱽ[_/]ˢ {Γ}{Θ} S P = sub-S TK CVK id-T (add (Fix₁ CotermValue Γ) P id-CV) S
-\end{code}
-
 %<*cbvrty>
 \begin{code}
 data _ˢ⟶ⱽ_ : ∀ {Γ Θ} → (Γ ↦ Θ) → (Γ ↦ Θ) → Set where
 \end{code}
 %</cbvrty>
 
-%<*cbvrx1>
+%<*cbvr>
 \begin{code}
-  β×₁ : ∀ {Γ Θ A B} {V : Γ ⟶ Θ ∣ A} {W : Γ ⟶ Θ ∣ B} {K : A ∣ Γ ⟶ Θ}
-    → Value V → Value W
-      ------------------------------
+  β×₁ : ∀ {Γ Θ A B} {V : Γ ⟶ Θ ∣ A} {W : Γ ⟶ Θ ∣ B} {K : A ∣ Γ ⟶ Θ} (v : Value V) (w : Value W)
     → `⟨ V , W ⟩ ● fst[ K ] ˢ⟶ⱽ V ● K
-\end{code}
-%</cbvrx1>
-\begin{code}
-  β×₂ : ∀ {Γ Θ A B} {V : Γ ⟶ Θ ∣ A} {W : Γ ⟶ Θ ∣ B} {L : B ∣ Γ ⟶ Θ}
-    → Value V → Value W
-      ------------------------------
+
+  β×₂ : ∀ {Γ Θ A B} {V : Γ ⟶ Θ ∣ A} {W : Γ ⟶ Θ ∣ B} {L : B ∣ Γ ⟶ Θ} (v : Value V) (w : Value W)
     → `⟨ V , W ⟩ ● snd[ L ] ˢ⟶ⱽ W ● L
 
-  β+₁ : ∀ {Γ Θ A B} {V : Γ ⟶ Θ ∣ A} {K : A ∣ Γ ⟶ Θ} {L : B ∣ Γ ⟶ Θ}
-    → Value V
-      ------------------------------
+  β+₁ : ∀ {Γ Θ A B} {V : Γ ⟶ Θ ∣ A} {K : A ∣ Γ ⟶ Θ} {L : B ∣ Γ ⟶ Θ} (v : Value V)
     → inl⟨ V ⟩ ● `[ K , L ] ˢ⟶ⱽ V ● K
 
-  β+₂ : ∀ {Γ Θ A B} {W : Γ ⟶ Θ ∣ B} {K : A ∣ Γ ⟶ Θ} {L : B ∣ Γ ⟶ Θ}
-    → Value W
-      ------------------------------
+  β+₂ : ∀ {Γ Θ A B} {W : Γ ⟶ Θ ∣ B} {K : A ∣ Γ ⟶ Θ} {L : B ∣ Γ ⟶ Θ} (w : Value W)
     → inr⟨ W ⟩ ● `[ K , L ] ˢ⟶ⱽ W ● L
 
   β¬ : ∀ {Γ Θ A} {M : Γ ⟶ Θ ∣ A} {K : A ∣ Γ ⟶ Θ}
-      -----------------------------
     → not[ K ] ● not⟨ M ⟩ ˢ⟶ⱽ M ● K
-\end{code}
-%<*cbvrsub>
-\begin{code}
+
   βL : ∀ {Γ Θ A} {V : Γ ⟶ Θ ∣ A} {S : Γ , A ↦ Θ} (v : Value V)
-      ------------------------------
+
     → V ● (μγ S) ˢ⟶ⱽ S ⱽ⟨ ⟨ V , v ⟩ /⟩ˢ
 
   βR : ∀ {Γ Θ A} {K : A ∣ Γ ⟶ Θ} {S : Γ ↦ Θ , A}
-      ------------------------
     → (μθ S) ● K ˢ⟶ⱽ S [ K /]ˢ
 \end{code}
-%</cbvrsub>
+%</cbvr>
 
 \begin{code}
 data _ᶜ⟶ⱽ_ : ∀ {Γ Θ A} → (A ∣ Γ ⟶ Θ) → (A ∣ Γ ⟶ Θ) → Set where
@@ -396,22 +288,17 @@ lem-ref M K = `[ K , not⟨ M ⟩ ]
 lem-comp : ∀ {A} → (M : ∅ ⟶ ∅ ∣ A) → Value M → (K : A ∣ ∅ ⟶ ∅)
      → (lem-proof ● lem-ref M K) ˢ—↠ⱽ M ● K
 lem-comp M M:V K = beginˢⱽ
-      μθ (inr⟨ not[ μγ (inl⟨ γ 0 ⟩ ● (θ 0) ) ] ⟩ ● (θ 0))
-    ● `[ K , not⟨ M ⟩ ]
+    μθ (inr⟨ not[ μγ (inl⟨ γ 0 ⟩ ● (θ 0) ) ] ⟩ ● (θ 0)) ● `[ K , not⟨ M ⟩ ]
   ˢ⟶ⱽ⟨ βR ⟩
-      inr⟨ not[ μγ (inl⟨ γ 0 ⟩ ● `[ wkΓᶜ K , not⟨ wkΓᵗ M ⟩ ] ) ] ⟩
-    ● `[ K , not⟨ M ⟩ ]
+    inr⟨ not[ μγ (inl⟨ γ 0 ⟩ ● `[ wkΓᶜ K , not⟨ wkΓᵗ M ⟩ ] ) ] ⟩ ● `[ K , not⟨ M ⟩ ]
   ˢ⟶ⱽ⟨ β+₂ V-not ⟩
-      not[ μγ (inl⟨ γ 0 ⟩ ● `[ wkΓᶜ K , not⟨ wkΓᵗ M ⟩ ] ) ]
-    ● not⟨ M ⟩
+    not[ μγ (inl⟨ γ 0 ⟩ ● `[ wkΓᶜ K , not⟨ wkΓᵗ M ⟩ ] ) ] ● not⟨ M ⟩
   ˢ⟶ⱽ⟨ β¬ ⟩
-      M
-    ● μγ (inl⟨ γ 0 ⟩ ● `[ wkΓᶜ K , not⟨ wkΓᵗ M ⟩ ] )
+    M ● μγ (inl⟨ γ 0 ⟩ ● `[ wkΓᶜ K , not⟨ wkΓᵗ M ⟩ ] )
   ˢ⟶ⱽ⟨ βL M:V ⟩
-      ((inl⟨ γ 0 ⟩ ● `[ (wkΓᶜ K) , not⟨ (wkΓᵗ M) ⟩ ]) ⱽ⟨ ⟨ M , M:V ⟩ /⟩ˢ)
+    ((inl⟨ γ 0 ⟩ ● `[ (wkΓᶜ K) , not⟨ (wkΓᵗ M) ⟩ ]) ⱽ⟨ ⟨ M , M:V ⟩ /⟩ˢ)
   ˢ⟶ⱽ⟨ {!   !} ⟩
-      inl⟨ M ⟩
-    ● `[ K , not⟨ M ⟩ ]
+    inl⟨ M ⟩ ● `[ K , not⟨ M ⟩ ]
   ˢ⟶ⱽ⟨ β+₁ M:V ⟩
     M ● K
   ∎ˢⱽ

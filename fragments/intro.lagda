@@ -1,5 +1,5 @@
 \begin{code}
-module intro where
+module fragments.intro where
 import Relation.Binary.PropositionalEquality as Eq
 open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; step-≡; _∎)
 infixl 40 _+_
@@ -61,21 +61,25 @@ data _≡_ {A : Set} (x : A) : A → Set where
 \end{code}
 %</equality>
 
+%<*cong>
 \begin{code}
-sym : ∀ {A : Set} {x y : A} → x ≡ y → y ≡ x
-sym refl = refl
-
-cong : ∀ {A B : Set} (f : A → B) {x y : A}
-  → x ≡ y
-    ---------
-  → f x ≡ f y
+cong : ∀ {A B : Set} (f : A → B) {x y : A} → x ≡ y → f x ≡ f y
 cong f refl  =  refl
 \end{code}
+%</cong>
 
+%<*subst>
+\begin{code}
+subst : ∀ {A : Set} {x y : A} (P : A → Set) → x ≡ y → P x → P y
+\end{code}
+%</subst>
+\begin{code}
+subst P refl px = px
+\end{code}
 
 %<*assoc>
 \begin{code}
-+-assoc : ∀ (m n p : ℕ) → (m + n) + p ≡ m + (n + p)
++-assoc : ∀ m n p → (m + n) + p ≡ m + (n + p)
 +-assoc zero n p = refl
 +-assoc (suc m) n p = cong suc (+-assoc m n p)
 \end{code}

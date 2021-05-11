@@ -16,7 +16,7 @@ open import Dual.DenotationalSemantics.CPSTransformation R
 --Types and Contexts--
 
 Aⱽ≡Aᵒᴺ : ∀ {A} → A ⱽᵀ ≡ (A ᵒᵀ) ᴺᵀ
-Aⱽ≡Aᵒᴺ {`ℕ}     = refl 
+Aⱽ≡Aᵒᴺ {X}     = refl 
 Aⱽ≡Aᵒᴺ {A `+ B} = cong₂ _⊎_ (Aⱽ≡Aᵒᴺ {A}) (Aⱽ≡Aᵒᴺ {B})
 Aⱽ≡Aᵒᴺ {A `× B} = cong₂ _×_ (Aⱽ≡Aᵒᴺ {A}) (Aⱽ≡Aᵒᴺ {B})
 Aⱽ≡Aᵒᴺ {`¬ A}   = cong (λ - → - → R) Aⱽ≡Aᵒᴺ

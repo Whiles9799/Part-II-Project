@@ -42,16 +42,6 @@
 \\
 %
 \\[\AgdaEmptyExtraSkip]%
-%
-\\[\AgdaEmptyExtraSkip]%
-\>[0]\AgdaKeyword{infixr}\AgdaSpace{}%
-\AgdaNumber{7}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}⇒ⱽ\AgdaUnderscore{}}}\<%
-\\
-\>[0]\AgdaKeyword{infixr}\AgdaSpace{}%
-\AgdaNumber{7}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}⇒ᴺ\AgdaUnderscore{}}}\<%
-\\
 \>[0]\AgdaKeyword{infix}\AgdaSpace{}%
 \AgdaNumber{8}\AgdaSpace{}%
 \AgdaOperator{\AgdaInductiveConstructor{\AgdaUnderscore{}`+\AgdaUnderscore{}}}\<%
@@ -125,7 +115,7 @@
 \AgdaKeyword{where}\<%
 \\
 \>[0][@{}l@{\AgdaIndent{0}}]%
-\>[2]\AgdaInductiveConstructor{`ℕ}\AgdaSpace{}%
+\>[2]\AgdaInductiveConstructor{X}\AgdaSpace{}%
 \AgdaSymbol{:}\AgdaSpace{}%
 \AgdaDatatype{Type}\<%
 \\
@@ -158,47 +148,6 @@
   
 --implication is defined in terms of other connectives
 --it is defined differently for CBN and CBV
-
-%<*funtype>
-\begin{code}%
-\>[0]\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}⇒ⱽ\AgdaUnderscore{}}}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaDatatype{Type}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaDatatype{Type}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaDatatype{Type}\<%
-\\
-\>[0]\AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{⇒ⱽ}}\AgdaSpace{}%
-\AgdaBound{B}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{`¬}}\AgdaSpace{}%
-\AgdaSymbol{(}\AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{`×}}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{`¬}}\AgdaSpace{}%
-\AgdaBound{B}\AgdaSymbol{)}\<%
-\\
-%
-\\[\AgdaEmptyExtraSkip]%
-\>[0]\AgdaOperator{\AgdaFunction{\AgdaUnderscore{}⇒ᴺ\AgdaUnderscore{}}}\AgdaSpace{}%
-\AgdaSymbol{:}\AgdaSpace{}%
-\AgdaDatatype{Type}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaDatatype{Type}\AgdaSpace{}%
-\AgdaSymbol{→}\AgdaSpace{}%
-\AgdaDatatype{Type}\<%
-\\
-\>[0]\AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaFunction{⇒ᴺ}}\AgdaSpace{}%
-\AgdaBound{B}\AgdaSpace{}%
-\AgdaSymbol{=}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{`¬}}\AgdaSpace{}%
-\AgdaBound{A}\AgdaSpace{}%
-\AgdaOperator{\AgdaInductiveConstructor{`+}}\AgdaSpace{}%
-\AgdaBound{B}\<%
-\end{code}
-%</funtype>
 
 %<*ctx>
 \begin{code}%

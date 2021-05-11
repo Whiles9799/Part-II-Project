@@ -58,9 +58,8 @@ open import Data.Nat using (ℕ; zero; suc; _+_)
 %<*comm3>
 \begin{code}
 +-comm m (suc n) = begin
-  m + (suc n)  ≡⟨ +-suc m n ⟩
-  suc (m + n)  ≡⟨ cong suc (+-comm m n) ⟩
-  (suc(n + m)) 
-  ∎
+  m + (suc n)   ≡⟨ +-suc m n ⟩
+  suc (m + n)   ≡⟨ cong suc (+-comm m n) ⟩
+  (suc(n + m))  ∎
 \end{code}
 %</comm3>

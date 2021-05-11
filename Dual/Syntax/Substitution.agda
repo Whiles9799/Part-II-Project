@@ -17,7 +17,7 @@ Sorted-Family = Context → Type → Set
 
 --Context map--
 _–[_]→_ : Context → Sorted-Family → Context → Set
-Γ –[ X ]→ Δ = {A : Type} → Γ ∋ A → X Δ A
+Γ –[ T ]→ Δ = {A : Type} → Γ ∋ A → T Δ A
 
 --Renaming map--
 _↝_ : Context → Context → Set

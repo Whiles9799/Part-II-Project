@@ -8,9 +8,9 @@ import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl; cong; cong₂; sym; trans)
 open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; step-≡; _∎)
 open import Agda.Builtin.Equality.Rewrite
-open import Dual.Syntax
-open import Dual.Substitution
-open import Dual.Values
+open import Dual.Syntax.Core
+open import Dual.Syntax.Substitution
+open import Dual.Syntax.Values
 open import Data.Product using (Σ; _×_; proj₁; proj₂) renaming (_,_ to ⟨_,_⟩)
 
 
@@ -32,7 +32,7 @@ _ᵒˣ : Context → Context
 (A `+ B)ᵒᵀ  = (A ᵒᵀ `× B ᵒᵀ)
 (A `× B)ᵒᵀ  = (A ᵒᵀ `+ B ᵒᵀ)
 (`¬ A)ᵒᵀ    = (`¬ (A)ᵒᵀ) 
-(`ℕ)ᵒᵀ      = `ℕ
+(X)ᵒᵀ      = X
 
 (∅ ᵒˣ)     = ∅
 (Γ , A) ᵒˣ = ((Γ ᵒˣ) , (A ᵒᵀ))
@@ -135,7 +135,7 @@ dual-sub-TV (Γ , A) Γ′ Θ σ (`S x) = dual-sub-TV Γ Γ′ Θ (sub-skip (Fix
 \end{code}
 %</invty>
 \begin{code}
-[Aᵒᵀ]ᵒᵀ≡A {`ℕ}     = refl
+[Aᵒᵀ]ᵒᵀ≡A {X}     = refl
 [Aᵒᵀ]ᵒᵀ≡A {`¬ A}   = cong `¬_   [Aᵒᵀ]ᵒᵀ≡A 
 [Aᵒᵀ]ᵒᵀ≡A {A `+ B} = cong₂ _`+_ ([Aᵒᵀ]ᵒᵀ≡A {A}) ([Aᵒᵀ]ᵒᵀ≡A {B})
 [Aᵒᵀ]ᵒᵀ≡A {A `× B} = cong₂ _`×_ ([Aᵒᵀ]ᵒᵀ≡A {A}) ([Aᵒᵀ]ᵒᵀ≡A {B})

@@ -1,13 +1,15 @@
 \begin{code}
 module fragments.Substitution where
 
-open import Dual.Syntax
-open import Dual.Values
+open import Dual.Syntax.Core
+open import Dual.Syntax.Values
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl; cong; cong₂; sym; trans)
 open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; step-≡; _∎)
 open import Data.Product using (Σ ; proj₁ ; proj₂) renaming ( _,_ to ⟨_,_⟩ )
 
+infixr 7 _⇒ⱽ_
+infixr 7 _⇒ᴺ_
 infix  5 ƛⱽ_
 infix  5 ƛᴺ_
 infixl 7 _·ⱽ_
@@ -26,7 +28,7 @@ Sorted-Family = Context → Type → Set
 %<*maps>
 \begin{code}
 _–[_]→_ : Context → Sorted-Family → Context → Set
-Γ –[ X ]→ Δ = {A : Type} → Γ ∋ A → X Δ A
+Γ –[ T ]→ Δ = {A : Type} → Γ ∋ A → T Δ A
 
 _↝_ : Context → Context → Set
 Γ ↝ Δ = Γ –[ _∋_ ]→ Δ
@@ -332,6 +334,16 @@ intΓᵗ : ∀ {Γ Θ A B C} → Γ , A , B ⟶ Θ ∣ C → Γ , B , A ⟶ Θ �
 intΓᵗ M = ren-T (add _∋_ (`S `Z) (ren-lift (ren-weaken id-var))) id-var M
 \end{code}
 
+%<*funtype>
+\begin{code}
+_⇒ⱽ_ : Type → Type → Type
+A ⇒ⱽ B = `¬ (A `× `¬ B)
+
+_⇒ᴺ_ : Type → Type → Type
+A ⇒ᴺ B = `¬ A `+ B
+\end{code}
+%</funtype>
+
 %<*fundef>
 \begin{code}
 ƛⱽ_ : ∀ {Γ Θ A B}  → Γ , A ⟶ Θ ∣ B            → Γ ⟶ Θ ∣ A ⇒ⱽ B 
@@ -349,3 +361,108 @@ M ·ⱽ N = not⟨ `⟨ M , not[ N ] ⟩ ⟩
 M ·ᴺ N = `[ not⟨ M ⟩ , N ]
 \end{code}
 %</fun>
+\begin{code}
+
+_⟨_/⟩ᵗ : ∀ {Γ Θ A B} 
+  → Γ , A ⟶ Θ ∣ B
+  → Γ ⟶ Θ ∣ A
+    --------------
+  → Γ ⟶ Θ ∣ B   
+
+_⟨_/⟩ᶜ : ∀ {Γ Θ A B}
+  → B ∣ Γ , A ⟶ Θ
+  → Γ ⟶ Θ ∣ A
+    --------------
+  → B ∣ Γ ⟶ Θ
+
+_⟨_/⟩ˢ : ∀ {Γ Θ A}
+  → Γ , A ↦ Θ
+  → Γ ⟶ Θ ∣ A
+    ----------
+  → Γ ↦ Θ
+\end{code}
+
+%<*tvsubty>
+\begin{code}
+_ⱽ⟨_/⟩ˢ : ∀ {Γ Θ A}
+  → Γ , A ↦ Θ
+  → TermValue Γ Θ A
+  → Γ ↦ Θ
+\end{code}
+%</tvsubty>
+
+\begin{code}
+_[_/]ᵗ : ∀ {Γ Θ A B}
+  → Γ ⟶ Θ , A ∣ B
+  → A ∣ Γ ⟶ Θ
+    --------------
+  → Γ ⟶ Θ ∣ B
+
+
+_[_/]ᶜ : ∀ {Γ Θ A B}
+  → B ∣ Γ ⟶ Θ , A
+  → A ∣ Γ ⟶ Θ
+    --------------
+  → B ∣ Γ ⟶ Θ
+
+\end{code}
+
+%<*csubty>
+\begin{code}
+_[_/]ˢ : ∀ {Γ Θ A}
+  → Γ ↦ Θ , A
+  → A ∣ Γ ⟶ Θ
+  → Γ ↦ Θ
+\end{code}
+%</csubty>
+
+\begin{code}
+_ⱽ[_/]ˢ : ∀ {Γ Θ A}
+  → Γ ↦ Θ , A
+  → CotermValue Γ Θ A
+    -----------------
+  → Γ ↦ Θ
+
+_⟨_/⟩ᵗ {Γ}{Θ} N M = sub-T TK CVK (add (Fix₂ Term Θ) M id-T) id-CV N
+
+_⟨_/⟩ᶜ {Γ}{Θ} L M = sub-C TK CVK (add (Fix₂ Term Θ) M id-T) id-CV L
+
+_⟨_/⟩ˢ {Γ}{Θ} S M = sub-S TK CVK (add (Fix₂ Term Θ) M id-T) id-CV S
+\end{code}
+
+%<*tvsub>
+\begin{code}
+_ⱽ⟨_/⟩ˢ {Γ}{Θ} S V = 
+  sub-S TVK CK (add (Fix₂ TermValue Θ) V id-TV) id-C S
+\end{code}
+%</tvsub>
+
+\begin{code}
+_[_/]ᵗ {Γ}{Θ} N K = sub-T TVK CK id-TV (add (Fix₁ Coterm Γ) K id-C) N
+
+_[_/]ᶜ {Γ}{Θ} L K = sub-C TVK CK id-TV (add (Fix₁ Coterm Γ) K id-C) L
+\end{code}
+
+%<*csub>
+\begin{code}
+_[_/]ˢ {Γ}{Θ} S K = 
+  sub-S TVK CK id-TV (add (Fix₁ Coterm Γ) K id-C) S
+\end{code}
+%</csub>
+
+\begin{code}
+_ⱽ[_/]ˢ {Γ}{Θ} S P = sub-S TK CVK id-T (add (Fix₁ CotermValue Γ) P id-CV) S
+
+_∘_ : ∀ {A B C : Set} → (B → C) → (A → B) → (A → C)
+(g ∘ f) x  = g (f x)
+
+postulate
+\end{code}
+%<*sub-ren>
+\begin{code}
+  sub-ren-T : ∀ {T C Γ Γ′ Γ″ Θ Θ′ Θ″ A} 
+    (tk : TermKit T) (ck : CotermKit C) (M : Γ ⟶ Θ ∣ A) 
+    (s : Γ′ –[ Fix₂ T Θ″ ]→ Γ″) (t : Θ′ –[ Fix₁ C Γ″ ]→ Θ″) (u : Γ ↝ Γ′) (v : Θ ↝ Θ′)
+    → sub-T tk ck s t (ren-T u v M) ≡ sub-T tk ck (s ∘ u) (t ∘ v) M
+\end{code}
+%</sub-ren>

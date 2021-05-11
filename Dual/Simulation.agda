@@ -136,7 +136,7 @@ open import Dual.Syntax.Implication
 open import Dual.Syntax.Values
 
 DC-λ-Type : λ-Type Type
-DC-λ-Type = record { B = `ℕ ; _⇒_ = _⇒ⱽ_ }
+DC-λ-Type = record { B = X ; _⇒_ = _⇒ⱽ_ }
 
 DC-λ-Term : λ-Term Type DC-λ-Type (λ Γ A → Γ ⟶ ∅ ∣ A)
 DC-λ-Term = record { 
@@ -146,7 +146,7 @@ DC-λ-Term = record {
   }
 
 DC-λ+-Type : λ+-Type Type
-DC-λ+-Type = record { B = `ℕ ; _⇒_ = _⇒ⱽ_ ; ¬′ = `¬_ }
+DC-λ+-Type = record { B = X ; _⇒_ = _⇒ⱽ_ ; ¬′ = `¬_ }
 
 DC-λ+-Term : λ+-Term Type DC-λ+-Type (λ Γ A → Γ ⟶ ∅ ∣ A)
 DC-λ+-Term = record 
@@ -180,7 +180,7 @@ module STLC-DC where
   CN-2+2 : ∀ {Γ} → Γ ⟶ ∅ ∣ CN
   CN-2+2 = sum · CN-2 · CN-2
 
-  2+2 : (∅ , `ℕ , `ℕ ⇒ `ℕ) ⟶ ∅ ∣ `ℕ
+  2+2 : (∅ , X , X ⇒ X) ⟶ ∅ ∣ X
   2+2 = CN-2+2 · (# 0) · (# 1)
   
   2+2ⱽ : ℕ
@@ -192,7 +192,7 @@ module STLC-DC where
   CN-5 : ∀ {Γ} → Γ ⟶ ∅ ∣ CN
   CN-5 = s · (s · CN-3)
 
-  3*5 : (∅ , `ℕ , `ℕ ⇒ `ℕ) ⟶ ∅ ∣ `ℕ
+  3*5 : (∅ , X , X ⇒ X) ⟶ ∅ ∣ X
   3*5 = (((mult · CN-3) · CN-5) · (# 0)) · (# 1)
 
   3*5ⱽ : ℕ

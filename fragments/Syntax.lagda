@@ -9,9 +9,6 @@ infix  4 _⟶_∣_
 infix  4 _↦_ 
 infix  4 _∣_⟶_
 
-
-infixr 7 _⇒ⱽ_
-infixr 7 _⇒ᴺ_
 infix 8 _`+_
 infix 9 _`×_
 infix 10 `¬_
@@ -36,7 +33,7 @@ infix  9 `S
 %<*type>
 \begin{code}
 data Type : Set where
-  `ℕ : Type
+  X : Type
   _`×_ : Type → Type → Type
   _`+_ : Type → Type → Type
   `¬_ : Type → Type
@@ -46,22 +43,11 @@ data Type : Set where
 --implication is defined in terms of other connectives
 --it is defined differently for CBN and CBV
 
-%<*funtype>
-\begin{code}
-_⇒ⱽ_ : Type → Type → Type
-A ⇒ⱽ B = `¬ (A `× `¬ B)
-
-_⇒ᴺ_ : Type → Type → Type
-A ⇒ᴺ B = `¬ A `+ B
-\end{code}
-%</funtype>
-
 %<*ctx>
 \begin{code}
 data Context : Set where
   ∅ : Context
   _,_ : Context → Type → Context
-
 \end{code}
 %</ctx>
 

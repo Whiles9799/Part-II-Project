@@ -5,25 +5,20 @@ module fragments.CBVSoundness (R : Set) where
 
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl; cong; cong₂; sym; trans)
-open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; step-≡; _∎)
-open import Data.Empty using (⊥; ⊥-elim)
-open import Data.Unit using (⊤; tt)
-open import Data.Nat using (ℕ; zero; suc; _<_; _≤?_ ; z≤n; s≤s)
-open import Data.Product using (_×_; proj₁; proj₂) renaming (_,_ to ⟨_,_⟩)
-open import Data.Sum using (_⊎_; inj₁; inj₂) renaming ([_,_] to case-⊎)
-open import Relation.Nullary using (¬_)
-open import Agda.Builtin.Equality.Rewrite
-open import Axiom.Extensionality.Propositional using (Extensionality; ExtensionalityImplicit)
-open import Level as L hiding (lift) public
-open import Dual.Syntax
-open import Dual.DualTranslation
-open import Dual.Semantics
-open import Dual.Substitution
-open import Dual.Values
-open import Dual.CPSTransformation R
-
+open Eq.≡-Reasoning using (begin_; _≡⟨⟩_;  step-≡˘; step-≡; _∎)
+open import Dual.Syntax.Core
+open import Dual.Syntax.Duality
+open import Dual.Syntax.Substitution
+open import Dual.Syntax.Values
+open import Dual.OperationalSemantics.CBVReduction
+open import Dual.DenotationalSemantics.CPSTransformation R
+open import Dual.DenotationalSemantics.Duality R
 
 --Lemmas for proving the Renaming Lemma--
+
+variable
+  Γ Γ′ Θ Θ′ : Context
+  A B : Type
 
 --The interpretation of weakened renaming applied to an extended context is equivalent to 
 --the interpretation of the unweakened renaming applied to the unextended context--
@@ -213,7 +208,7 @@ ren-lemma-S {Γ} {Γ′} {Θ} {Θ′} (M ● K) s t γ θ =
 %<*weaken-TV-ty>
 \begin{code}
 weaken-sub-TV-int-lemma : ∀ {Γ Γ′ Θ A} (σ : Γ –[ (Fix₂ TermValue Θ) ]→ Γ′) γ θ k 
-  → sub-TV-int Γ (Γ′ , A) Θ (sub-weaken (TermKit.kit TVK) σ) θ ⟨ γ , k ⟩ 
+  → sub-TV-int Γ (Γ′ , A) Θ (sub-weaken TVK.kit σ) θ ⟨ γ , k ⟩ 
     ≡ sub-TV-int Γ Γ′ Θ σ θ γ
 \end{code}
 %</weaken-TV-ty>
@@ -332,20 +327,17 @@ sub-lemma-covar {Γ′} t (`S α) γ θ = sub-lemma-covar (sub-skip (Fix₁ Cote
 
 %<*sub-lemma-ty>
 \begin{code}
-sub-lemma-T : ∀ {Γ Γ′ Θ Θ′ A} 
-  (s : Γ –[ (Fix₂ TermValue Θ′) ]→ Γ′) (t : Θ –[ (Fix₁ Coterm Γ′) ]→ Θ′) 
+sub-lemma-T : ∀ (s : Γ –[ (Fix₂ TermValue Θ′) ]→ Γ′) (t : Θ –[ (Fix₁ Coterm Γ′) ]→ Θ′) 
   (M : Γ ⟶ Θ ∣ A) (γ : Γ′ ⱽˣ) (θ : (`¬ˣ Θ′) ⱽˣ ) 
   → ((sub-T TVK CK s t M) ⱽᴸ) ⟨ γ , θ ⟩ 
     ≡ (M ⱽᴸ) ⟨ sub-TV-int Γ Γ′ Θ′ s θ γ , sub-C-int Γ′ Θ Θ′ t γ θ ⟩
 
-sub-lemma-C : ∀ {Γ Γ′ Θ Θ′ A} 
-  (s : Γ –[ (Fix₂ TermValue Θ′) ]→ Γ′) (t : Θ –[ (Fix₁ Coterm Γ′) ]→ Θ′) 
+sub-lemma-C : ∀ (s : Γ –[ (Fix₂ TermValue Θ′) ]→ Γ′) (t : Θ –[ (Fix₁ Coterm Γ′) ]→ Θ′) 
   (K : A ∣ Γ ⟶ Θ) (γ : Γ′ ⱽˣ) (θ : (`¬ˣ Θ′) ⱽˣ ) 
   → ((sub-C TVK CK s t K) ⱽᴿ) ⟨ γ , θ ⟩ 
     ≡ (K ⱽᴿ) ⟨ sub-TV-int Γ Γ′ Θ′ s θ γ , sub-C-int Γ′ Θ Θ′ t γ θ ⟩
 
-sub-lemma-S : ∀ {Γ Γ′ Θ Θ′} 
-  (s : Γ –[ (Fix₂ TermValue Θ′) ]→ Γ′) (t : Θ –[ (Fix₁ Coterm Γ′) ]→ Θ′) 
+sub-lemma-S : ∀ (s : Γ –[ (Fix₂ TermValue Θ′) ]→ Γ′) (t : Θ –[ (Fix₁ Coterm Γ′) ]→ Θ′) 
   (S : Γ ↦ Θ) (γ : Γ′ ⱽˣ) (θ : (`¬ˣ Θ′) ⱽˣ ) 
   → ((sub-S TVK CK s t S) ⱽˢ) ⟨ γ , θ ⟩ 
     ≡ (S ⱽˢ) ⟨ sub-TV-int Γ Γ′ Θ′ s θ γ , sub-C-int Γ′ Θ Θ′ t γ θ ⟩
@@ -353,7 +345,7 @@ sub-lemma-S : ∀ {Γ Γ′ Θ Θ′}
 %</sub-lemma-ty>
 \begin{code}
 sub-lemma-T s t (` x) γ θ = sub-lemma-var s x γ θ
-sub-lemma-T {Γ}{Γ′}{Θ}{Θ′} s t `⟨ M , N ⟩ γ θ = ext (λ k → 
+sub-lemma-T s t `⟨ M , N ⟩ γ θ = ext (λ k → 
   cong₂ (λ -₁ -₂ → -₁ (λ x → -₂ (λ y → k ⟨ x , y ⟩))) 
     (sub-lemma-T s t M γ θ) (sub-lemma-T s t N γ θ))
 sub-lemma-T s t inl⟨ M ⟩ γ θ = ext (λ k → 
@@ -361,7 +353,7 @@ sub-lemma-T s t inl⟨ M ⟩ γ θ = ext (λ k →
 sub-lemma-T s t inr⟨ M ⟩ γ θ = ext (λ k → 
   cong (λ - → - (λ x → k (inj₂ x))) (sub-lemma-T s t M γ θ))
 sub-lemma-T s t not[ K ] γ θ = ext (λ k → cong k (sub-lemma-C s t K γ θ))
-sub-lemma-T {Γ}{Γ′}{Θ}{Θ′}{A} s t (μθ S) γ θ = ext (λ k → 
+sub-lemma-T {Γ}{Θ′}{Γ′}{Θ}{A} s t (μθ S) γ θ = ext (λ k → 
   begin
     (sub-S TVK CK 
       (fmap-wkΘᵗⱽ Θ′ A s)
@@ -401,14 +393,14 @@ sub-lemma-T {Γ}{Γ′}{Θ}{Θ′}{A} s t (μθ S) γ θ = ext (λ k →
 sub-lemma-C s t (` α) γ θ = sub-lemma-covar t α γ θ
 sub-lemma-C s t fst[ K ] γ θ = cong (λ - → λ { ⟨ x , _ ⟩ → - x }) (sub-lemma-C s t K γ θ)
 sub-lemma-C s t snd[ K ] γ θ = cong (λ - → λ { ⟨ _ , y ⟩ → - y }) (sub-lemma-C s t K γ θ)
-sub-lemma-C {Γ} {Γ′} {Θ} {Θ′} {A `+ B} s t `[ K , L ] γ θ = 
+sub-lemma-C s t `[ K , L ] γ θ = 
   ext (λ{ (inj₁ x) → cong (λ - → - x) (sub-lemma-C s t K γ θ) 
         ; (inj₂ y) → cong (λ - → - y) (sub-lemma-C s t L γ θ)})
 sub-lemma-C s t not⟨ M ⟩ γ θ = sub-lemma-T s t M γ θ
 \end{code}
 %<*sub-lemma-varabs>
 \begin{code}
-sub-lemma-C {Γ}{Γ′}{Θ}{Θ′}{A} s t (μγ S) γ θ = ext (λ x → 
+sub-lemma-C {Γ}{Θ′}{Γ′}{Θ}{A} s t (μγ S) γ θ = ext (λ x → 
   begin 
     (sub-S TVK CK (sub-lift (TVK.kit) s) (fmap-wkΓᶜ Γ′ A t) S ⱽˢ)
       ⟨ ⟨ γ , x ⟩ , θ ⟩
@@ -429,7 +421,7 @@ sub-lemma-C {Γ}{Γ′}{Θ}{Θ′}{A} s t (μγ S) γ θ = ext (λ x →
 %</sub-lemma-varabs>
 
 \begin{code}
-sub-lemma-S {Γ} {Γ′} {Θ} {Θ′} s t (M ● K) γ θ = 
+sub-lemma-S {Γ}{Θ′}{Γ′}{Θ} s t (M ● K) γ θ = 
   begin
     (sub-T TVK CK s t M ⱽᴸ) ⟨ γ , θ ⟩ 
     ((sub-C TVK CK s t K ⱽᴿ) ⟨ γ , θ ⟩)
@@ -470,9 +462,7 @@ S⟶ⱽT⇒Sⱽ≡Tⱽ {Γ} {Θ} (V ● μγ {Γ}{Θ}{A} S) .(S ⱽ⟨ ⟨ V , v
   begin
     ((S ⱽ⟨ ⟨ V , v ⟩ /⟩ˢ) ⱽˢ) ⟨ γ , θ ⟩
   ≡⟨⟩
-    (sub-S TVK CK 
-      (add (Fix₂ TermValue Θ) ⟨ V , v ⟩ id-TV) id-C S ⱽˢ) 
-      ⟨ γ , θ ⟩
+    (sub-S TVK CK (add (Fix₂ TermValue Θ) ⟨ V , v ⟩ id-TV) id-C S ⱽˢ)  ⟨ γ , θ ⟩
   ≡⟨ sub-lemma-S (add (Fix₂ TermValue Θ) ⟨ V , v ⟩ id-TV) id-C S γ θ ⟩
     (S ⱽˢ) 
       ⟨ sub-TV-int (Γ , A) Γ Θ (add (Fix₂ TermValue Θ) ⟨ V , v ⟩ id-TV) θ γ 
@@ -481,12 +471,10 @@ S⟶ⱽT⇒Sⱽ≡Tⱽ {Γ} {Θ} (V ● μγ {Γ}{Θ}{A} S) .(S ⱽ⟨ ⟨ V , v
     (S ⱽˢ)
       ⟨ ⟨ sub-TV-int Γ Γ Θ id-TV θ γ , (⟨ V , v ⟩ ⱽᴸⱽ) ⟨ γ , θ ⟩ ⟩
       , sub-C-int Γ Θ Θ id-C γ θ ⟩
-  ≡⟨ cong (λ - → (S ⱽˢ) ⟨ ⟨ sub-TV-int Γ Γ Θ id-TV θ γ , (⟨ V , v ⟩ ⱽᴸⱽ) ⟨ γ , θ ⟩ ⟩ , - ⟩) 
-    (id-sub-C Γ Θ γ θ) ⟩
-    (S ⱽˢ) ⟨ ⟨ sub-TV-int Γ Γ Θ id-TV θ γ , (⟨ V , v ⟩ ⱽᴸⱽ) ⟨ γ , θ ⟩ ⟩ , θ ⟩
-  ≡⟨ cong (λ - → (S ⱽˢ) ⟨ ⟨ - , (⟨ V , v ⟩ ⱽᴸⱽ) ⟨ γ , θ ⟩ ⟩ , θ ⟩) (id-sub-TV Γ Θ γ θ) ⟩
+  ≡⟨ cong₂ (λ -₁ -₂ → (S ⱽˢ) ⟨ ⟨ -₁ , (⟨ V , v ⟩ ⱽᴸⱽ) ⟨ γ , θ ⟩ ⟩ , -₂ ⟩) 
+     (id-sub-TV Γ Θ γ θ) (id-sub-C Γ Θ γ θ) ⟩
     (S ⱽˢ) ⟨ ⟨ γ , (⟨ V , v ⟩ ⱽᴸⱽ) ⟨ γ , θ ⟩ ⟩ , θ ⟩
-  ≡⟨ sym (cong (λ - → - (λ x → (S ⱽˢ) ⟨ ⟨ γ , x ⟩ , θ ⟩)) (cps-V V v ⟨ γ , θ ⟩)) ⟩
+  ≡˘⟨ cong (λ - → - (λ x → (S ⱽˢ) ⟨ ⟨ γ , x ⟩ , θ ⟩)) (cps-V V v ⟨ γ , θ ⟩) ⟩
     (V ⱽᴸ) ⟨ γ , θ ⟩ (λ x → (S ⱽˢ) ⟨ ⟨ γ , x ⟩ , θ ⟩)
   ∎)
 \end{code}

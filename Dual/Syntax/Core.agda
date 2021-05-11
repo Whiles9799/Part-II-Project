@@ -30,7 +30,7 @@ postulate
 --Types--
 
 data Type : Set where
-  `ℕ : Type
+  X : Type
   _`×_ : Type → Type → Type
   _`+_ : Type → Type → Type
   `¬_ : Type → Type

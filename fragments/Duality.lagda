@@ -3,19 +3,22 @@
 
 module fragments.Duality where
 
-open import Dual.Syntax
-open import Dual.Substitution
-open import Dual.DualTranslation
-open import Dual.Semantics
+open import Dual.Syntax.Core
+open import Dual.Syntax.Values
+open import Dual.Syntax.Substitution
+open import Dual.Syntax.Duality
+open import Dual.OperationalSemantics.CBVReduction
+open import Dual.OperationalSemantics.CBNReduction
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl; cong; cong₂; sym; trans; subst; subst₂)
 open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; step-≡; _∎) 
 open import Data.Product using (Σ; _×_; proj₁; proj₂) renaming (_,_ to ⟨_,_⟩)
 open import Data.Product.Properties using (Σ-≡,≡↔≡)
-open import Dual.Values
-open import Axiom.Extensionality.Propositional using (Extensionality; ExtensionalityImplicit)
-open import Level as L hiding (lift) public
 open import Function.Bundles using (Inverse)
+
+variable
+  Γ Γ′ Θ Θ′ : Context
+  A : Type
 
 dual-ren-weaken-lemma : ∀ {A B} Γ Γ′ (ρ : Γ ↝ Γ′) (x : Γ ᵒˣ ∋ A) →  dual-ren Γ (Γ′ , B) (ren-weaken ρ) x ≡ (ren-weaken (dual-ren Γ Γ′ ρ)) x
 dual-ren-weaken-lemma (Γ , C) Γ′ ρ `Z = refl
@@ -211,15 +214,12 @@ dual-sub-lemma-covar {Γ′} (`S α) t = dual-sub-lemma-covar α (sub-skip (Fix�
 
 %<*dual-sub-lemma>
 \begin{code}
-dual-sub-lemma-T : ∀ {Γ Γ′ Θ Θ′ A} (M : Γ ⟶ Θ ∣ A) 
-  (s : Γ –[ (Fix₂ TermValue Θ′) ]→ Γ′) (t : Θ –[ (Fix₁ Coterm Γ′) ]→ Θ′) 
-  → sub-T TVK CK s t M ᵒᴸ ≡ sub-C TK CVK (dual-sub-C Γ′ Θ Θ′ t) (dual-sub-TV Γ Γ′ Θ′ s) (M ᵒᴸ)
-dual-sub-lemma-C : ∀ {Γ Γ′ Θ Θ′ A} (K : A ∣ Γ ⟶ Θ) 
-  (s : Γ –[ (Fix₂ TermValue Θ′) ]→ Γ′) (t : Θ –[ (Fix₁ Coterm Γ′) ]→ Θ′) 
-  → sub-C TVK CK s t K ᵒᴿ ≡ sub-T TK CVK (dual-sub-C Γ′ Θ Θ′ t) (dual-sub-TV Γ Γ′ Θ′ s) (K ᵒᴿ)
-dual-sub-lemma-S : ∀ {Γ Γ′ Θ Θ′} (S : Γ ↦ Θ) 
-  (s : Γ –[ (Fix₂ TermValue Θ′) ]→ Γ′) (t : Θ –[ (Fix₁ Coterm Γ′) ]→ Θ′) 
-  → sub-S TVK CK s t S ᵒˢ ≡ sub-S TK CVK (dual-sub-C Γ′ Θ Θ′ t) (dual-sub-TV Γ Γ′ Θ′ s) (S ᵒˢ)
+dual-sub-lemma-T : ∀ (M : Γ ⟶ Θ ∣ A) (s : Γ –[ (Fix₂ TermValue Θ′) ]→ Γ′) (t : Θ –[ (Fix₁ Coterm Γ′) ]→ Θ′) 
+  → (sub-T TVK CK s t M) ᵒᴸ ≡ sub-C TK CVK (dual-sub-C Γ′ Θ Θ′ t) (dual-sub-TV Γ Γ′ Θ′ s) (M ᵒᴸ)
+dual-sub-lemma-C : ∀ (K : A ∣ Γ ⟶ Θ) (s : Γ –[ (Fix₂ TermValue Θ′) ]→ Γ′) (t : Θ –[ (Fix₁ Coterm Γ′) ]→ Θ′) 
+  → (sub-C TVK CK s t K) ᵒᴿ ≡ sub-T TK CVK (dual-sub-C Γ′ Θ Θ′ t) (dual-sub-TV Γ Γ′ Θ′ s) (K ᵒᴿ)
+dual-sub-lemma-S : ∀ (S : Γ ↦ Θ) (s : Γ –[ (Fix₂ TermValue Θ′) ]→ Γ′) (t : Θ –[ (Fix₁ Coterm Γ′) ]→ Θ′) 
+  → (sub-S TVK CK s t S) ᵒˢ ≡ sub-S TK CVK (dual-sub-C Γ′ Θ Θ′ t) (dual-sub-TV Γ Γ′ Θ′ s) (S ᵒˢ)
 \end{code}
 %</dual-sub-lemma>
 
@@ -230,7 +230,7 @@ dual-sub-lemma-T `⟨ M , N ⟩ s t = cong₂ `[_,_] (dual-sub-lemma-T M s t) (d
 dual-sub-lemma-T inl⟨ M ⟩ s t = cong fst[_] (dual-sub-lemma-T M s t)
 dual-sub-lemma-T inr⟨ M ⟩ s t = cong snd[_] (dual-sub-lemma-T M s t)
 dual-sub-lemma-T not[ K ] s t = cong not⟨_⟩ (dual-sub-lemma-C K s t)
-dual-sub-lemma-T {Γ}{Γ′}{Θ}{Θ′}{A} (μθ S) s t = cong μγ (
+dual-sub-lemma-T {Γ}{Θ}{A}{Θ′}{Γ′} (μθ S) s t = cong μγ (
   begin 
     sub-S TVK CK 
       (fmap-wkΘᵗⱽ Θ′ A s) 
@@ -255,7 +255,7 @@ dual-sub-lemma-C fst[ K ] s t = cong inl⟨_⟩ (dual-sub-lemma-C K s t)
 dual-sub-lemma-C snd[ K ] s t = cong inr⟨_⟩ (dual-sub-lemma-C K s t)
 dual-sub-lemma-C `[ K , L ] s t = cong₂ `⟨_,_⟩ (dual-sub-lemma-C K s t) (dual-sub-lemma-C L s t)
 dual-sub-lemma-C not⟨ M ⟩ s t = cong not[_] (dual-sub-lemma-T M s t)
-dual-sub-lemma-C {Γ}{Γ′}{Θ}{Θ′}{A} (μγ S) s t = cong μθ (
+dual-sub-lemma-C {A}{Γ}{Θ}{Θ′}{Γ′} (μγ S) s t = cong μθ (
   begin 
     sub-S TVK CK (sub-lift (TVK.kit) s) (fmap-wkΓᶜ Γ′ A t) S ᵒˢ
   ≡⟨ dual-sub-lemma-S S (sub-lift (TVK.kit) s) (fmap-wkΓᶜ Γ′ A t) ⟩ 
@@ -274,7 +274,15 @@ dual-sub-lemma-C {Γ}{Γ′}{Θ}{Θ′}{A} (μγ S) s t = cong μθ (
 
 dual-sub-lemma-S (M ● K) s t = cong₂ _●_ (dual-sub-lemma-C K s t) (dual-sub-lemma-T M s t)
 
+\end{code}
+
+%<*dual>
+\begin{code}
 S⟶ⱽT⇒Sᵒ⟶ᴺTᵒ : ∀ {Γ Θ} (S T : Γ ↦ Θ) → S ˢ⟶ⱽ T → (S ᵒˢ) ˢ⟶ᴺ (T ᵒˢ)
+\end{code}
+%</dual>
+
+\begin{code}
 S⟶ⱽT⇒Sᵒ⟶ᴺTᵒ (`⟨ V , W ⟩ ● fst[ K ]) (V ● K) (β×₁ v w) = β+₁ (Vᵒ≡P V v) (Vᵒ≡P W w)
 S⟶ⱽT⇒Sᵒ⟶ᴺTᵒ (`⟨ V , W ⟩ ● snd[ L ]) (W ● L) (β×₂ v w) = β+₂ (Vᵒ≡P V v) (Vᵒ≡P W w)
 S⟶ⱽT⇒Sᵒ⟶ᴺTᵒ (inl⟨ V ⟩ ● `[ K , L ]) (V ● K) (β+₁ v) = β×₁ (Vᵒ≡P V v)
