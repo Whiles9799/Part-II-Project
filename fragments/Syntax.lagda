@@ -69,9 +69,7 @@ data _∋_ : Context → Type → Set where
 %<*seqdef>
 \begin{code}
 data _⟶_∣_ : Context → Context → Type → Set 
-
 data _∣_⟶_ : Type → Context → Context → Set
-
 data _↦_ : Context → Context → Set
 \end{code}
 %</seqdef>
@@ -144,7 +142,7 @@ data _∣_⟶_ where
 %<*cseq>
 \begin{code}
 data _↦_ where
-  _●_ : ∀ {Γ Θ A} →   Γ ⟶ Θ ∣ A  →  A ∣ Γ ⟶ Θ   →   Γ ↦ Θ
+  _●_ : ∀ {Γ Θ A} → (Γ ⟶ Θ ∣ A) → (A ∣ Γ ⟶ Θ) → (Γ ↦ Θ)
 \end{code}
 %</cseq>
 

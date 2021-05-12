@@ -32,33 +32,39 @@ infix 13 _ᴺᴸ
 infix 13 _ᴺᴿ
 infix 13 _ᴺˢ
 
+variable
+  Γ Θ : Context
+  A : Type
 
 --Call-by-Value CPS Transformation--
 
 --Types and Contexts--
 \end{code}
 
-%<*v-ty+ctx>
+%<*v-ty>
 \begin{code}
 _ⱽᵀ : Type → Set
+X ⱽᵀ         = ℕ
+(A `× B) ⱽᵀ  = (A ⱽᵀ) × (B ⱽᵀ)
+(A `+ B) ⱽᵀ  = (A ⱽᵀ) ⊎ (B ⱽᵀ)
+(`¬ A) ⱽᵀ    = (A ⱽᵀ) → R
+\end{code}
+%</v-ty>
+
+%<*v-ctx>
+\begin{code}
 _ⱽˣ : Context → Set
-
-X ⱽᵀ       = ℕ
-(A `× B) ⱽᵀ = (A ⱽᵀ) × (B ⱽᵀ)
-(A `+ B) ⱽᵀ = (A ⱽᵀ) ⊎ (B ⱽᵀ)
-(`¬ A) ⱽᵀ   = (A ⱽᵀ) → R
-
-∅ ⱽˣ       = ⊤
-(Γ , A) ⱽˣ = Γ ⱽˣ  × A ⱽᵀ
+∅ ⱽˣ        = ⊤
+(Γ , A) ⱽˣ  = Γ ⱽˣ  × A ⱽᵀ
 \end{code}  
-%</v-ty+ctx>
+%</v-ctx>
 
 --Variables--
 %<*v-var>
 \begin{code}
-_ⱽⱽ : ∀ {Γ A} → (Γ ∋ A) → ((Γ ⱽˣ) → (A ⱽᵀ))
-_ⱽⱽ `Z ⟨ γ , θ ⟩    = θ
-_ⱽⱽ (`S x) ⟨ γ , θ ⟩ = ((x ⱽⱽ) γ)
+_ⱽⱽ : (Γ ∋ A) → ((Γ ⱽˣ) → (A ⱽᵀ))
+(`Z ⱽⱽ) ⟨ γ , θ ⟩      = θ
+((`S x) ⱽⱽ) ⟨ γ , θ ⟩  = ((x ⱽⱽ) γ)
 \end{code}
 %</v-var>
 \begin{code}
@@ -70,29 +76,29 @@ _ⱽⱽ (`S x) ⟨ γ , θ ⟩ = ((x ⱽⱽ) γ)
 --Sequents--
 %<*v-seqdef>
 \begin{code}
-_ⱽᴸⱽ : ∀ {Γ Θ A} → TermValue Γ Θ A → (Γ ⱽˣ × (`¬ˣ Θ) ⱽˣ) → (A ⱽᵀ)
-_ⱽᴸ : ∀ {Γ Θ A} → (Γ ⟶ Θ ∣ A) → (Γ ⱽˣ × (`¬ˣ Θ) ⱽˣ) → ((A ⱽᵀ → R) → R)
-_ⱽᴿ : ∀ {Γ Θ A} → (A ∣ Γ ⟶ Θ) → (Γ ⱽˣ × (`¬ˣ Θ) ⱽˣ) → (A ⱽᵀ → R)
-_ⱽˢ : ∀ {Γ Θ}   → (Γ ↦ Θ)     → (Γ ⱽˣ × (`¬ˣ Θ) ⱽˣ) → R
+_ⱽᴸⱽ :  TermValue Γ Θ A   → (Γ ⱽˣ × (`¬ˣ Θ) ⱽˣ) → (A ⱽᵀ)
+_ⱽᴸ :  (Γ ⟶ Θ ∣ A)        → (Γ ⱽˣ × (`¬ˣ Θ) ⱽˣ) → ((A ⱽᵀ → R) → R)
+_ⱽᴿ :  (A ∣ Γ ⟶ Θ)        → (Γ ⱽˣ × (`¬ˣ Θ) ⱽˣ) → (A ⱽᵀ → R)
+_ⱽˢ :  (Γ ↦ Θ)            → (Γ ⱽˣ × (`¬ˣ Θ) ⱽˣ) → R
 \end{code}
 %</v-seqdef>
 
 %<*v-seq>
 \begin{code}
-(⟨ ` x , V-var ⟩ ⱽᴸⱽ) ⟨ γ , θ ⟩     = (x ⱽⱽ) γ
-(⟨ `⟨ M , N ⟩ , V-prod V W ⟩ ⱽᴸⱽ) c = ⟨ ((⟨ M , V ⟩ ⱽᴸⱽ) c) , (⟨ N , W ⟩ ⱽᴸⱽ) c ⟩
-(⟨ inl⟨ M ⟩ , V-inl V ⟩ ⱽᴸⱽ) c      = inj₁ ((⟨ M , V ⟩ ⱽᴸⱽ) c)
-(⟨ inr⟨ M ⟩ , V-inr V ⟩ ⱽᴸⱽ) c      = inj₂ ((⟨ M , V ⟩ ⱽᴸⱽ) c)
-(⟨ not[ K ] , V-not ⟩ ⱽᴸⱽ) c        = λ k → (K ⱽᴿ) c k
+(⟨ ` x , V-var ⟩ ⱽᴸⱽ) ⟨ γ , θ ⟩      = (x ⱽⱽ) γ
+(⟨ `⟨ V , W ⟩ , V-prod v w ⟩ ⱽᴸⱽ) c  = ⟨ ((⟨ V , v ⟩ ⱽᴸⱽ) c) , (⟨ W , w ⟩ ⱽᴸⱽ) c ⟩
+(⟨ inl⟨ V ⟩ , V-inl v ⟩ ⱽᴸⱽ) c       = inj₁ ((⟨ V , v ⟩ ⱽᴸⱽ) c)
+(⟨ inr⟨ W ⟩ , V-inr w ⟩ ⱽᴸⱽ) c       = inj₂ ((⟨ W , w ⟩ ⱽᴸⱽ) c)
+(⟨ not[ K ] , V-not ⟩ ⱽᴸⱽ) c         = λ k → (K ⱽᴿ) c k
 
-((` x) ⱽᴸ) ⟨ γ , θ ⟩      = λ k → k ((x ⱽⱽ) γ)
+((` x) ⱽᴸ) ⟨ γ , θ ⟩     = λ k → k ((x ⱽⱽ) γ)
 (`⟨ M , N ⟩ ⱽᴸ) c        = λ k → (M ⱽᴸ) c (λ x → (N ⱽᴸ) c (λ y → k ⟨ x , y ⟩))
 (inl⟨ M ⟩ ⱽᴸ) c          = λ k → (M ⱽᴸ) c (λ x → k (inj₁ x))
 (inr⟨ M ⟩ ⱽᴸ) c          = λ k → (M ⱽᴸ) c (λ x → k (inj₂ x))
 (not[ K ] ⱽᴸ) c          = λ k → k (λ z → (K ⱽᴿ) c z)
 ((μθ S) ⱽᴸ) ⟨ γ , θ ⟩    = λ α → (S ⱽˢ) ⟨ γ , ⟨ θ , α ⟩ ⟩
 
-((` α) ⱽᴿ) ⟨ γ , θ ⟩    = λ z → ((¬var α) ⱽⱽ) θ z 
+((` α) ⱽᴿ) ⟨ γ , θ ⟩   = λ z → ((¬var α) ⱽⱽ) θ z 
 (`[ K , L ] ⱽᴿ) c      =  λ{ (inj₁ x) → (K ⱽᴿ) c x ; (inj₂ y) → (L ⱽᴿ) c y}
 (fst[ K ] ⱽᴿ) c        = λ{ ⟨ x , _ ⟩ → (K ⱽᴿ) c x} 
 (snd[ L ] ⱽᴿ) c        = λ{ ⟨ _ , y ⟩ → (L ⱽᴿ) c y}
@@ -143,14 +149,11 @@ sub-TV-int (Γ , A) Γ′ Θ σ θ γ =
 \begin{code}
 sub-C-int : ∀ Γ Θ Θ′ → Θ –[ (Fix₁ Coterm Γ) ]→ Θ′ 
   → Γ ⱽˣ → ((`¬ˣ Θ′) ⱽˣ) → ((`¬ˣ Θ) ⱽˣ)
-\end{code}
-%</v-csub>
-\begin{code}
 sub-C-int Γ ∅ Θ′ σ γ _ = tt
 sub-C-int Γ (Θ , A) Θ′ σ γ θ = 
   ⟨ (sub-C-int Γ Θ Θ′ (λ z → σ (`S z)) γ θ) , (((σ `Z) ⱽᴿ) ⟨ γ , θ ⟩) ⟩
 \end{code}
-
+%</v-csub>
 --Call-by-Name CPS Transformation--
 
 
@@ -252,10 +255,10 @@ Aⱽ≡Aᵒᴺ : ∀ {A} → A ⱽᵀ ≡ (A ᵒᵀ) ᴺᵀ
 \end{code}
 %</dual-ty>
 \begin{code}
-Aⱽ≡Aᵒᴺ {X}     = refl 
-Aⱽ≡Aᵒᴺ {A `+ B} = cong₂ _⊎_ (Aⱽ≡Aᵒᴺ {A}) (Aⱽ≡Aᵒᴺ {B})
-Aⱽ≡Aᵒᴺ {A `× B} = cong₂ _×_ (Aⱽ≡Aᵒᴺ {A}) (Aⱽ≡Aᵒᴺ {B})
-Aⱽ≡Aᵒᴺ {`¬ A}   = cong (λ - → - → R) Aⱽ≡Aᵒᴺ
+Aⱽ≡Aᵒᴺ {X}       = refl 
+Aⱽ≡Aᵒᴺ {A `+ B}  = cong₂ _⊎_ (Aⱽ≡Aᵒᴺ {A}) (Aⱽ≡Aᵒᴺ {B})
+Aⱽ≡Aᵒᴺ {A `× B}  = cong₂ _×_ (Aⱽ≡Aᵒᴺ {A}) (Aⱽ≡Aᵒᴺ {B})
+Aⱽ≡Aᵒᴺ {`¬ A}    = cong (λ - → - → R) Aⱽ≡Aᵒᴺ
 \end{code}
 %<*dual-ctx>
 \begin{code}
@@ -263,8 +266,8 @@ Aⱽ≡Aᵒᴺ {`¬ A}   = cong (λ - → - → R) Aⱽ≡Aᵒᴺ
 \end{code}
 %</dual-ctx>
 \begin{code}
-Γⱽ≡Γᵒᴺ {∅}       = refl
-Γⱽ≡Γᵒᴺ {(Γ , A)} = cong₂ _×_ Γⱽ≡Γᵒᴺ Aⱽ≡Aᵒᴺ
+Γⱽ≡Γᵒᴺ {∅}        = refl
+Γⱽ≡Γᵒᴺ {(Γ , A)}  = cong₂ _×_ Γⱽ≡Γᵒᴺ Aⱽ≡Aᵒᴺ
 
 {-# REWRITE Aⱽ≡Aᵒᴺ #-}
 {-# REWRITE Γⱽ≡Γᵒᴺ #-}
@@ -296,20 +299,20 @@ Aⱽ≡Aᵒᴺ {`¬ A}   = cong (λ - → - → R) Aⱽ≡Aᵒᴺ
 --Variables--
 %<*dual-var>
 \begin{code}
-xⱽ≡xᵒᴺ : ∀ {Γ A} (x : Γ ∋ A) (c : Γ ⱽˣ) → (x ⱽⱽ) c ≡ ((x ᵒⱽ) ᴺⱽ) c
-xⱽ≡xᵒᴺ `Z c     = refl
-xⱽ≡xᵒᴺ (`S x) ⟨ γ , θ ⟩ = xⱽ≡xᵒᴺ x γ
+xⱽ≡xᵒᴺ : ∀ (x : Γ ∋ A) (c : Γ ⱽˣ) → (x ⱽⱽ) c ≡ ((x ᵒⱽ) ᴺⱽ) c
+xⱽ≡xᵒᴺ `Z c              = refl
+xⱽ≡xᵒᴺ (`S x) ⟨ γ , θ ⟩  = xⱽ≡xᵒᴺ x γ
 \end{code}
 %</dual-var>
 --Terms--
 
 %<*dual-seq>
 \begin{code}
-Mⱽ≡Mᵒᴺ : ∀ {Γ Θ A} (M : Γ ⟶ Θ ∣ A) (c : Γ ⱽˣ × (`¬ˣ Θ) ⱽˣ) (k : ((`¬ A) ⱽᵀ)) 
+Mⱽ≡Mᵒᴺ : ∀ (M : Γ ⟶ Θ ∣ A) (c : Γ ⱽˣ × (`¬ˣ Θ) ⱽˣ) (k : ((`¬ A) ⱽᵀ)) 
   → (M ⱽᴸ) c k ≡ ((M ᵒᴸ) ᴺᴿ) c k
-Kⱽ≡Kᵒᴺ : ∀ {Γ Θ A} (K : A ∣ Γ ⟶ Θ) (c : Γ ⱽˣ × (`¬ˣ Θ) ⱽˣ) (k : (A) ⱽᵀ)      
+Kⱽ≡Kᵒᴺ : ∀ (K : A ∣ Γ ⟶ Θ) (c : Γ ⱽˣ × (`¬ˣ Θ) ⱽˣ) (k : (A) ⱽᵀ)      
   → (K ⱽᴿ) c k ≡ ((K ᵒᴿ) ᴺᴸ) c k
-Sⱽ≡Sᵒᴺ : ∀ {Γ Θ}   (S : Γ ↦ Θ)     (c : Γ ⱽˣ × (`¬ˣ Θ) ⱽˣ)                   
+Sⱽ≡Sᵒᴺ : ∀ (S : Γ ↦ Θ)     (c : Γ ⱽˣ × (`¬ˣ Θ) ⱽˣ)                   
   → (S ⱽˢ) c   ≡ ((S ᵒˢ) ᴺˢ) c
 \end{code}
 %</dual-seq>

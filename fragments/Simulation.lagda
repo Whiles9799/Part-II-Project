@@ -8,6 +8,7 @@ open Eq using (_≡_; refl; cong; cong₂; sym; trans)
 import Dual.DenotationalSemantics.CPSTransformation as CPS
 open CPS CPS.ℕ
 import Dual.Syntax.ContextandVars as DC
+
 \end{code}
 
 %<*lam-type>
@@ -28,9 +29,8 @@ record λ-Type (T : Set) : Set where
 record λ-Term (T : Set) (TΛ : λ-Type T) (Λ : DC.Context T → T → Set): Set where
   open DC T
   open λ-Type TΛ
-
   field
-    ` : ∀ {Γ A} → Γ ∋ A → Λ Γ A
+    var : ∀ {Γ A} → Γ ∋ A → Λ Γ A
     ƛ : ∀ {Γ A B} → Λ (Γ , A) B → Λ Γ (A ⇒ B)
     _·_ : ∀ {Γ A B} → Λ Γ (A ⇒ B) → Λ Γ A → Λ Γ B
 
@@ -39,7 +39,7 @@ record λ-Term (T : Set) (TΛ : λ-Type T) (Λ : DC.Context T → T → Set): Se
 \begin{code}
   infix  5 ƛ
   infixl 7 _·_
-  infix  9 `
+  infix  9 var
   lookup : Context → ℕ → T
   lookup (Γ , A) zero    = A
   lookup (Γ , _) (suc n) = lookup Γ n
@@ -53,7 +53,7 @@ record λ-Term (T : Set) (TΛ : λ-Type T) (Λ : DC.Context T → T → Set): Se
     where postulate impossible : ⊥
 
   # : ∀ {Γ} → (n : ℕ) → Λ Γ (lookup Γ n)
-  # n = ` (count n)
+  # n = var (count n)
 
   id : ∀ {Γ A} → Λ Γ (A ⇒ A)
   id = ƛ (# 0)
@@ -68,17 +68,17 @@ record λ-Term (T : Set) (TΛ : λ-Type T) (Λ : DC.Context T → T → Set): Se
   s = ƛ (ƛ (ƛ (# 1 · ((# 2 · # 1) · # 0))))
 \end{code}
 %</CN>
+%<*sum+mult>
 \begin{code}
-
   sum : ∀ {Γ} → Λ Γ (CN ⇒ CN ⇒ CN)
   sum = ƛ (ƛ (ƛ (ƛ ((# 3 · # 1) · ((# 2 · # 1) · # 0)))))
 
   mult : ∀ {Γ} → Λ Γ (CN ⇒ CN ⇒ CN)
   mult = ƛ (ƛ (ƛ (ƛ (((# 3) · (# 2 · # 1)) · # 0))))
+\end{code}
+%</sum+mult>
 
-  -- exp : ∀ {Γ} → Λ Γ (CN ⇒ CN ⇒ CN)
-  -- exp = ƛ (ƛ ( # 1 · # 0))
-
+\begin{code}
 record λ+-Type (T : Set) : Set where
   infixr 7 _⇒_
   infix 10 ¬′
@@ -86,7 +86,6 @@ record λ+-Type (T : Set) : Set where
     B : T
     _⇒_ : T → T → T
     ¬′ : T → T
-
 
 record λ+-Term (T : Set) (TΛ : λ+-Type T) (Λ : DC.Context T → T → Set): Set where
   open DC T
@@ -129,7 +128,7 @@ record λμ-Term (T : Set) (TΛ : λ+-Type T) (Λ-Term : DC.Context T → DC.Con
   open DC T
   open λ+-Type TΛ
   field
-    ` : ∀ {Γ Δ A} → Γ ∋ A → Λ-Term Γ Δ A
+    var : ∀ {Γ Δ A} → Γ ∋ A → Λ-Term Γ Δ A
     ƛ : ∀ {Γ Δ A B} → Λ-Term (Γ , A) Δ B → Λ-Term Γ Δ (A ⇒ B)
     _·_ : ∀ {Γ Δ A B} → Λ-Term Γ Δ (A ⇒ B) → Λ-Term Γ Δ A → Λ-Term Γ Δ B
     μ : ∀ {Γ Δ A} → Λ-Comm Γ (Δ , A) → Λ-Term Γ Δ A
@@ -149,12 +148,13 @@ record λμ-Term (T : Set) (TΛ : λ+-Type T) (Λ-Term : DC.Context T → DC.Con
     where postulate impossible : ⊥
 
   # : ∀ {Γ Δ} → (n : ℕ) → Λ-Term Γ Δ (lookup Γ n)
-  # n = ` (count n)
+  # n = var (count n)
 
 \end{code}
 %<*comm-ty>
 \begin{code}
-record λμ-Command (T : Set) (TΛ : λ+-Type T) (Λ-Term : DC.Context T → DC.Context T → T → Set) (Λ-Comm : DC.Context T → DC.Context T → Set) : Set where
+record λμ-Command (T : Set) (TΛ : λ+-Type T) (Λ-Term : DC.Context T → DC.Context T → T → Set) 
+  (Λ-Comm : DC.Context T → DC.Context T → Set) : Set where
   open DC T
   open λ+-Type TΛ
   field
@@ -177,7 +177,7 @@ DC-λ-Type = record { B = X ; _⇒_ = _⇒ⱽ_ }
 \begin{code}
 DC-λ-Term : λ-Term Type DC-λ-Type (λ Γ A → Γ ⟶ ∅ ∣ A)
 DC-λ-Term = record { 
-  ` = `_ ; 
+  var = `_ ; 
   ƛ = ƛⱽ_ ; 
   _·_ = λ M N → μθ (wkΘᵗ M ● wkΘᵗ N ·ⱽ θ 0)
   }
@@ -202,16 +202,15 @@ DC-λ+-Term = record
 \begin{code}
   }
 \end{code}
-%<mu-term>
+%<*mu-term>
 \begin{code}
 DC-λμ-Term : λμ-Term Type DC-λ+-Type _⟶_∣_ _↦_
 DC-λμ-Term = record 
-  { ` = `_ 
+  { var = `_ 
   ; ƛ = ƛⱽ_
   ; _·_ = λ M N → μθ (wkΘᵗ M ● wkΘᵗ N ·ⱽ θ 0) 
   ; μ = μθ
   }
-
 \end{code}
 %</mu-term>
 %<*comm>
@@ -232,7 +231,7 @@ module STLC-DC where
 \end{code}
 %</module>
 
-%<*CN>
+%<*CN-2>
 \begin{code}
   CN-2 : ∀ {Γ} → Γ ⟶ ∅ ∣ CN
   CN-2 = s · (s · z)
@@ -240,7 +239,7 @@ module STLC-DC where
   CN-2+2 : ∀ {Γ} → Γ ⟶ ∅ ∣ CN
   CN-2+2 = sum · CN-2 · CN-2
 \end{code}
-%</CN>
+%</CN-2>
 %<*2+2>
 \begin{code}
   2+2 : (∅ , X , X ⇒ X) ⟶ ∅ ∣ X
@@ -300,7 +299,7 @@ module STLC+-DC where
 %</STLC+-peirce>
 %<*STLC+-and>
 \begin{code}
-  and : ∀ A B → Type
+  and : Type → Type → Type
   and A B = ¬′ (A ⇒ ¬′ B)
 
   and-I : ∀ {Γ A B} → Γ , A , B ⟶ ∅ ∣ and A B

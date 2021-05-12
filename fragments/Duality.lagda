@@ -107,7 +107,6 @@ dual-sub-TV-lift-lemma : ∀ Γ Γ′ Θ′ A {B} (σ : Γ –[ (Fix₂ TermValu
 \begin{code}
 dual-sub-TV-lift-lemma Γ Γ′ Θ′ A σ `Z = refl
 dual-sub-TV-lift-lemma Γ Γ′ Θ′ A σ (`S x) = dual-sub-TV-weaken-lemma Γ Γ′ Θ′ A σ x
-
 \end{code}
 %<*fmap>
 \begin{code}
@@ -210,14 +209,15 @@ dual-sub-lemma-covar : ∀ {Γ′ Θ Θ′ A} (α : Θ ∋ A) (t : Θ –[ (Fix�
 dual-sub-lemma-covar `Z t = refl
 dual-sub-lemma-covar {Γ′} (`S α) t = dual-sub-lemma-covar α (sub-skip (Fix₁ Coterm Γ′) t)
 
-\end{code}
 
-%<*dual-sub-lemma>
-\begin{code}
+
 dual-sub-lemma-T : ∀ (M : Γ ⟶ Θ ∣ A) (s : Γ –[ (Fix₂ TermValue Θ′) ]→ Γ′) (t : Θ –[ (Fix₁ Coterm Γ′) ]→ Θ′) 
   → (sub-T TVK CK s t M) ᵒᴸ ≡ sub-C TK CVK (dual-sub-C Γ′ Θ Θ′ t) (dual-sub-TV Γ Γ′ Θ′ s) (M ᵒᴸ)
 dual-sub-lemma-C : ∀ (K : A ∣ Γ ⟶ Θ) (s : Γ –[ (Fix₂ TermValue Θ′) ]→ Γ′) (t : Θ –[ (Fix₁ Coterm Γ′) ]→ Θ′) 
   → (sub-C TVK CK s t K) ᵒᴿ ≡ sub-T TK CVK (dual-sub-C Γ′ Θ Θ′ t) (dual-sub-TV Γ Γ′ Θ′ s) (K ᵒᴿ)
+\end{code}
+%<*dual-sub-lemma>
+\begin{code}
 dual-sub-lemma-S : ∀ (S : Γ ↦ Θ) (s : Γ –[ (Fix₂ TermValue Θ′) ]→ Γ′) (t : Θ –[ (Fix₁ Coterm Γ′) ]→ Θ′) 
   → (sub-S TVK CK s t S) ᵒˢ ≡ sub-S TK CVK (dual-sub-C Γ′ Θ Θ′ t) (dual-sub-TV Γ Γ′ Θ′ s) (S ᵒˢ)
 \end{code}

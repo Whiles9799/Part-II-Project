@@ -91,11 +91,12 @@ ren-lift ρ `Z = `Z
 ren-lift ρ (`S x) = `S (ρ x)
 \end{code}
 %</ren-lift>
-
-%<*renty>
 \begin{code}
 ren-T : ∀ {Γ Γ′ Θ Θ′ A} → Γ ↝ Γ′ → Θ ↝ Θ′ → Γ ⟶ Θ ∣ A → Γ′ ⟶ Θ′ ∣ A
 ren-C : ∀ {Γ Γ′ Θ Θ′ A} → Γ ↝ Γ′ → Θ ↝ Θ′ → A ∣ Γ ⟶ Θ → A ∣ Γ′ ⟶ Θ′
+\end{code}
+%<*renty>
+\begin{code}
 ren-S : ∀ {Γ Γ′ Θ Θ′} → Γ ↝ Γ′ → Θ ↝ Θ′ → Γ ↦ Θ → Γ′ ↦ Θ′
 \end{code}
 %</renty>
@@ -182,7 +183,6 @@ fmap f σ `x = f (σ `x)
 \end{code}
 %</fmap>
 
-%<*subty>
 \begin{code}
 sub-T : ∀ {T A C Γ Θ Γ′ Θ′} → TermKit T → CotermKit C 
   → Γ –[ (Fix₂ T Θ′) ]→ Γ′ → Θ –[ (Fix₁ C Γ′) ]→ Θ′ 
@@ -190,6 +190,9 @@ sub-T : ∀ {T A C Γ Θ Γ′ Θ′} → TermKit T → CotermKit C
 sub-C : ∀ {T A C Γ Θ Γ′ Θ′} → TermKit T → CotermKit C 
   → Γ –[ (Fix₂ T Θ′) ]→ Γ′ → Θ –[ (Fix₁ C Γ′) ]→ Θ′ 
   → A ∣ Γ ⟶ Θ → A ∣ Γ′ ⟶ Θ′
+\end{code}
+%<*subty>
+\begin{code}
 sub-S : ∀ {T C Γ Θ Γ′ Θ′} → TermKit T → CotermKit C 
   → Γ –[ (Fix₂ T Θ′) ]→ Γ′ → Θ –[ (Fix₁ C Γ′) ]→ Θ′ 
   → Γ ↦ Θ → Γ′ ↦ Θ′
@@ -344,19 +347,16 @@ A ⇒ᴺ B = `¬ A `+ B
 \end{code}
 %</funtype>
 
-%<*fundef>
-\begin{code}
-ƛⱽ_ : ∀ {Γ Θ A B}  → Γ , A ⟶ Θ ∣ B            → Γ ⟶ Θ ∣ A ⇒ⱽ B 
-ƛᴺ_ : ∀ {Γ Θ A B}  → Γ , A ⟶ Θ ∣ B            → Γ ⟶ Θ ∣ A ⇒ᴺ B
-_·ⱽ_ : ∀ {Γ Θ A B} → Γ ⟶ Θ ∣ A → B ∣ Γ ⟶ Θ   → A ⇒ⱽ B ∣ Γ ⟶ Θ 
-_·ᴺ_ : ∀ {Γ Θ A B} → Γ ⟶ Θ ∣ A → B ∣ Γ ⟶ Θ   → A ⇒ᴺ B ∣ Γ ⟶ Θ 
-\end{code}
-%</fundef>
 
 %<*fun>
 \begin{code}
+ƛⱽ_ : ∀ {Γ Θ A B} → (Γ , A ⟶ Θ ∣ B) → (Γ ⟶ Θ ∣ A ⇒ⱽ B) 
+ƛᴺ_ : ∀ {Γ Θ A B} → (Γ , A ⟶ Θ ∣ B) → (Γ ⟶ Θ ∣ A ⇒ᴺ B)
 ƛⱽ N = not[ μγ(γ 0 ● fst[ μγ (γ 1 ● snd[ not⟨ intΓᵗ (wkΓᵗ N) ⟩ ]) ]) ]
 ƛᴺ N = μθ (inl⟨ not[ μγ(inr⟨ wkΘᵗ N ⟩ ● θ 0) ] ⟩ ● θ 0) 
+
+_·ⱽ_ : ∀ {Γ Θ A B} → (Γ ⟶ Θ ∣ A) → (B ∣ Γ ⟶ Θ) → (A ⇒ⱽ B ∣ Γ ⟶ Θ) 
+_·ᴺ_ : ∀ {Γ Θ A B} → (Γ ⟶ Θ ∣ A) → (B ∣ Γ ⟶ Θ) → (A ⇒ᴺ B ∣ Γ ⟶ Θ) 
 M ·ⱽ N = not⟨ `⟨ M , not[ N ] ⟩ ⟩
 M ·ᴺ N = `[ not⟨ M ⟩ , N ]
 \end{code}
@@ -384,10 +384,7 @@ _⟨_/⟩ˢ : ∀ {Γ Θ A}
 
 %<*tvsubty>
 \begin{code}
-_ⱽ⟨_/⟩ˢ : ∀ {Γ Θ A}
-  → Γ , A ↦ Θ
-  → TermValue Γ Θ A
-  → Γ ↦ Θ
+_ⱽ⟨_/⟩ˢ : ∀ {Γ Θ A} → (Γ , A ↦ Θ) → (TermValue Γ Θ A) → (Γ ↦ Θ)
 \end{code}
 %</tvsubty>
 
@@ -409,10 +406,7 @@ _[_/]ᶜ : ∀ {Γ Θ A B}
 
 %<*csubty>
 \begin{code}
-_[_/]ˢ : ∀ {Γ Θ A}
-  → Γ ↦ Θ , A
-  → A ∣ Γ ⟶ Θ
-  → Γ ↦ Θ
+_[_/]ˢ : ∀ {Γ Θ A} → (Γ ↦ Θ , A) → (A ∣ Γ ⟶ Θ) → (Γ ↦ Θ)
 \end{code}
 %</csubty>
 

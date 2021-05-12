@@ -322,11 +322,8 @@ sub-lemma-covar : ∀ {Γ′ Θ Θ′ A} (t : Θ –[ (Fix₁ Coterm Γ′) ]→
 \begin{code}
 sub-lemma-covar t `Z γ θ = refl
 sub-lemma-covar {Γ′} t (`S α) γ θ = sub-lemma-covar (sub-skip (Fix₁ Coterm Γ′) t) α γ θ
-\end{code}
 --Sequents--
 
-%<*sub-lemma-ty>
-\begin{code}
 sub-lemma-T : ∀ (s : Γ –[ (Fix₂ TermValue Θ′) ]→ Γ′) (t : Θ –[ (Fix₁ Coterm Γ′) ]→ Θ′) 
   (M : Γ ⟶ Θ ∣ A) (γ : Γ′ ⱽˣ) (θ : (`¬ˣ Θ′) ⱽˣ ) 
   → ((sub-T TVK CK s t M) ⱽᴸ) ⟨ γ , θ ⟩ 
@@ -336,7 +333,10 @@ sub-lemma-C : ∀ (s : Γ –[ (Fix₂ TermValue Θ′) ]→ Γ′) (t : Θ –[
   (K : A ∣ Γ ⟶ Θ) (γ : Γ′ ⱽˣ) (θ : (`¬ˣ Θ′) ⱽˣ ) 
   → ((sub-C TVK CK s t K) ⱽᴿ) ⟨ γ , θ ⟩ 
     ≡ (K ⱽᴿ) ⟨ sub-TV-int Γ Γ′ Θ′ s θ γ , sub-C-int Γ′ Θ Θ′ t γ θ ⟩
+\end{code}
 
+%<*sub-lemma-ty>
+\begin{code}
 sub-lemma-S : ∀ (s : Γ –[ (Fix₂ TermValue Θ′) ]→ Γ′) (t : Θ –[ (Fix₁ Coterm Γ′) ]→ Θ′) 
   (S : Γ ↦ Θ) (γ : Γ′ ⱽˣ) (θ : (`¬ˣ Θ′) ⱽˣ ) 
   → ((sub-S TVK CK s t S) ⱽˢ) ⟨ γ , θ ⟩ 

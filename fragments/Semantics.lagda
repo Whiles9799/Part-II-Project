@@ -24,31 +24,36 @@ infix 2 _ᵗ⟶ⱽ_
 infix 2 _ˢ⟶ᴺ_
 infix 2 _ᶜ⟶ᴺ_
 infix 2 _ᵗ⟶ᴺ_
+
+variable 
+  Γ Θ : Context
+  A B : Type
+
 \end{code}
 %<*cbvrty>
 \begin{code}
-data _ˢ⟶ⱽ_ : ∀ {Γ Θ} → (Γ ↦ Θ) → (Γ ↦ Θ) → Set where
+data _ˢ⟶ⱽ_ : (Γ ↦ Θ) → (Γ ↦ Θ) → Set where
 \end{code}
 %</cbvrty>
 
 %<*cbvr>
 \begin{code}
-  β×₁ : ∀ {Γ Θ A B} {V : Γ ⟶ Θ ∣ A} {W : Γ ⟶ Θ ∣ B} {K : A ∣ Γ ⟶ Θ} (v : Value V) (w : Value W)
+  β×₁ : ∀ {V : Γ ⟶ Θ ∣ A} {W : Γ ⟶ Θ ∣ B} {K : A ∣ Γ ⟶ Θ} (v : Value V) (w : Value W)
     → `⟨ V , W ⟩ ● fst[ K ] ˢ⟶ⱽ V ● K
 
-  β×₂ : ∀ {Γ Θ A B} {V : Γ ⟶ Θ ∣ A} {W : Γ ⟶ Θ ∣ B} {L : B ∣ Γ ⟶ Θ} (v : Value V) (w : Value W)
+  β×₂ : ∀ {V : Γ ⟶ Θ ∣ A} {W : Γ ⟶ Θ ∣ B} {L : B ∣ Γ ⟶ Θ} (v : Value V) (w : Value W)
     → `⟨ V , W ⟩ ● snd[ L ] ˢ⟶ⱽ W ● L
 
-  β+₁ : ∀ {Γ Θ A B} {V : Γ ⟶ Θ ∣ A} {K : A ∣ Γ ⟶ Θ} {L : B ∣ Γ ⟶ Θ} (v : Value V)
+  β+₁ : ∀ {V : Γ ⟶ Θ ∣ A} {K : A ∣ Γ ⟶ Θ} {L : B ∣ Γ ⟶ Θ} (v : Value V)
     → inl⟨ V ⟩ ● `[ K , L ] ˢ⟶ⱽ V ● K
 
-  β+₂ : ∀ {Γ Θ A B} {W : Γ ⟶ Θ ∣ B} {K : A ∣ Γ ⟶ Θ} {L : B ∣ Γ ⟶ Θ} (w : Value W)
+  β+₂ : ∀ {W : Γ ⟶ Θ ∣ B} {K : A ∣ Γ ⟶ Θ} {L : B ∣ Γ ⟶ Θ} (w : Value W)
     → inr⟨ W ⟩ ● `[ K , L ] ˢ⟶ⱽ W ● L
 
-  β¬ : ∀ {Γ Θ A} {M : Γ ⟶ Θ ∣ A} {K : A ∣ Γ ⟶ Θ}
+  β¬ : ∀ {M : Γ ⟶ Θ ∣ A} {K : A ∣ Γ ⟶ Θ}
     → not[ K ] ● not⟨ M ⟩ ˢ⟶ⱽ M ● K
 
-  βL : ∀ {Γ Θ A} {V : Γ ⟶ Θ ∣ A} {S : Γ , A ↦ Θ} (v : Value V)
+  βL : ∀ {V : Γ ⟶ Θ ∣ A} {S : Γ , A ↦ Θ} (v : Value V)
 
     → V ● (μγ S) ˢ⟶ⱽ S ⱽ⟨ ⟨ V , v ⟩ /⟩ˢ
 
@@ -125,7 +130,7 @@ infix  1 beginˢⱽ_
 infixr 2 _ˢ⟶ⱽ⟨_⟩_
 infix  3 _∎ˢⱽ
 
-data _ˢ—↠ⱽ_ {Γ Θ} : (Γ ↦ Θ) → (Γ ↦ Θ) → Set where
+data _ˢ—↠ⱽ_ : (Γ ↦ Θ) → (Γ ↦ Θ) → Set where
   
   _∎ˢⱽ : (S : Γ ↦ Θ)
       --------
@@ -137,7 +142,7 @@ data _ˢ—↠ⱽ_ {Γ Θ} : (Γ ↦ Θ) → (Γ ↦ Θ) → Set where
       -----------
     → S ˢ—↠ⱽ S″
 
-beginˢⱽ_ : ∀ {Γ Θ} {S S′ : Γ ↦ Θ}
+beginˢⱽ_ : ∀ {S S′ : Γ ↦ Θ}
   → S ˢ—↠ⱽ S′
     ---------
   → S ˢ—↠ⱽ S′
@@ -151,8 +156,8 @@ example : ∀ {A B} → (V : ∅ ⟶ ∅ ∣ A) → (W : ∅ ⟶ ∅ ∣ B) → 
      → (not[ fst[ K ] ] ● not⟨ `⟨ V , W ⟩ ⟩) ˢ—↠ⱽ V ● K
 example V W K v w = beginˢⱽ
   (not[ fst[ K ] ]) ● (not⟨ `⟨ V , W ⟩ ⟩)  ˢ⟶ⱽ⟨ β¬ ⟩
-  `⟨ V , W ⟩ ● fst[ K ]                   ˢ⟶ⱽ⟨ β×₁ v w ⟩
-  V ● K                                   ∎ˢⱽ
+  `⟨ V , W ⟩ ● fst[ K ]                    ˢ⟶ⱽ⟨ β×₁ v w ⟩
+  V ● K                                    ∎ˢⱽ
 \end{code}
 %</example>
 
